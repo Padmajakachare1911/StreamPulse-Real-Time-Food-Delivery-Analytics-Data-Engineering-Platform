@@ -1,0 +1,44 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# IDE and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Raw dataset: never commit (evaluators download it from Kaggle, see data/raw/README.md)
+data/raw/*
+!data/raw/.gitkeep
+!data/raw/README.md
+
+# Generated data, checkpoints, dead-letter output, run summaries
+data/processed/*
+data/checkpoints/
+data/dead_letter/*
+!data/dead_letter/.gitkeep
+*.parquet
+*.crc
+checkpoints/
+
+# Logs
+logs/
+*.log
+
+# Spark
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Airflow local runtime files
+airflow/logs/
+airflow/airflow.db

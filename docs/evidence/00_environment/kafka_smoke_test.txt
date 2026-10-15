@@ -1,0 +1,16 @@
+﻿Task ID: P0-03
+Date/time (UTC): 2026-10-15T16:17:43.2829753Z
+Date/time (local): 2026-10-15T21:47:43.2879834+05:30
+Command: & 'C:\Users\PADMAJ~1\AppData\Local\Temp\kafka_smoke.ps1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: no-commit-yet
+--- output ---
+WARNING: Due to limitations in metric names, topics with a period ('.') or underscore ('_') could collide. To avoid issues it is best to use either, but not both.
+﻿{"order_id":"SMOKE-1","note":"phase0 smoke message"}
+Processed a total of 1 messages
+Topic: food_orders	TopicId: aiM3V-BWQWmpmIn7F84NEg	PartitionCount: 3	ReplicationFactor: 1	Configs: min.insync.replicas=1
+	Topic: food_orders	Partition: 0	Leader: 1	Replicas: 1	Isr: 1	Elr: 	LastKnownElr: 
+	Topic: food_orders	Partition: 1	Leader: 1	Replicas: 1	Isr: 1	Elr: 	LastKnownElr: 
+	Topic: food_orders	Partition: 2	Leader: 1	Replicas: 1	Isr: 1	Elr: 	LastKnownElr: 
+
+--- exit code: 0 ---

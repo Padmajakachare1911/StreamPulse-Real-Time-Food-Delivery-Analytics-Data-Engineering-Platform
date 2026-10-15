@@ -1,0 +1,6 @@
+﻿kafka-python
+pyspark
+python-dotenv
+psycopg2-binary
+pandas
+pytest

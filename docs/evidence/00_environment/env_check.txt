@@ -1,0 +1,55 @@
+﻿Task ID: ENV-01
+Date/time (UTC): 2026-10-15T16:13:44.0071019Z
+Date/time (local): 2026-10-15T21:43:44.0115654+05:30
+Command: .\scripts\check_env.ps1
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: no-commit-yet
+--- output ---
+
+## Python (venv)
+Python 3.11.9
+
+## Java
+openjdk version "17.0.20.1" 2026-08-18
+OpenJDK Runtime Environment Temurin-17.0.20.1+1 (build 17.0.20.1+1)
+OpenJDK 64-Bit Server VM Temurin-17.0.20.1+1 (build 17.0.20.1+1, mixed mode, sharing)
+
+## Docker
+Docker version 29.8.2, build 7fc2dff
+Docker Compose version v5.6.0
+
+## PySpark / Kafka client versions (pip)
+
+kafka-python==3.0.11
+pandas==3.0.6
+psycopg2-binary==2.9.13
+pyspark==4.2.0
+pytest==9.1.1
+python-dotenv==1.2.4
+
+## HADOOP_HOME (Windows Spark note)
+HADOOP_HOME=
+
+## Containers
+NAMES               STATUS                   PORTS
+streampulse-kafka   Up 2 hours               0.0.0.0:9092->9092/tcp, [::]:9092->9092/tcp
+lucid_leavitt       Exited (0) 3 hours ago   
+
+## Kafka topics
+__consumer_offsets
+food_orders
+
+## Port reachability
+localhost:9092 reachable = True
+localhost:5432 reachable = False
+localhost:8080 reachable = False
+localhost:8501 reachable = False
+
+## Git
+main
+origin	https://github.com/Padmajakachare1911/StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform.git (fetch)
+origin	https://github.com/Padmajakachare1911/StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform.git (push)
+
+
+
+--- exit code: 0 ---

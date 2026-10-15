@@ -1,0 +1,20 @@
+﻿Task ID: P0-06
+Date/time (UTC): 2026-10-15T16:20:20.2923331Z
+Date/time (local): 2026-10-15T21:50:20.2975113+05:30
+Command: git check-ignore -v .env data/raw/olist_orders_dataset.csv .venv data/processed/x.parquet data/checkpoints/a data/dead_letter/x.jsonl; "--- tracked-eligible check: .env.example and .gitkeep must NOT be ignored ---"; git check-ignore -v .env.example data/raw/.gitkeep data/raw/README.md; "(no output above this line means they are not ignored)"
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: no-commit-yet
+--- output ---
+.gitignore:9:.env	.env
+.gitignore:20:data/raw/*	data/raw/olist_orders_dataset.csv
+.gitignore:4:.venv/	.venv
+.gitignore:29:*.parquet	data/processed/x.parquet
+.gitignore:31:checkpoints/	data/checkpoints/a
+.gitignore:27:data/dead_letter/*	data/dead_letter/x.jsonl
+--- tracked-eligible check: .env.example and .gitkeep must NOT be ignored ---
+.gitignore:11:!.env.example	.env.example
+.gitignore:21:!data/raw/.gitkeep	data/raw/.gitkeep
+.gitignore:22:!data/raw/README.md	data/raw/README.md
+(no output above this line means they are not ignored)
+
+--- exit code: 0 ---

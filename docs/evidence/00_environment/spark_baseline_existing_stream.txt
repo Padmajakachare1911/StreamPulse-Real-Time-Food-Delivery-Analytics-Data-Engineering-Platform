@@ -1,0 +1,50 @@
+﻿Task ID: P0-04
+Date/time (UTC): 2026-10-15T16:17:51.3132528Z
+Date/time (local): 2026-10-15T21:47:51.3132528+05:30
+Command: & 'C:\Users\PADMAJ~1\AppData\Local\Temp\claude\c--Users-Padmaja-Kachare-Documents-StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\9f61dbd3-53dd-4f0d-8a10-0a8eac46b4d2\scratchpad\spark_baseline.ps1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: no-commit-yet
+--- output ---
+Starting existing src/streaming/order_stream.py (unchanged) against topic smoke_test ...
+Producing 2 messages (stream uses startingOffsets=latest, so send after start) ...
+--- stdout (tail) ---
+SUCCESS: The process with PID 27060 (child process of PID 18428) has been terminated.
+SUCCESS: The process with PID 18428 (child process of PID 8460) has been terminated.
+SUCCESS: The process with PID 8460 (child process of PID 24192) has been terminated.
+--- stderr (filtered: errors/warnings of interest) ---
+
+	found org.apache.hadoop#hadoop-client-runtime;3.5.0 in central
+	found org.apache.hadoop#hadoop-client-api;3.5.0 in central
+	org.apache.hadoop#hadoop-client-api;3.5.0 from central in [default]
+	org.apache.hadoop#hadoop-client-runtime;3.5.0 from central in [default]
+26/10/15 21:47:55 WARN Shell: Did not find winutils.exe: java.io.FileNotFoundException: java.io.FileNotFoundException: 
+HADOOP_HOME and hadoop.home.dir are unset. -see https://cwiki.apache.org/confluence/display/HADOOP2/WindowsProblems
+26/10/15 21:47:56 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java 
+classes where applicable
+26/10/15 21:47:57 ERROR SparkContext: Error initializing SparkContext.
+java.lang.RuntimeException: java.io.FileNotFoundException: java.io.FileNotFoundException: HADOOP_HOME and 
+hadoop.home.dir are unset. -see https://cwiki.apache.org/confluence/display/HADOOP2/WindowsProblems
+	at org.apache.hadoop.util.Shell.getWinUtilsPath(Shell.java:790)
+	at org.apache.hadoop.util.Shell.getSetPermissionCommand(Shell.java:299)
+	at org.apache.hadoop.fs.FileUtil.chmod(FileUtil.java:1305)
+	at org.apache.hadoop.fs.FileUtil.chmod(FileUtil.java:1291)
+Caused by: java.io.FileNotFoundException: java.io.FileNotFoundException: HADOOP_HOME and hadoop.home.dir are unset. 
+-see https://cwiki.apache.org/confluence/display/HADOOP2/WindowsProblems
+	at org.apache.hadoop.util.Shell.fileNotFoundException(Shell.java:602)
+	at org.apache.hadoop.util.Shell.getHadoopHomeDir(Shell.java:623)
+	at org.apache.hadoop.util.Shell.getQualifiedBin(Shell.java:646)
+	at org.apache.hadoop.util.Shell.<clinit>(Shell.java:743)
+	at org.apache.hadoop.util.StringUtils.<clinit>(StringUtils.java:80)
+	at org.apache.hadoop.conf.Configuration.getTimeDurationHelper(Configuration.java:1938)
+	at org.apache.hadoop.conf.Configuration.getTimeDuration(Configuration.java:1896)
+	at org.apache.hadoop.conf.Configuration.getTimeDuration(Configuration.java:1869)
+	at org.apache.hadoop.util.ShutdownHookManager.getShutdownTimeout(ShutdownHookManager.java:184)
+	at org.apache.hadoop.util.ShutdownHookManager$HookEntry.<init>(ShutdownHookManager.java:208)
+	at org.apache.hadoop.util.ShutdownHookManager.addShutdownHook(ShutdownHookManager.java:305)
+Caused by: java.io.FileNotFoundException: HADOOP_HOME and hadoop.home.dir are unset.
+--- parquet output ---
+--- checkpoint dir ---
+
+
+
+--- exit code: 0 ---
