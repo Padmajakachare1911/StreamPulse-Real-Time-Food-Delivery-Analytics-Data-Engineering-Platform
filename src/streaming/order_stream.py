@@ -19,6 +19,7 @@ import sys
 import time
 from pathlib import Path
 
+from pyspark.errors import StreamingQueryException
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
@@ -32,7 +33,18 @@ from src.streaming.transforms import dedup_in_batch, flatten_valid, parse_messag
 log = logging.getLogger("order_stream")
 KAFKA_PACKAGE = "org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0"  # must match PySpark 4.2.0 / Scala 2.13
 BATCH_LOG_DIR = PROJECT_ROOT / "data" / "processed" / "spark_batches"
-STATE = {"in_batch": False}  # True while a micro-batch is being processed (used for a graceful stop)
+
+# Shared state for the safe stop. Spark has no public "stop between two micro-batches" call, and
+# query.stop() interrupts the stream thread at ANY moment (even the instant a batch starts). So the stop
+# works in two steps instead: (1) "stopping" is set, a batch already running finishes normally, and any
+# batch that STARTS afterwards raises StopRequested before it does any work; Spark then ends the query
+# by itself at that boundary. (2) Only when the stream is idle is query.stop() used.
+STATE = {"in_batch": False, "stopping": False}
+
+
+class StopRequested(Exception):
+    """Raised at the start of a batch after a stop was requested. Nothing of that batch was done or committed;
+    its offsets are processed after the restart."""
 
 
 def make_batch_processor(mapping: dict, stream_name: str, parquet_dir: Path, dead_letter_dir: Path,
@@ -42,7 +54,12 @@ def make_batch_processor(mapping: dict, stream_name: str, parquet_dir: Path, dea
 
     def process_batch(batch_df, batch_id: int) -> None:
         started = time.time()
+        # Order matters: raise "in batch" FIRST, then read "stopping". Either the batch sees the stop request and
+        # does nothing, or the stopper sees "in batch" and waits for it: there is no gap in between.
         STATE["in_batch"] = True
+        if STATE["stopping"]:
+            STATE["in_batch"] = False
+            raise StopRequested(f"stop requested: batch {batch_id} was not started and will run after the restart")
         batch_df.persist()
         try:
             input_rows = batch_df.count()
@@ -160,17 +177,32 @@ def main() -> int:
         # Check every 2 seconds for Ctrl+C / SIGTERM / the stop file written by stop_stream.ps1.
         while query.isActive:
             if stop_requested["flag"] or stop_file.exists():
-                log.info("Stop requested: waiting for the current batch to finish (max 120 s), then stopping")
+                log.info("Stop requested: the running batch (if any) finishes; no new batch will start")
+                STATE["stopping"] = True
                 wait_until = time.time() + 120
                 while STATE["in_batch"] and time.time() < wait_until:
-                    time.sleep(0.5)
+                    time.sleep(0.2)
                 if STATE["in_batch"]:
                     log.warning("Batch still running after 120 s: stopping anyway; it will be re-run after a restart")
-                query.stop()
+                # With data waiting, the next batch raises StopRequested and Spark ends the query by itself.
+                for _ in range(20):
+                    if not query.isActive:
+                        break
+                    time.sleep(0.25)
+                if query.isActive:                  # idle between batches: nothing is running, so stop() is safe
+                    query.stop()
                 break
-            query.awaitTermination(2)
+            try:
+                query.awaitTermination(2)
+            except StreamingQueryException as exc:
+                if "StopRequested" not in str(exc):
+                    raise                           # a real failure: do not hide it
+                break
+        if STATE["stopping"]:
+            log.info("STOPPED_AT_BATCH_BOUNDARY: all started batches are committed; the rest runs after the restart")
     except KeyboardInterrupt:
         log.info("Ctrl+C received: stopping the stream")
+        STATE["stopping"] = True
         query.stop()
     finally:
         stop_file.unlink(missing_ok=True)

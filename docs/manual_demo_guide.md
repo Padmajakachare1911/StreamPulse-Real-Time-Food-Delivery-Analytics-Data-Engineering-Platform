@@ -76,6 +76,9 @@ Services use ports 9092, 5432, 8501, 8080. Total time budget per demo: 5–7 min
 ```powershell
 $py scripts\api_demo_call.py --sample --no-cache            # real request: timestamp, URL, HTTP status, excerpt
 $py scripts\api_demo_call.py --simulate-failure             # OPTIONAL: real client against an unreachable host: retry/backoff 1 s, 2 s
+# The one-week sample above is only displayed. What is PERSISTED is the full-range response that the producer fetched
+# (and cached) during ingestion; this loads those cached responses into PostgreSQL (safe to repeat):
+$py -m src.warehouse.load_reference --only api
 docker exec streampulse-postgres psql -U streampulse -d streampulse -c "SELECT api_source_name, http_status, retrieved_at FROM core.api_cache ORDER BY retrieved_at DESC LIMIT 3"
 docker exec streampulse-postgres psql -U streampulse -d streampulse -c "SELECT order_id, purchase_ts, payments_value_total, fx_rate_brl_usd, fx_match_type, payments_value_usd, api_source_name, api_http_status FROM core.orders LIMIT 5"
 docker exec streampulse-postgres psql -U streampulse -d streampulse -c "SELECT * FROM analytics.api_enrichment_summary"
@@ -114,6 +117,7 @@ $py -m src.producer.dataset_producer --input data\test_inputs\demo3_records.csv 
 .\scripts\run_stream.ps1 -Demo 3 -Trigger availableNow
 docker exec streampulse-postgres psql -U streampulse -d streampulse_demo3 -c "SELECT count(*) AS orders FROM core.orders"
 $py scripts\parquet_readback.py --dir data\test_runs\demo3\parquet     # landing layer keeps repeats
+.\scripts\demo_load.ps1 -Demo 3                                          # loads the demo's run summaries and dead letters into the demo database
 .\scripts\run_dashboard.ps1 -Demo 3                                     # T4: "Data quality" page shows the demo database
 ```
 **EXPECTED:** run 1: read 3, valid 2, rejected 1, published 2; dead letter `RANGE_ERROR` naming `delivered_not_before_purchase`; PostgreSQL 1 order and 1 `source_duplicate`. After the re-run: still 1 order; Parquet 4 rows (2 distinct); the second Spark batch reports `retry_duplicates: 2`.
@@ -146,10 +150,12 @@ $py scripts\reconcile.py --topic demo4_orders --stream demo4 --parquet-dir data\
 **Commands (Airflow):**
 ```powershell
 .\scripts\airflow_up.ps1                                  # T4; UI http://localhost:8080, user admin, password in .env (AIRFLOW_ADMIN_PASSWORD)
-.\scripts\airflow.ps1 dags trigger streampulse_batch --conf '{\"limit\": 300}'      # or press Trigger DAG in the UI
-.\scripts\airflow.ps1 dags trigger streampulse_failure_demo                          # OPTIONAL: retries with an unreachable Kafka
+.\scripts\airflow_run_dag.ps1 -Dag streampulse_batch -Conf '{"limit": 300}'          # triggers, waits, prints every task state (or press Trigger DAG in the UI)
+.\scripts\airflow_run_dag.ps1 -Dag streampulse_failure_demo -TimeoutMinutes 10       # OPTIONAL: retries with an unreachable Kafka; ends "failed" ON PURPOSE
+.\scripts\airflow.ps1 dags pause streampulse_failure_demo                            # afterwards, so it never runs by accident
 ```
 **EXPECTED:** after the stop, some batch ids are committed and the rest of the offsets are pending; the restart's first batch starts at the stored offset; PostgreSQL shows the number of unique orders (duplicates are not counted twice); reconcile prints `RESULT: all differences are zero or explained`; the DAG run ends `success` with all 9 tasks green (about 2 minutes in the dry run); the failure DAG shows 3 attempts, then `failed`.
+**What you will see at the Spark stop (NORMAL, explain it):** `Stop requested`, possibly a few `ERROR` lines and a traceback ending in `StopRequested: stop requested: batch N was not started and will run after the restart`, then `STOPPED_AT_BATCH_BOUNDARY`. This is the deliberate safe stop: a batch about to start is refused *before* it does any work, so nothing is half-written, and it runs after the restart. A real problem would not contain `StopRequested`.
 **ACTUAL observed output:** ______
 **Explain the limits:** the checkpoint is Spark's progress record; Kafka offsets are broker positions; the database upsert is the duplicate protection. Together: **at-least-once delivery + idempotent sink**, **not** exactly-once everywhere.
 **Save:** `restart_log.txt`, `airflow_dag_success.png`, `final_reconciliation.txt` into `docs/evidence/11_manual_demos/demo_4_recovery/`.

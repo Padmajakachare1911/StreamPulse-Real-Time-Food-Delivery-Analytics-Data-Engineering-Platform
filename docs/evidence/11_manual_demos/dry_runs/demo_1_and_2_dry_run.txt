@@ -1,0 +1,159 @@
+﻿Task ID: P10-01
+Date/time (UTC): 2026-10-15T18:53:01.5169834Z
+Date/time (local): 2026-10-16T00:23:01.5256251+05:30
+Command: & 'C:\Users\PADMAJ~1\AppData\Local\Temp\claude\c--Users-Padmaja-Kachare-Documents-StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\9f61dbd3-53dd-4f0d-8a10-0a8eac46b4d2\scratchpad\dry_demo12.ps1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 8626d26
+--- output ---
+===== BEFORE YOU START =====
+
+##### STEP 0a :: .\scripts\kafka_start.ps1
+ Container streampulse-kafka-init Starting 
+ Container streampulse-kafka-init Started 
+Kafka health: healthy
+
+##### STEP 0b :: .\scripts\init_db.ps1
+schema OK
+
+##### STEP 0c :: check_dataset_fingerprint.py
+All 9 files match the fingerprints recorded when the dataset was profiled.
+
+===== DEMO 1 =====
+
+##### STEP 1 :: profile_dataset.py --summary
+file                                                rows  cols
+olist_customers_dataset.csv                       99,441     5
+olist_geolocation_dataset.csv                  1,000,163     5
+olist_order_items_dataset.csv                    112,650     7
+olist_order_payments_dataset.csv                 103,886     5
+olist_order_reviews_dataset.csv                   99,224     7
+olist_orders_dataset.csv                          99,441     8
+olist_products_dataset.csv                        32,951     9
+olist_sellers_dataset.csv                          3,095     4
+product_category_name_translation.csv                 71     2
+
+##### STEP 1 :: first 6 lines of the orders file
+"order_id","customer_id","order_status","order_purchase_timestamp","order_approved_at","order_delivered_carrier_date","order_delivered_customer_date",
+e481f51cbdc54678b7cc49136f2d6af7,"9ef432eb6251297304e76186b10a928d",delivered,2017-10-02 10:56:33,2017-10-02 11:07:15,2017-10-04 19:55:00,2017-10-10 2
+"53cdb2fc8bc7dce0b6741e2150273451",b0830fb4747a6c6d20dea0b8c802d7ef,delivered,2018-07-24 20:41:37,2018-07-26 03:24:27,2018-07-26 14:31:00,2018-08-07 1
+"47770eb9100c2d0c44946d9cf07ec65d","41ce2a54c0b03bf3443c3d931a367089",delivered,2018-08-08 08:38:49,2018-08-08 08:55:23,2018-08-08 13:50:00,2018-08-17
+"949d5b44dbf5de918fe9c16f97b45f8a",f88197465ea7920adcdbec7375364d82,delivered,2017-11-18 19:28:06,2017-11-18 19:45:59,2017-11-22 13:39:59,2017-12-02 0
+ad21c59c0840e6cb83a9ceb5573f8159,"8ab97904e6daea8866dbdbc4fb7aad2c",delivered,2018-02-13 21:18:39,2018-02-13 22:20:29,2018-02-14 19:46:34,2018-02-16 1
+
+##### STEP 2 :: kafka_describe_topic.ps1
+Topic: ecommerce_orders	TopicId: YhNS3Ip9TEiPbCjX8Lz-gQ	PartitionCount: 3	ReplicationFactor: 1	Configs: min.insync.replicas=1
+
+##### STEP 4 :: producer --limit 200 --run-id demo1
+  "status": "completed",
+  "mode": "limited",
+  "rows_read": 200,
+  "rows_valid": 199,
+  "rows_rejected": 1,
+  "rows_with_warnings": 0,
+  "rows_published": 199,
+  "rows_publish_failed": 0,
+  "rows_enriched": 199,
+  "rows_not_enriched": 0,
+
+##### STEP 5 :: kafka_partition_counts.ps1
+ecommerce_orders  partition 0: start_offset=0 end_offset=33530 messages=33530
+ecommerce_orders  partition 1: start_offset=0 end_offset=33679 messages=33679
+ecommerce_orders  partition 2: start_offset=0 end_offset=33305 messages=33305
+TOTAL messages in topic: 100514
+
+##### STEP 3 :: run_stream.ps1 -Trigger availableNow (Spark)
+2026-10-15 18:53:44,332 INFO order_stream BATCH_SUMMARY {"batch_id": 12, "input_rows": 199, "valid_rows": 199, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 199, "postgres": {"attempted": 199, "inserted": 0, "retry_duplicates": 199, "source_duplicates": 0, "batch_id": 12}, "of
+2026-10-15 18:53:44,662 INFO order_stream Stream stopped.
+
+##### STEP 6 :: parquet_readback.py
+Parquet folder        : parquet
+Parquet files         : 13 in 13 batch folders
+Total size            : 47,547,593 bytes
+Rows (count)          : 100,120
+Distinct record_uid   : 99,427
+Distinct order_id     : 99,427
+Rows with API enrichment: 100,120
+Purchase time range   : 2016-09-04 21:15:19 .. 2018-10-17 17:30:18
+Rows per ingest_run_id: {'full-run-01': 99328, 'airflow-20261015T180550': 295, 'reingest-200': 199, 'demo1': 199, 'limited-100': 99}
+
+##### STEP 7 :: psql counts
+ count | count 
+-------+-------
+ 99427 | 99427
+(1 row)
+
+
+##### STEP 7 :: psql sample rows
+             order_id             | order_status |     purchase_ts     | customer_state | payments_value_total | payments_value_usd 
+----------------------------------+--------------+---------------------+----------------+----------------------+--------------------
+ 27667a063cb59b5d987a5a71c192cce5 | canceled     | 2018-08-27 19:54:54 | SP             |               118.35 |              28.92
+ 341aa5f2e049abdcf01324107401e6d8 | delivered    | 2018-07-31 12:05:31 | SP             |                68.05 |              18.23
+ fd89a255572d435093d5e644dee61960 | delivered    | 2018-08-13 14:43:49 | SC             |                48.30 |              12.36
+ 4c2c1ba64cf96059fe8443c06557c0e1 | delivered    | 2018-08-10 17:13:19 | MG             |               194.37 |              50.72
+ 676041b8a5301ce900ada76a777fc3fe | delivered    | 2018-07-25 20:54:55 | SP             |                31.29 |               8.40
+(5 rows)
+
+
+##### STEP 9 :: reconcile.py
+Topic: ecommerce_orders   Database: streampulse   Runs: limited-100, full-run-01, reingest-200, airflow-20261015T180550, airflow-20261015T181427, demo1
+4 messages in Kafka topic                       100,514    100,514          +0  [OK] sum of run publishes; 1,087 of them are repeats of an already published record_uid
+6 rows in Parquet (landing layer)               100,120    100,120          +0  [OK] consumed - invalid - in-batch duplicates (394); repeats from later batches are kept here
+7 rows in PostgreSQL core.orders                 99,427     99,427          +0  [OK] distinct record_uid in Parquet minus discarded source duplicates
+8 distinct order_id in PostgreSQL                99,427     99,427          +0  [OK] unique valid order_ids computed from the source
+RESULT: all differences are zero or explained
+reconcile exit code: 0
+
+===== DEMO 2 =====
+
+##### STEP 2 :: api_demo_call.py --sample --no-cache
+Provider : Frankfurter (ECB reference rates), docs https://frankfurter.dev
+Request  : BRL -> USD, 2017-10-02 to 2017-10-08
+Retrieved: 2026-10-15T18:53:57.040208+00:00
+URL      : https://api.frankfurter.dev/v2/providers/ecb/rates?base=BRL&quotes=USD&from=2017-10-02&to=2017-10-08
+HTTP     : 200   (served from local cache: False)
+Rows     : 5
+Excerpt  :
+    {"date": "2017-10-02", "base": "BRL", "quote": "USD", "rate": 0.31507}
+    {"date": "2017-10-03", "base": "BRL", "quote": "USD", "rate": 0.31685}
+    {"date": "2017-10-04", "base": "BRL", "quote": "USD", "rate": 0.31918}
+
+Enrichment on sample purchase dates:
+   2017-10-02 -> (0.31507, '2017-10-02', 'exact')
+   2017-10-07 -> (0.31641, '2017-10-06', 'previous_business_day')
+   2017-10-08 -> (0.31641, '2017-10-06', 'previous_business_day')
+   payload with 100.00 BRL -> {"fx_rate_brl_usd": 0.31918, "fx_rate_date": "2017-10-04", "fx_match_type": "exact", "payments_value_usd": 31.92, "api_source_name": "frankfurter-ecb", "api_endpoint": "https://api.frankfurter.dev/v2/providers/ecb/rates?base=BRL&quotes=USD&from=2017-10-02&to=2
+
+##### STEP 6 :: api_demo_call.py --simulate-failure
+2026-10-16 00:24:00,386 WARNING API attempt 3 failed: ConnectionError
+Provider : Frankfurter (ECB reference rates), docs https://frankfurter.dev
+Request  : BRL -> USD, 2017-10-02 to 2017-10-08
+RESULT   : request failed after retries: API failed after 3 attempts: ConnectionError
+
+##### STEP 4 :: SQL core.api_cache
+ api_source_name | http_status |         retrieved_at          
+-----------------+-------------+-------------------------------
+ frankfurter-ecb |         200 | 2026-10-15 18:06:07.584203+00
+ frankfurter-ecb |         200 | 2026-10-15 17:39:32.583101+00
+ frankfurter-ecb |         200 | 2026-10-15 17:34:10.76285+00
+(3 rows)
+
+
+##### STEP 4 :: SQL core.orders provenance
+             order_id             |     purchase_ts     | payments_value_total | fx_rate_brl_usd |     fx_match_type     | payments_value_usd | api_source_name | api_http_status 
+----------------------------------+---------------------+----------------------+-----------------+-----------------------+--------------------+-----------------+-----------------
+ 6199bf17a85a73b61d5e43a596b95b5b | 2017-02-02 18:59:30 |               140.11 |        0.321100 | exact                 |              44.99 | frankfurter-ecb |             200
+ 8e62788b1e26aaa3f5786c80788880e7 | 2017-04-04 10:34:49 |               218.24 |        0.318940 | exact                 |              69.61 | frankfurter-ecb |             200
+ 71094b187eea9583286a74a815c5b9ff | 2017-05-15 19:45:02 |               249.56 |        0.322090 | exact                 |              80.38 | frankfurter-ecb |             200
+ 97e24377140a4eccdc29f62c6a965df7 | 2017-03-05 19:01:30 |                82.86 |        0.319380 | previous_business_day |              26.46 | frankfurter-ecb |             200
+ 77f769edc06f5c320e6ee92b14400f30 | 2017-03-05 13:29:20 |               107.27 |        0.319380 | previous_business_day |              34.26 | frankfurter-ecb |             200
+(5 rows)
+
+
+##### STEP 5 :: SQL api_enrichment_summary
+ orders | orders_enriched | match_rate_percent | matched_exact_date | matched_previous_business_day |      last_api_retrieval       | last_http_status 
+--------+-----------------+--------------------+--------------------+-------------------------------+-------------------------------+------------------
+  99427 |           99427 |             100.00 |              75315 |                         24112 | 2026-10-15 16:38:02.037003+00 |              200
+(1 row)
+
+
+--- exit code: 0 ---

@@ -42,6 +42,15 @@ def load(function_name: str, *args) -> pd.DataFrame | None:
     return data
 
 
+def show_table(frame: pd.DataFrame, empty_message: str) -> None:
+    """A table, or a plain sentence when there are no rows. (Written as if/else on purpose: a conditional
+    EXPRESSION on its own line would make Streamlit print the returned object.)"""
+    if frame.empty:
+        st.write(empty_message)
+    else:
+        st.dataframe(frame, hide_index=True, use_container_width=True)
+
+
 def metric_row(items: list[tuple[str, object]]) -> None:
     for column, (label, value) in zip(st.columns(len(items)), items):
         column.metric(label, f"{value:,}" if isinstance(value, (int, float)) and not isinstance(value, bool) else str(value))
@@ -141,12 +150,12 @@ def page_quality() -> None:
     st.subheader("Rejected records (dead-letter queue)")
     dead = load("dead_letter_summary")
     if dead is not None:
-        st.dataframe(dead, hide_index=True, use_container_width=True) if not dead.empty else st.write("No rejected records.")
+        show_table(dead, "No rejected records.")
         st.caption("records = dead-letter lines (a record rejected in two overlapping runs appears twice); distinct_records counts each record once.")
     st.subheader("Duplicates")
     dups = load("duplicate_summary")
     if dups is not None:
-        st.dataframe(dups, hide_index=True, use_container_width=True) if not dups.empty else st.write("No source duplicates were found in the data processed so far.")
+        show_table(dups, "No source duplicates were found in the data processed so far.")
 
 
 def page_kpis() -> None:
@@ -219,7 +228,7 @@ def page_records() -> None:
     limit = st.slider("Rows", 5, 100, 20)
     recent = load("recent_orders", limit)
     if recent is not None:
-        st.dataframe(recent, hide_index=True, use_container_width=True) if not recent.empty else st.write("The warehouse is empty.")
+        show_table(recent, "The warehouse is empty.")
     overview = load("overview")
     if overview is not None and not overview.empty:
         st.write(f"Last processed into PostgreSQL: **{str(overview.iloc[0]['last_processed_at'])[:19]}**")

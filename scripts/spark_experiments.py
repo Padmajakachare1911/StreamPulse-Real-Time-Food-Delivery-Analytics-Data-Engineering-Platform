@@ -92,6 +92,28 @@ def publish(topic: str, run_id: str, skip: int, limit: int, input_file: str | No
 
 
 # ---------------------------------------------------------------- Spark container runner
+def is_problem_line(line: str) -> bool:
+    return "ERROR" in line or "Traceback" in line or "Exception" in line
+
+
+def classify_problem_lines(lines: list[str]) -> tuple[list[str], list[str]]:
+    """Split error lines into (unexpected, stop_related).
+
+    A deliberate stop makes Spark log the StopRequested exception that ends the query at a batch boundary.
+    Error lines AFTER the "Stop requested" marker are accepted as stop-related ONLY when that signature
+    (StopRequested) really appears after the marker. An interruption without it (for example the old
+    InterruptedException inside a running batch) stays unexpected. Errors before the marker are always unexpected.
+    """
+    marker = next((i for i, l in enumerate(lines) if "Stop requested" in l), None)
+    problems = [(i, l) for i, l in enumerate(lines) if is_problem_line(l)]
+    if marker is None:
+        return [l for _, l in problems], []
+    signature_seen = any("StopRequested" in l for l in lines[marker:])
+    unexpected = [l for i, l in problems if i < marker or not signature_seen]
+    stop_related = [l for i, l in problems if i >= marker and signature_seen]
+    return unexpected, stop_related
+
+
 class SparkRun:
     """Starts the Spark container and reads stdout AND stderr (merged) line by line."""
 
@@ -151,8 +173,17 @@ class SparkRun:
             path.write_text("\n".join(self.lines), encoding="utf-8")
 
     def problem_lines(self) -> list[str]:
+        """Unexpected error lines only (see classify_problem_lines)."""
         with self._lock:
-            return [l[:230] for l in self.lines if "ERROR" in l or "Traceback" in l or "Exception" in l]
+            return [l[:230] for l in classify_problem_lines(self.lines)[0]]
+
+    def stop_related_lines(self) -> list[str]:
+        with self._lock:
+            return [l[:230] for l in classify_problem_lines(self.lines)[1]]
+
+    def has_line(self, text: str) -> bool:
+        with self._lock:
+            return any(text in l for l in self.lines)
 
     def key_lines(self) -> list[str]:
         with self._lock:
@@ -261,8 +292,9 @@ def recovery(tag: str) -> None:
     for line in run1.key_lines():
         say("  [run1] " + line)
     run1.save_log(base / "run1_full.log")
-    check("first run stopped cleanly (no ERROR/Traceback in its log)", not run1.problem_lines(),
-          f"{len(run1.problem_lines())} problem lines; full log kept in data/test_runs/{test_dir}/run1_full.log")
+    check("first run stopped at a batch boundary with no UNEXPECTED errors", not run1.problem_lines(),
+          f"{len(run1.problem_lines())} unexpected error lines; {len(run1.stop_related_lines())} lines of the deliberate stop signature (StopRequested); "
+          f"STOPPED_AT_BATCH_BOUNDARY logged: {run1.has_line('STOPPED_AT_BATCH_BOUNDARY')}; full log: data/test_runs/{test_dir}/run1_full.log")
     for line in run1.problem_lines()[:10]:
         say("  [run1 problem] " + line)
 
@@ -295,7 +327,7 @@ def recovery(tag: str) -> None:
     for line in run2.key_lines():
         say("  [run2] " + line)
     run2.save_log(base / "run2_full.log")
-    check("restarted run finished without ERROR/Traceback", not run2.problem_lines(), f"{len(run2.problem_lines())} problem lines")
+    check("restarted run finished without ERROR/Traceback", not run2.problem_lines() and not run2.stop_related_lines(), f"{len(run2.problem_lines())} problem lines")
     if run2.proc.returncode != 0:
         fail_now(f"restarted Spark exited with code {run2.proc.returncode}")
 

@@ -1,0 +1,15 @@
+﻿Task ID: P4-05
+Date/time (UTC): 2026-10-15T18:42:50.1110532Z
+Date/time (local): 2026-10-16T00:12:50.1215763+05:30
+Command: & 'C:\Users\PADMAJ~1\AppData\Local\Temp\claude\c--Users-Padmaja-Kachare-Documents-StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\9f61dbd3-53dd-4f0d-8a10-0a8eac46b4d2\scratchpad\stop_stress.ps1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 8626d26
+--- output ---
+Saved evidence to docs\evidence\04_spark\recovery_stop_stress_run1.txt (exit code 0)
+Saved evidence to docs\evidence\04_spark\recovery_stop_stress_run2.txt (exit code 0)
+Saved evidence to docs\evidence\04_spark\recovery_stop_stress_run3.txt (exit code 0)
+run 1: SUMMARY: 18 passed, 0 failed | [PASS] first run stopped at a batch boundary with no UNEXPECTED errors: 0 unexpected error lines; 5 lines of the deliberate stop signature (StopRequested); STOPPED_AT_BATCH_BOUNDARY logged: True; full log: data/test_runs/recovery_s1x8698/run1_full.log
+run 2: SUMMARY: 18 passed, 0 failed | [PASS] first run stopped at a batch boundary with no UNEXPECTED errors: 0 unexpected error lines; 5 lines of the deliberate stop signature (StopRequested); STOPPED_AT_BATCH_BOUNDARY logged: True; full log: data/test_runs/recovery_s2x495/run1_full.log
+run 3: SUMMARY: 18 passed, 0 failed | [PASS] first run stopped at a batch boundary with no UNEXPECTED errors: 0 unexpected error lines; 5 lines of the deliberate stop signature (StopRequested); STOPPED_AT_BATCH_BOUNDARY logged: True; full log: data/test_runs/recovery_s3x7556/run1_full.log
+
+--- exit code: 0 ---

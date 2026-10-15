@@ -1,0 +1,95 @@
+﻿Task ID: P4-05
+Date/time (UTC): 2026-10-15T18:42:51.6691535Z
+Date/time (local): 2026-10-16T00:12:51.6781641+05:30
+Command: $env:PYTHONUTF8='1'; & .\.venv\Scripts\python.exe -u scripts\spark_experiments.py recovery --tag s1x8698
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 8626d26
+--- output ---
+RECOVERY EXPERIMENT tag=s1x8698 topic=recovery_test_s1x8698 stream=recovery_s1x8698 checkpoint=data\test_runs\recovery_s1x8698\checkpoints\recovery_s1x8698 database=streampulse_recovery_s1x8698
+Started 2026-10-16T00:12:53
+
+Step 1: create isolated topic and database, publish set A (real orders, replay rows 0..5999)
+[PASS] topic starts empty: start=0 end=0
+  published run=rec-A-s1x8698 skip=0 limit=6000: read=6000 valid=5995 rejected=5 published=5995 failed=0
+[PASS] set A published completely: topic end offset 5995 vs producer published 5995
+
+Step 2: start Spark (maxOffsetsPerTrigger=500); stop it cleanly after the first completed batch
+  batch summaries seen when stop was requested: 1
+  [run1] 2026-10-15 18:43:13,949 INFO order_stream Starting stream 'recovery_s1x8698': topic=recovery_test_s1x8698 startingOffsets=earliest (first run only) trigger=3 seconds checkpoint=/app/data/test_runs/recovery_s1x8698/checkpoints/reco
+  [run1] 2026-10-15 18:43:24,646 INFO order_stream BATCH_SUMMARY {"batch_id": 0, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500
+  [run1] 2026-10-15 18:43:25,658 INFO order_stream Stop requested: the running batch (if any) finishes; no new batch will start
+  [run1] 2026-10-15 18:43:27,729 INFO order_stream BATCH_SUMMARY {"batch_id": 1, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500
+  [run1] 2026-10-15 18:43:28,478 ERROR py4j.clientserver There was an exception while executing the Python Proxy on the Python Side.
+  [run1] Traceback (most recent call last):
+  [run1] 26/10/15 18:43:28 ERROR MicroBatchExecution: Query [id = 8a5f46e4-677f-4d37-82cc-4978fb0a2114, runId = 0734758b-2aa9-47fc-9f0b-9f8128b76dc1] terminated with error
+  [run1] org.apache.spark.sql.execution.streaming.sources.ForeachBatchUserFuncException: [FOREACH_BATCH_USER_FUNCTION_ERROR] An error occurred in the user provided function in foreach batch sink. Reason: An exception was raised by the Pyth
+  [run1] Caused by: py4j.Py4JException: An exception was raised by the Python Proxy. Return Message: Traceback (most recent call last):
+  [run1] 2026-10-15 18:43:28,857 INFO order_stream Stream stopped.
+[PASS] first run stopped at a batch boundary with no UNEXPECTED errors: 0 unexpected error lines; 5 lines of the deliberate stop signature (StopRequested); STOPPED_AT_BATCH_BOUNDARY logged: True; full log: data/test_runs/recovery_s1x8698/run1_full.log
+  checkpoint after stop: committed batch ids=[0, 1] next offset to read=1000 topic end=5995
+[PASS] stop happened mid-backlog (some batches committed, others still pending): 2 committed, 4995 messages still unread
+[PASS] each committed batch has a log line: batch log lines=2 committed=2
+
+Step 3: while Spark is DOWN publish set B (new real orders, rows 6000..7999) and a DUPLICATE slice (rows 0..99 again)
+  published run=rec-B-s1x8698 skip=6000 limit=2000: read=2000 valid=2000 rejected=0 published=2000 failed=0
+  published run=rec-dup-s1x8698 skip=0 limit=100: read=100 valid=99 rejected=1 published=99 failed=0
+[PASS] all publishes accounted for: topic end offset 8094 = A 5995 + B 2000 + dup 99
+
+Step 4: restart the SAME logical stream with the SAME checkpoint (availableNow: drain the backlog, then exit)
+  [run2] 2026-10-15 18:43:50,470 INFO order_stream Starting stream 'recovery_s1x8698': topic=recovery_test_s1x8698 startingOffsets=earliest (first run only) trigger=availableNow checkpoint=/app/data/test_runs/recovery_s1x8698/checkpoints/r
+  [run2] 2026-10-15 18:44:00,153 INFO order_stream BATCH_SUMMARY {"batch_id": 2, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500
+  [run2] 2026-10-15 18:44:03,645 INFO order_stream BATCH_SUMMARY {"batch_id": 3, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500
+  [run2] 2026-10-15 18:44:06,627 INFO order_stream BATCH_SUMMARY {"batch_id": 4, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500
+  [run2] 2026-10-15 18:44:10,478 INFO order_stream BATCH_SUMMARY {"batch_id": 5, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500
+  [run2] 2026-10-15 18:44:13,498 INFO order_stream BATCH_SUMMARY {"batch_id": 6, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500
+  [run2] 2026-10-15 18:44:17,036 INFO order_stream BATCH_SUMMARY {"batch_id": 7, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500
+  [run2] 2026-10-15 18:44:19,586 INFO order_stream BATCH_SUMMARY {"batch_id": 8, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500
+  [run2] 2026-10-15 18:44:22,136 INFO order_stream BATCH_SUMMARY {"batch_id": 9, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500
+  [run2] 2026-10-15 18:44:24,743 INFO order_stream BATCH_SUMMARY {"batch_id": 10, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 50
+  [run2] 2026-10-15 18:44:27,242 INFO order_stream BATCH_SUMMARY {"batch_id": 11, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 50
+  [run2] 2026-10-15 18:44:30,200 INFO order_stream BATCH_SUMMARY {"batch_id": 12, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 50
+  [run2] 2026-10-15 18:44:33,887 INFO order_stream BATCH_SUMMARY {"batch_id": 13, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 50
+  [run2] 2026-10-15 18:44:37,015 INFO order_stream BATCH_SUMMARY {"batch_id": 14, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 50
+  [run2] 2026-10-15 18:44:40,005 INFO order_stream BATCH_SUMMARY {"batch_id": 15, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 49
+  [run2] 2026-10-15 18:44:42,194 INFO order_stream BATCH_SUMMARY {"batch_id": 16, "input_rows": 94, "valid_rows": 94, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 94, "postgres": {"attempted": 94, "inserted": 0, "re
+  [run2] 2026-10-15 18:44:42,775 INFO order_stream Stream stopped.
+[PASS] restarted run finished without ERROR/Traceback: 0 problem lines
+
+Step 5: verify
+[PASS] batch ids are contiguous (none skipped, none repeated): ids=0..16 (17 batches)
+[PASS] restart resumed exactly at the stored offset: first batch after restart (id 2) starts at offset 1000; checkpoint said 1000
+[PASS] no offset range read twice or skipped: each batch starts right after the previous batch ended
+[PASS] Spark consumed every Kafka message exactly once: sum(input_rows)=8094 vs topic messages=8094
+[PASS] restart processed the pending A offsets and the new B/dup messages: 15 batches after restart read 7094 messages; expected 7094
+[PASS] Parquet rows = consumed - in-batch duplicates: 8094 rows (consumed 8094, in-batch duplicates 0)
+[PASS] Parquet distinct record_uid = unique published records: 7995 vs 7995
+[PASS] every Parquet batch folder matches its batch log: mismatches={}
+[PASS] PostgreSQL has one row per unique record: rows=7995 distinct record_uid=7995 distinct order_id=7995 expected=7995
+[PASS] cross-batch duplicates were detected by the PostgreSQL writer as retry duplicates: retry_duplicates=99 (duplicate slice published 99); in-batch duplicates=0
+[PASS] no source duplicates and counts add up: inserted=7995 retry=99 source=0 total=8094 Parquet rows=8094
+
+Batch summaries (batch_id, input, parquet_written, pg inserted/retry, first..last offset):
+  batch  0  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 0..499
+  batch  1  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 500..999
+  batch  2  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 1000..1499
+  batch  3  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 1500..1999
+  batch  4  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 2000..2499
+  batch  5  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 2500..2999
+  batch  6  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 3000..3499
+  batch  7  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 3500..3999
+  batch  8  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 4000..4499
+  batch  9  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 4500..4999
+  batch 10  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 5000..5499
+  batch 11  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 5500..5999
+  batch 12  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 6000..6499
+  batch 13  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 6500..6999
+  batch 14  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 7000..7499
+  batch 15  input= 500  parquet= 500  pg_inserted=495  pg_retry=5  offsets 7500..7999
+  batch 16  input=  94  parquet=  94  pg_inserted=0  pg_retry=94  offsets 8000..8093
+Checkpoint committed batch ids after restart: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]; next offset=8094
+Kafka offsets: start=0 end after A=5995 end final=8094
+
+SUMMARY: 18 passed, 0 failed
+RESULT: EXPERIMENT PASSED
+
+--- exit code: 0 ---

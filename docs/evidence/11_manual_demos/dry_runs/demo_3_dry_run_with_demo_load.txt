@@ -1,0 +1,59 @@
+﻿Task ID: P10-01
+Date/time (UTC): 2026-10-15T18:58:22.5744120Z
+Date/time (local): 2026-10-16T00:28:22.5844126+05:30
+Command: & 'C:\Users\PADMAJ~1\AppData\Local\Temp\claude\c--Users-Padmaja-Kachare-Documents-StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\9f61dbd3-53dd-4f0d-8a10-0a8eac46b4d2\scratchpad\dry_demo3b.ps1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 8626d26
+--- output ---
+===== DEMO 3 re-run with the new demo_load.ps1 step =====
+
+##### STEP 1 :: demo_setup.ps1 -Demo 3
+schema OK
+Demo 3 is ready: topic=demo3_orders database=streampulse_demo3 folder=data\test_runs\demo3
+
+##### STEP 2 :: producer + Spark (run 1) and the SAME file again (run 2)
+  "rows_read": 3,
+  "rows_valid": 2,
+  "rows_rejected": 1,
+  "rows_published": 2,
+2026-10-15 18:58:50,656 INFO order_stream Stream stopped.
+  "rows_published": 2,
+2026-10-15 18:59:13,449 INFO order_stream Stream stopped.
+
+##### STEP 3 :: demo_load.ps1 -Demo 3
+2026-10-16 00:29:14,663 INFO runs -> {'ingestion_run_files_seen': 42, 'runs_loaded': 2}
+2026-10-16 00:29:14,792 INFO dlq -> {'dead_letter_records_loaded': 2, 'run_groups_replaced': 2}
+{
+  "runs": {
+    "ingestion_run_files_seen": 42,
+    "runs_loaded": 2
+  },
+  "dlq": {
+    "dead_letter_records_loaded": 2,
+    "run_groups_replaced": 2
+  }
+}
+
+##### STEP 3 :: SQL: dead letters and runs in the DEMO database
+ stage  | reason_code | records | distinct_records 
+--------+-------------+---------+------------------
+ ingest | RANGE_ERROR |       2 |                1
+(1 row)
+
+ ingest_run_id | rows_read | rows_valid | rows_rejected | rows_published 
+---------------+-----------+------------+---------------+----------------
+ demo3-run1    |         3 |          2 |             1 |              2
+ demo3-run2    |         3 |          2 |             1 |              2
+(2 rows)
+
+
+##### STEP 4 :: dashboard -Demo 3, screenshot of 'Data quality'
+dashboard (demo 3) healthy
+saved docs\evidence\11_manual_demos\dry_runs\dryrun_demo3_01_data_quality.png (81,579 bytes)
+saved docs\evidence\11_manual_demos\dry_runs\dryrun_demo3_02_ingestion_and_reconciliation.png (125,773 bytes)
+
+##### STEP 5 :: demo3_cleanup.ps1 -Force
+Demo 3 state removed.
+production core.orders rows: 99427
+
+--- exit code: 0 ---

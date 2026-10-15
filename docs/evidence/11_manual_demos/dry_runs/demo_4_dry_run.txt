@@ -1,0 +1,91 @@
+﻿Task ID: P10-01
+Date/time (UTC): 2026-10-15T18:55:46.3186481Z
+Date/time (local): 2026-10-16T00:25:46.3301562+05:30
+Command: & 'C:\Users\PADMAJ~1\AppData\Local\Temp\claude\c--Users-Padmaja-Kachare-Documents-StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\9f61dbd3-53dd-4f0d-8a10-0a8eac46b4d2\scratchpad\dry_demo4.ps1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 8626d26
+--- output ---
+===== DEMO 4 (recovery part, isolated: topic demo4_orders, database streampulse_demo4) =====
+
+##### STEP 1 :: demo_setup.ps1 -Demo 4
+ Container streampulse-kafka Running 
+ Container streampulse-postgres Running 
+Created topic demo4_orders.
+created database streampulse_demo4
+schema OK
+Demo 4 is ready: topic=demo4_orders database=streampulse_demo4 folder=data\test_runs\demo4
+
+##### STEP 2 :: publish batch A (3000 orders)
+  "rows_read": 3000,
+  "rows_valid": 2995,
+  "rows_published": 2995,
+
+##### STEP 3 :: start Spark continuous (maxOffsetsPerTrigger 500, 3 s)
+BATCH_SUMMARY lines seen before the stop: 2
+
+##### STEP 4 :: controlled stop: stop_stream.ps1 -Demo 4
+Stop requested for stream demo4 (C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\data\test_runs\demo4\checkpoints\STOP_demo4 created). It finishes the current batch first.
+Spark process exited: True
+2026-10-15 18:56:17,669 INFO order_stream BATCH_SUMMARY {"batch_id": 0, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500, "retry_duplicates": 0, "sour
+2026-10-15 18:56:21,329 INFO order_stream BATCH_SUMMARY {"batch_id": 1, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500, "retry_duplicates": 0, "sour
+2026-10-15 18:56:23,002 INFO order_stream Stop requested: the running batch (if any) finishes; no new batch will start
+2026-10-15 18:56:23,918 INFO order_stream BATCH_SUMMARY {"batch_id": 2, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500, "retry_duplicates": 0, "sour
+2026-10-15 18:56:24,479 ERROR py4j.clientserver There was an exception while executing the Python Proxy on the Python Side.
+    raise StopRequested(f"stop requested: batch {batch_id} was not started and will run after the restart")
+StopRequested: stop requested: batch 3 was not started and will run after the restart
+26/10/15 18:56:24 ERROR MicroBatchExecution: Query [id = 1040cbee-3069-4557-bdaf-9fb1d12b7bb1, runId = d315cde0-d44a-4bb3-ba8b-2c03a4cac375] terminated with error
+org.apache.spark.sql.execution.streaming.sources.ForeachBatchUserFuncException: [FOREACH_BATCH_USER_FUNCTION_ERROR] An error occurred in the user provided function in foreach batch sink. Reason: An exception was raised by the Python Proxy. Return Message: Trac
+    raise StopRequested(f"stop requested: batch {batch_id} was not started and will run after the restart")
+StopRequested: stop requested: batch 3 was not started and will run after the restart
+    raise StopRequested(f"stop requested: batch {batch_id} was not started and will run after the restart")
+StopRequested: stop requested: batch 3 was not started and will run after the restart
+2026-10-15 18:56:24,504 INFO order_stream STOPPED_AT_BATCH_BOUNDARY: all started batches are committed; the rest runs after the restart
+2026-10-15 18:56:24,706 INFO order_stream Stream stopped.
+
+##### STEP 4 :: committed batches in the checkpoint
+0,1,2
+
+##### STEP 5 :: publish batch B and a DUPLICATE slice while Spark is down
+  "rows_published": 1000,
+  "rows_published": 99,
+
+##### STEP 6 :: restart with the SAME checkpoint (availableNow)
+2026-10-15 18:57:09,549 INFO order_stream BATCH_SUMMARY {"batch_id": 3, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500, "retry_duplicates": 0, "source_duplicates": 0, "batch_id": 3}, "offs
+2026-10-15 18:57:13,200 INFO order_stream BATCH_SUMMARY {"batch_id": 4, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500, "retry_duplicates": 0, "source_duplicates": 0, "batch_id": 4}, "offs
+2026-10-15 18:57:16,270 INFO order_stream BATCH_SUMMARY {"batch_id": 5, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500, "retry_duplicates": 0, "source_duplicates": 0, "batch_id": 5}, "offs
+2026-10-15 18:57:19,235 INFO order_stream BATCH_SUMMARY {"batch_id": 6, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 500, "retry_duplicates": 0, "source_duplicates": 0, "batch_id": 6}, "offs
+2026-10-15 18:57:23,262 INFO order_stream BATCH_SUMMARY {"batch_id": 7, "input_rows": 500, "valid_rows": 500, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 500, "postgres": {"attempted": 500, "inserted": 495, "retry_duplicates": 5, "source_duplicates": 0, "batch_id": 7}, "offs
+2026-10-15 18:57:26,457 INFO order_stream BATCH_SUMMARY {"batch_id": 8, "input_rows": 94, "valid_rows": 94, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 94, "postgres": {"attempted": 94, "inserted": 0, "retry_duplicates": 94, "source_duplicates": 0, "batch_id": 8}, "offsets":
+2026-10-15 18:57:26,959 INFO order_stream Stream stopped.
+
+##### STEP 7 :: PostgreSQL unique count
+ count | count 
+-------+-------
+  3995 |  3995
+(1 row)
+
+
+##### STEP 8 :: reconcile (demo 4)
+Topic: demo4_orders   Database: streampulse_demo4   Runs: demo4-A, demo4-B, demo4-dup
+4 messages in Kafka topic                         4,094      4,094          +0  [OK] sum of run publishes; 99 of them are repeats of an already published record_uid
+5 consumed by Spark                               4,094      4,094          +0  [OK] sum of input_rows over 9 micro-batches
+5b malformed/invalid in Spark                         0          0          +0  [OK] stage=stream dead letters
+6 rows in Parquet (landing layer)                 4,094      4,094          +0  [OK] consumed - invalid - in-batch duplicates (0); repeats from later batches are kept here
+6b distinct record_uid in Parquet                 3,995      3,995          +0  [OK] = unique valid source records
+7 rows in PostgreSQL core.orders                  3,995      3,995          +0  [OK] distinct record_uid in Parquet minus discarded source duplicates
+7b retry duplicates ignored by PostgreSQL            99         99          +0  [OK] Parquet rows - distinct record_uid = repeats that reached a later batch
+8 distinct order_id in PostgreSQL                 3,995      3,995          +0  [OK] unique valid order_ids computed from the source
+8b rows = distinct business_hash                  3,995      3,995          +0  [OK] one row per natural key
+RESULT: all differences are zero or explained
+reconcile exit code: 0
+
+##### STEP 9 :: reset_demo_state.ps1 -Demo 4 -Force (scoped)
+This will remove: topic demo4_orders, database streampulse_demo4, folder data\test_runs\demo4 and files named demo4-* in data\processed\ingestion_runs and data\dead_letter\ingest.
+It will NOT touch: topic ecommerce_orders, database streampulse, data\checkpoints\orders.
+dropped database streampulse_demo4 (if it existed)
+Demo 4 state removed.
+production core.orders rows: 99427
+production checkpoint present: True
+demo4 folder removed: True
+
+--- exit code: 0 ---

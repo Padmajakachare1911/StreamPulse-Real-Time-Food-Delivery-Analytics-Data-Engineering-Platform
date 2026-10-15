@@ -6,6 +6,7 @@ Verification (docs/evidence/09_dashboard/): 17 tests pass. Screenshots show real
 Defects found by LOOKING at the screenshots (not by tests) and fixed:
   1. Dashboard showed "Kafka: broker not reachable" while Kafka was healthy: kafka-python 3 rejects the option api_version_auto_timeout_ms (KafkaConfigurationError, reported as "down"). My first "down" unit tests passed for the wrong reason; a positive test against the real broker was added.
   2. NUMERIC columns arrived as Decimal and were plotted as text labels (nonsense axis): converted to float in the query layer + tests.
+  4. (found later, in Phase 10) The Data quality, Duplicates and Recent records pages printed Streamlit's own documentation: a conditional expression used as a bare statement is displayed by Streamlit 'magic'. The first production screenshot of the Data quality page had this defect and I had not looked at it. Fixed with an if/else helper, AST regression test tests/unit/test_dashboard_source.py, all 7 pages recaptured and viewed.
   3. Screenshots of the outage were taken mid-render: the capture script now waits until Streamlit finishes running.
 Tests: 17 passed (9 unit, 8 integration incl. real Kafka + real PostgreSQL test database).
 Git: see commit "feat(dashboard): ..." (hash in docs/task_tracker.md)

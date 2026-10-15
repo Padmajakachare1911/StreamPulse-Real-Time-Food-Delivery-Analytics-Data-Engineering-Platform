@@ -1,0 +1,106 @@
+﻿Task ID: P10-01
+Date/time (UTC): 2026-10-15T18:54:08.0993756Z
+Date/time (local): 2026-10-16T00:24:08.1088175+05:30
+Command: & 'C:\Users\PADMAJ~1\AppData\Local\Temp\claude\c--Users-Padmaja-Kachare-Documents-StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\9f61dbd3-53dd-4f0d-8a10-0a8eac46b4d2\scratchpad\dry_demo3.ps1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 8626d26
+--- output ---
+===== DEMO 3 (isolated: topic demo3_orders, database streampulse_demo3) =====
+
+##### STEP 1 :: rules (first lines) and controlled input
+# Data quality rules for one mapped order payload (canonical field names).
+# Each rule was derived from the real profiling results (docs/data_quality_report.md);
+# the justification and the real-data count are in docs/data_quality_rules.md.
+#
+# severity: reject -> record goes to the dead-letter queue (never silently dropped)
+#           warn   -> record continues, but the warning is counted in the run summary
+#
+# Note: empty approved/delivered timestamps are NOT errors. They are normal for
+order_id,customer_id,order_status,order_purchase_timestamp,order_approved_at,order_delivered_carrier_date,order_delivere
+demo3_order_valid_001,06b8999e2fba1a1fbc88172c00ba8bc7,delivered,2017-10-02 10:56:33,2017-10-02 11:07:15,2017-10-04 19:5
+demo3_order_invalid_002,06b8999e2fba1a1fbc88172c00ba8bc7,delivered,2017-10-03 09:00:00,2017-10-03 09:15:00,2017-10-04 10
+demo3_order_valid_001,06b8999e2fba1a1fbc88172c00ba8bc7,delivered,2017-10-02 10:56:33,2017-10-02 11:07:15,2017-10-04 19:5
+
+##### STEP 2 :: demo_setup.ps1 -Demo 3
+ Container streampulse-postgres Running 
+ Container streampulse-kafka Running 
+Created topic demo3_orders.
+created database streampulse_demo3
+schema OK
+Demo 3 is ready: topic=demo3_orders database=streampulse_demo3 folder=data\test_runs\demo3
+
+##### STEP 3 :: producer run 1
+  "rows_read": 3,
+  "rows_valid": 2,
+  "rows_rejected": 1,
+  "rows_with_warnings": 0,
+  "rows_published": 2,
+  "rows_publish_failed": 0,
+  "rows_enriched": 2,
+  "rows_not_enriched": 0,
+  "source_duplicates_in_input": 1,
+    "RANGE_ERROR": 1
+
+##### STEP 4 :: dead-letter file
+{"dlq_id": "23d5b8b6-5749-46fa-be7a-d87676811f84", "stage": "ingest", "reason_code": "RANGE_ERROR", "reason_detail": "delivered_not_before_purchase: delivered_customer_ts 2017-09-01T12:00:00 is before purchase_ts 2017-10-03T09:00:00", "record_uid": "6c2e79c06f6afc2e2ddd3a98506f4eaf", "ingest_run_id": "demo3-run1", "raw_payload": {"order_id": "demo3_order_invalid_002", "customer_id": "06b8999e2fba1a1fbc88172c00ba8bc7"
+
+##### STEP 4b :: Spark into the demo database
+2026-10-15 18:54:35,761 INFO order_stream BATCH_SUMMARY {"batch_id": 0, "input_rows": 2, "valid_rows": 2, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 2, "postgres": {"attempted": 2, "inserted": 1, "retry_duplicates": 0, "source_duplicates": 1, "batch_id": 0}, "offsets": [{"partition": 0, "first_offset": 
+2026-10-15 18:54:36,156 INFO order_stream Stream stopped.
+
+##### STEP 5 :: SQL after run 1
+ orders 
+--------
+      1
+(1 row)
+
+  duplicate_type  | count 
+------------------+-------
+ source_duplicate |     1
+(1 row)
+
+
+##### STEP 6 :: re-run the SAME file
+  "rows_published": 2,
+2026-10-15 18:54:59,279 INFO order_stream BATCH_SUMMARY {"batch_id": 1, "input_rows": 2, "valid_rows": 2, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 2, "postgres": {"attempted": 2, "inserted": 0, "retry_duplicates": 2, "source_duplicates": 0, "batch_id": 1}, "offsets": [{"partition": 0, "first_offset": 
+
+##### STEP 6 :: SQL after re-run
+ orders 
+--------
+      1
+(1 row)
+
+  duplicate_type  | count 
+------------------+-------
+ source_duplicate |     1
+(1 row)
+
+
+##### STEP 6 :: parquet_readback (demo folder)
+Parquet folder        : parquet
+Parquet files         : 2 in 2 batch folders
+Total size            : 31,728 bytes
+Rows (count)          : 4
+Distinct record_uid   : 2
+Distinct order_id     : 1
+
+##### STEP 7 :: dashboard -Demo 3 (start, screenshot of 'Data quality', stop)
+dashboard (demo 3) healthy
+saved docs\evidence\11_manual_demos\dry_runs\dryrun_demo3_01_data_quality.png (275,534 bytes)
+saved docs\evidence\11_manual_demos\dry_runs\dryrun_demo3_02_ingestion_and_reconciliation.png (118,637 bytes)
+
+##### STEP 8 :: demo3_cleanup.ps1 -Force (scoped)
+This will remove: topic demo3_orders, database streampulse_demo3, folder data\test_runs\demo3 and files named demo3-* in data\processed\ingestion_runs and data\dead_letter\ingest.
+It will NOT touch: topic ecommerce_orders, database streampulse, data\checkpoints\orders.
+dropped database streampulse_demo3 (if it existed)
+Demo 3 state removed.
+
+##### STEP 9 :: production untouched?
+production core.orders rows: 99427
+topic ecommerce_orders present: True
+production checkpoint present: True
+demo3 topic removed: True
+demo3 database removed: True
+demo3 folder removed: True
+
+--- exit code: 0 ---

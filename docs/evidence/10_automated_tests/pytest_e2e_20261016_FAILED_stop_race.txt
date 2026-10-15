@@ -1,0 +1,74 @@
+﻿Task ID: P9-05
+Date/time (UTC): 2026-10-15T18:34:41.9344177Z
+Date/time (local): 2026-10-16T00:04:41.9429322+05:30
+Command: .\.venv\Scripts\python.exe -m pytest -m e2e -v -rs -p no:cacheprovider -W ignore::DeprecationWarning
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 8626d26
+--- output ---
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.7.0 -- C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\.venv\Scripts\python.exe
+rootdir: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.15.1
+collecting ... collected 92 items / 88 deselected / 1 skipped / 4 selected
+
+tests/e2e/test_pipeline_e2e.py::test_data_quality_and_idempotent_reingestion_end_to_end PASSED [ 25%]
+tests/e2e/test_pipeline_e2e.py::test_malformed_messages_reach_the_stream_dead_letter_end_to_end PASSED [ 50%]
+tests/e2e/test_pipeline_e2e.py::test_stop_mid_backlog_and_restart_recovers_without_duplicates_end_to_end FAILED [ 75%]
+tests/e2e/test_pipeline_e2e.py::test_production_reconciliation_has_no_unexplained_differences PASSED [100%]
+
+================================== FAILURES ===================================
+__ test_stop_mid_backlog_and_restart_recovers_without_duplicates_end_to_end ___
+
+    def test_stop_mid_backlog_and_restart_recovers_without_duplicates_end_to_end():
+        result = run_script(["scripts/spark_experiments.py", "recovery", "--tag", tag()], timeout=1500)
+>       assert result.returncode == 0, result.stdout[-3000:]
+E       AssertionError: blem lines
+E         
+E         Step 5: verify
+E         [PASS] batch ids are contiguous (none skipped, none repeated): ids=0..16 (17 batches)
+E         [PASS] restart resumed exactly at the stored offset: first batch after restart (id 1) starts at offset 500; checkpoint said 500
+E         [PASS] no offset range read twice or skipped: each batch starts right after the previous batch ended
+E         [PASS] Spark consumed every Kafka message exactly once: sum(input_rows)=8094 vs topic messages=8094
+E         [PASS] restart processed the pending A offsets and the new B/dup messages: 16 batches after restart read 7594 messages; expected 7594
+E         [PASS] Parquet rows = consumed - in-batch duplicates: 8094 rows (consumed 8094, in-batch duplicates 0)
+E         [PASS] Parquet distinct record_uid = unique published records: 7995 vs 7995
+E         [PASS] every Parquet batch folder matches its batch log: mismatches={}
+E         [PASS] PostgreSQL has one row per unique record: rows=7995 distinct record_uid=7995 distinct order_id=7995 expected=7995
+E         [PASS] cross-batch duplicates were detected by the PostgreSQL writer as retry duplicates: retry_duplicates=99 (duplicate slice published 99); in-batch duplicates=0
+E         [PASS] no source duplicates and counts add up: inserted=7995 retry=99 source=0 total=8094 Parquet rows=8094
+E         
+E         Batch summaries (batch_id, input, parquet_written, pg inserted/retry, first..last offset):
+E           batch  0  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 0..499
+E           batch  1  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 500..999
+E           batch  2  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 1000..1499
+E           batch  3  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 1500..1999
+E           batch  4  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 2000..2499
+E           batch  5  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 2500..2999
+E           batch  6  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 3000..3499
+E           batch  7  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 3500..3999
+E           batch  8  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 4000..4499
+E           batch  9  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 4500..4999
+E           batch 10  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 5000..5499
+E           batch 11  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 5500..5999
+E           batch 12  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 6000..6499
+E           batch 13  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 6500..6999
+E           batch 14  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 7000..7499
+E           batch 15  input= 500  parquet= 500  pg_inserted=495  pg_retry=5  offsets 7500..7999
+E           batch 16  input=  94  parquet=  94  pg_inserted=0  pg_retry=94  offsets 8000..8093
+E         Checkpoint committed batch ids after restart: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]; next offset=8094
+E         Kafka offsets: start=0 end after A=5995 end final=8094
+E         
+E         SUMMARY: 17 passed, 1 failed
+E         RESULT: EXPERIMENT FAILED
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['C:\\Users\\Padmaja Kachare\\Documents\\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\\.venv\\Scripts\\python.exe', '-u', 'scripts/spark_experiments.py', 'recovery', '--tag', 'eed645f'], returncode=1, stdout='RECOVERY EXPERIMENT tag=eed645f topic=recovery_test_eed645f stream=recovery_eed645f checkpoint=data\\test_runs\\recovery_eed645f\\checkpoints\\recovery_eed645f database=streampulse_recovery_eed645f\nStarted 2026-10-16T00:06:07\n\nStep 1: create isolated topic and database, publish set A (real orders, replay rows 0..5999)\n[PASS] topic starts empty: start=0 end=0\n  published run=rec-A-eed645f skip=0 limit=6000: read=6000 valid=5995 rejected=5 published=5995 failed=0\n[PASS] set A published completely: topic end offset 5995 vs producer published 5995\n\nStep 2: start Spark (maxOffsetsPerTrigger=500); stop it cleanly after the first completed batch\n  batch summaries seen when stop was requested: 1\n  [run1] 2026-10-15 18:36:24,122 INFO order_stream Starting stream \'recovery_eed645f\': topic=recovery_test_eed645f startingOffsets=earliest (first run only) trigger=3 seconds checkpoint=/app/data/test_runs/recovery_eed645f/checkpoi...6  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 3000..3499\n  batch  7  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 3500..3999\n  batch  8  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 4000..4499\n  batch  9  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 4500..4999\n  batch 10  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 5000..5499\n  batch 11  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 5500..5999\n  batch 12  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 6000..6499\n  batch 13  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 6500..6999\n  batch 14  input= 500  parquet= 500  pg_inserted=500  pg_retry=0  offsets 7000..7499\n  batch 15  input= 500  parquet= 500  pg_inserted=495  pg_retry=5  offsets 7500..7999\n  batch 16  input=  94  parquet=  94  pg_inserted=0  pg_retry=94  offsets 8000..8093\nCheckpoint committed batch ids after restart: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]; next offset=8094\nKafka offsets: start=0 end after A=5995 end final=8094\n\nSUMMARY: 17 passed, 1 failed\nRESULT: EXPERIMENT FAILED\n', stderr='').returncode
+
+tests\e2e\test_pipeline_e2e.py:60: AssertionError
+=========================== short test summary info ===========================
+SKIPPED [1] tests\unit\test_airflow_dag.py:12: the airflow library is only installed in the Airflow container
+====== 1 failed, 3 passed, 1 skipped, 88 deselected in 198.74s (0:03:18) ======
+
+--- exit code: 1 ---
