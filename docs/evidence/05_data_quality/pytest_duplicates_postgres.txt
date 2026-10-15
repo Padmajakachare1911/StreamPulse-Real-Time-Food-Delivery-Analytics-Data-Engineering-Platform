@@ -1,0 +1,24 @@
+﻿Task ID: P5-02
+Date/time (UTC): 2026-10-15T17:35:23.3958309Z
+Date/time (local): 2026-10-15T23:05:23.3958309+05:30
+Command: .\.venv\Scripts\python.exe -m pytest tests/integration/test_warehouse.py -v -p no:cacheprovider
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 6448549
+--- output ---
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.7.0 -- C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\.venv\Scripts\python.exe
+rootdir: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+configfile: pytest.ini
+collecting ... collected 7 items
+
+tests/integration/test_warehouse.py::test_schema_has_the_core_tables PASSED [ 14%]
+tests/integration/test_warehouse.py::test_first_insert_creates_one_row PASSED [ 28%]
+tests/integration/test_warehouse.py::test_inserting_the_same_batch_twice_keeps_one_row PASSED [ 42%]
+tests/integration/test_warehouse.py::test_same_order_with_new_record_uid_is_a_source_duplicate PASSED [ 57%]
+tests/integration/test_warehouse.py::test_source_duplicate_inside_one_batch_keeps_the_first_row PASSED [ 71%]
+tests/integration/test_warehouse.py::test_counts_always_add_up PASSED    [ 85%]
+tests/integration/test_warehouse.py::test_reingesting_a_discarded_source_duplicate_is_a_retry_and_is_not_logged_twice PASSED [100%]
+
+============================== 7 passed in 1.07s ==============================
+
+--- exit code: 0 ---

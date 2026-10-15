@@ -124,3 +124,13 @@ def test_counts_always_add_up(clean_tables):
     r = run_batch(batch)
     assert r["attempted"] == r["inserted"] + r["retry_duplicates"] + r["source_duplicates"] == 4
     assert (r["inserted"], r["retry_duplicates"], r["source_duplicates"]) == (2, 1, 1)
+
+
+def test_reingesting_a_discarded_source_duplicate_is_a_retry_and_is_not_logged_twice(clean_tables):
+    run_batch([order_row(uid="uid-1")])
+    first = run_batch([order_row(uid="uid-2")])           # discarded copy: logged once as a source duplicate
+    again = run_batch([order_row(uid="uid-2")])           # the same file is ingested again
+    assert first["source_duplicates"] == 1
+    assert again["retry_duplicates"] == 1 and again["source_duplicates"] == 0 and again["inserted"] == 0
+    assert count("SELECT count(*) FROM core.duplicate_records") == 1
+    assert count("SELECT count(*) FROM core.orders") == 1

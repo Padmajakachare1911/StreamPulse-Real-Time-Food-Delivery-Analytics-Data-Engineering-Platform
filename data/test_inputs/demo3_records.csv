@@ -1,0 +1,4 @@
+order_id,customer_id,order_status,order_purchase_timestamp,order_approved_at,order_delivered_carrier_date,order_delivered_customer_date,order_estimated_delivery_date
+demo3_order_valid_001,06b8999e2fba1a1fbc88172c00ba8bc7,delivered,2017-10-02 10:56:33,2017-10-02 11:07:15,2017-10-04 19:55:00,2017-10-10 21:25:13,2017-10-18 00:00:00
+demo3_order_invalid_002,06b8999e2fba1a1fbc88172c00ba8bc7,delivered,2017-10-03 09:00:00,2017-10-03 09:15:00,2017-10-04 10:00:00,2017-09-01 12:00:00,2017-10-20 00:00:00
+demo3_order_valid_001,06b8999e2fba1a1fbc88172c00ba8bc7,delivered,2017-10-02 10:56:33,2017-10-02 11:07:15,2017-10-04 19:55:00,2017-10-10 21:25:13,2017-10-18 00:00:00

@@ -62,6 +62,9 @@ CREATE TABLE IF NOT EXISTS core.duplicate_records (
     detected_at         TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- A discarded copy is logged once, however often the same file is ingested again.
+CREATE UNIQUE INDEX IF NOT EXISTS ux_duplicate_records_uid_type ON core.duplicate_records (record_uid, duplicate_type);
+
 CREATE TABLE IF NOT EXISTS core.dead_letter_records (
     dlq_id          UUID PRIMARY KEY,
     stage           TEXT,

@@ -1,0 +1,49 @@
+﻿Task ID: P5-01
+Date/time (UTC): 2026-10-15T17:35:20.2468281Z
+Date/time (local): 2026-10-15T23:05:20.2568403+05:30
+Command: .\.venv\Scripts\python.exe -m pytest tests/unit/test_validators.py tests/unit/test_mapping.py tests/unit/test_producer.py -v -p no:cacheprovider
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 6448549
+--- output ---
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.7.0 -- C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\.venv\Scripts\python.exe
+rootdir: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+configfile: pytest.ini
+collecting ... collected 32 items
+
+tests/unit/test_validators.py::test_clean_record_has_no_problems PASSED  [  3%]
+tests/unit/test_validators.py::test_not_delivered_order_with_empty_delivery_date_is_valid PASSED [  6%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change0-status_in_allowed_set] PASSED [  9%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change1-purchase_date_in_range] PASSED [ 12%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change2-amounts_not_negative] PASSED [ 15%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change3-amounts_not_negative] PASSED [ 18%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change4-amounts_not_negative] PASSED [ 21%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change5-approved_not_before_purchase] PASSED [ 25%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change6-delivered_not_before_purchase] PASSED [ 28%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change7-delivered_status_has_date] PASSED [ 31%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change8-delivered_date_matches_status] PASSED [ 34%]
+tests/unit/test_validators.py::test_zero_payment_total_is_only_a_warning PASSED [ 37%]
+tests/unit/test_validators.py::test_dead_letter_record_format_and_file PASSED [ 40%]
+tests/unit/test_validators.py::test_dead_letter_file_is_replaced_for_the_same_run_id PASSED [ 43%]
+tests/unit/test_mapping.py::test_happy_path_converts_types PASSED        [ 46%]
+tests/unit/test_mapping.py::test_empty_optional_field_is_null_not_error PASSED [ 50%]
+tests/unit/test_mapping.py::test_missing_required_field_is_reported PASSED [ 53%]
+tests/unit/test_mapping.py::test_bad_type_is_reported PASSED             [ 56%]
+tests/unit/test_mapping.py::test_bad_timestamp_is_reported PASSED        [ 59%]
+tests/unit/test_mapping.py::test_extra_columns_are_not_modified PASSED   [ 62%]
+tests/unit/test_mapping.py::test_missing_setting_raises_clear_error PASSED [ 65%]
+tests/unit/test_mapping.py::test_default_and_override PASSED             [ 68%]
+tests/unit/test_producer.py::test_record_uid_is_deterministic_and_row_specific PASSED [ 71%]
+tests/unit/test_producer.py::test_valid_record_is_published_with_envelope_and_key PASSED [ 75%]
+tests/unit/test_producer.py::test_invalid_record_goes_to_dead_letter_with_reason PASSED [ 78%]
+tests/unit/test_producer.py::test_dry_run_publishes_nothing PASSED       [ 81%]
+tests/unit/test_producer.py::test_publish_failure_is_counted PASSED      [ 84%]
+tests/unit/test_producer.py::test_exact_duplicate_is_counted_as_source_duplicate_but_not_dropped PASSED [ 87%]
+tests/unit/test_producer.py::test_rerun_of_same_file_gives_same_record_uids PASSED [ 90%]
+tests/unit/test_producer.py::test_limit_restricts_rows PASSED            [ 93%]
+tests/unit/test_producer.py::test_cli_requires_limit_or_full PASSED      [ 96%]
+tests/unit/test_producer.py::test_skip_selects_a_disjoint_slice_with_original_row_numbers PASSED [100%]
+
+============================= 32 passed in 1.41s ==============================
+
+--- exit code: 0 ---

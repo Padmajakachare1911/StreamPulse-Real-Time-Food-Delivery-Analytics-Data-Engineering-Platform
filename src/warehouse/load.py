@@ -1,7 +1,9 @@
 """Write one Spark micro-batch into PostgreSQL, safely and repeatably.
 
 How duplicates are classified (docs/03 M5, docs/04 section 2):
-  retry duplicate  : record_uid already in core.orders   -> nothing is written, only counted
+  retry duplicate  : record_uid already known (stored in core.orders, or already logged in
+                     core.duplicate_records as a discarded source duplicate)
+                     -> nothing is written, only counted
   source duplicate : different record_uid, same business_hash (same order_id)
                      -> first copy kept, the other is logged in core.duplicate_records
   new record       : inserted
@@ -46,9 +48,15 @@ def upsert_orders(conn, rows: list[dict]) -> dict:
         execute_values(cur, f"INSERT INTO staging_orders ({COLUMN_LIST}) VALUES %s",
                        [_row_values(r) for r in rows], page_size=1000)
 
-        # Retry duplicates: this exact record_uid is already stored.
-        cur.execute("SELECT count(*) FROM staging_orders s WHERE EXISTS "
-                    "(SELECT 1 FROM core.orders o WHERE o.record_uid = s.record_uid)")
+        # Retry duplicates: this exact record_uid was seen before, either stored or already logged
+        # as a discarded source duplicate (so re-ingesting a file never logs the same copy twice).
+        cur.execute("""
+            CREATE TEMP TABLE known_uids ON COMMIT DROP AS
+            SELECT s.record_uid FROM staging_orders s
+            WHERE EXISTS (SELECT 1 FROM core.orders o WHERE o.record_uid = s.record_uid)
+               OR EXISTS (SELECT 1 FROM core.duplicate_records d WHERE d.record_uid = s.record_uid)
+        """)
+        cur.execute("SELECT count(*) FROM known_uids")
         result["retry_duplicates"] = cur.fetchone()[0]
 
         # Candidates = not a retry. Among them, the first copy per business_hash wins (lowest source row).
@@ -56,7 +64,7 @@ def upsert_orders(conn, rows: list[dict]) -> dict:
             CREATE TEMP TABLE fresh_orders ON COMMIT DROP AS
             SELECT s.*, row_number() OVER (PARTITION BY s.business_hash ORDER BY s.source_row_number, s.record_uid) AS rn
             FROM staging_orders s
-            WHERE NOT EXISTS (SELECT 1 FROM core.orders o WHERE o.record_uid = s.record_uid)
+            WHERE s.record_uid NOT IN (SELECT record_uid FROM known_uids)
         """)
 
         # Source duplicates: a later copy in this batch, or the business_hash is already stored.

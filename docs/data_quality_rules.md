@@ -32,6 +32,20 @@ Type and required-field checks (`MISSING_REQUIRED`, `TYPE_ERROR`) come from `con
 
 The real orders file contains **no** duplicate `order_id`; duplicates in this project come from re-running ingestion (retry duplicates) or from the isolated Demo 3 test file (source duplicate).
 
+## Parquet landing layer vs PostgreSQL warehouse layer (they behave differently on purpose)
+| | Parquet (`data/processed/parquet`) | PostgreSQL (`core.orders`) |
+|---|---|---|
+| Role | append-only **landing layer**: every valid message Spark consumed, kept for replay and audit | **deduplicated** warehouse: one row per order, used by analytics and the dashboard |
+| Retry duplicate (same `record_uid`) | **kept** when it arrives in a later batch (only duplicates inside the same batch are removed) | ignored, counted as `retry_duplicates` |
+| Source duplicate (same `order_id`, other `record_uid`) | **kept** (different `record_uid`) | first copy kept, other logged once in `core.duplicate_records` |
+| "How many orders?" | `count(DISTINCT record_uid)` (or `order_id`) | `count(*)` |
+| Rewriting | a re-run batch overwrites its own `batch_id=NNNNNNNN` folder | `INSERT … ON CONFLICT` inside one transaction |
+
+So Parquet row count can be larger than the PostgreSQL row count; the difference is exactly the repeats, and `scripts/reconcile.py` reports it.
+Proved with the Demo 3 file (`docs/evidence/05_data_quality/quality_idempotency_test.txt`): after ingesting it twice Kafka has 4 messages, Parquet 4 rows (2 distinct `record_uid`), PostgreSQL 1 row, `core.duplicate_records` 1 row.
+
+**Re-ingesting a discarded source duplicate:** the discarded copy is not stored in `core.orders`, so its `record_uid` is also looked up in `core.duplicate_records`; if found it counts as a retry. (Found while designing the idempotency test: without this, each re-ingestion would have logged the same copy again. Fixed and covered by `test_reingesting_a_discarded_source_duplicate_is_a_retry_and_is_not_logged_twice`.)
+
 ## Where each layer applies the rules
 | Layer | What it does |
 |---|---|

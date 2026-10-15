@@ -1,0 +1,38 @@
+﻿Task ID: P5-01
+Date/time (UTC): 2026-10-15T17:34:01.9450204Z
+Date/time (local): 2026-10-15T23:04:01.9520180+05:30
+Command: $env:PYTHONUTF8='1'; & .\.venv\Scripts\python.exe -u scripts\quality_experiment.py --tag q1
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 6448549
+--- output ---
+DATA-QUALITY / IDEMPOTENCY EXPERIMENT tag=q1 input=data/test_inputs/demo3_records.csv topic=quality_test_q1 database=streampulse_quality_q1
+
+Step 1: first ingestion of the Demo 3 file
+  published run=q-run1-q1 skip=0 limit=10: read=3 valid=2 rejected=1 published=2 failed=0
+[PASS] producer: 3 read = 2 valid + 1 rejected, 2 published: read=3 valid=2 rejected=1 published=2
+[PASS] producer: exact duplicate counted as a source duplicate, not dropped: source_duplicates_in_input=1 rejection_reasons={'RANGE_ERROR': 1}
+[PASS] dead-letter record has every required field: fields=['dlq_id', 'ingest_run_id', 'raw_payload', 'reason_code', 'reason_detail', 'record_uid', 'rejected_at', 'stage']
+[PASS] dead-letter reason is specific and names the rule: reason_code=RANGE_ERROR detail=delivered_not_before_purchase: delivered_customer_ts 2017-09-01T12:00:00 is before purchase_ts 2017-10-03T09:00:00
+[PASS] Parquet landing layer keeps both valid rows (different record_uid): rows=2 distinct record_uid=2
+[PASS] PostgreSQL keeps ONE row for the valid order: rows=1 distinct order_id=1
+[PASS] second copy is classified as a SOURCE duplicate and logged once: duplicate_records=1 batch postgres result={'attempted': 2, 'inserted': 1, 'retry_duplicates': 0, 'source_duplicates': 1, 'batch_id': 0}
+
+Step 2: load run summaries and dead letters into the test database
+[PASS] core.dead_letter_records holds the rejected order with its reason: rows=[('ingest', 'RANGE_ERROR', True, 'demo3_order_invalid_002')]
+
+Step 3: re-ingest the SAME file (new run id) and process it again with the same stream and checkpoint
+  published run=q-run2-q1 skip=0 limit=10: read=3 valid=2 rejected=1 published=2 failed=0
+[PASS] same row gets the same record_uid in the re-run (deterministic identity): run1=6c2e79c06f6afc2e2ddd3a98506f4eaf run2=6c2e79c06f6afc2e2ddd3a98506f4eaf
+[PASS] re-ingestion leaves the PostgreSQL unique count unchanged: rows=1 (was 1)
+[PASS] both replayed records are retry duplicates; nothing inserted or newly classified: second batch postgres result={'attempted': 2, 'inserted': 0, 'retry_duplicates': 2, 'source_duplicates': 0, 'batch_id': 1}
+[PASS] the discarded copy is not logged a second time: duplicate_records=1
+[PASS] Parquet landing layer is append-oriented: 4 rows, still 2 distinct record_uid: rows=4 distinct=2
+[PASS] dead letters: 1 row per run (2) for 1 distinct rejected record; loading twice adds nothing: rows=2 distinct record_uid=1
+[PASS] both ingestion runs are recorded in core.ingestion_runs: rows=2
+
+Final: Kafka messages=4  Parquet rows=4 (distinct 2)  PostgreSQL orders=1  duplicate_records=1
+
+SUMMARY: 15 passed, 0 failed
+RESULT: EXPERIMENT PASSED
+
+--- exit code: 0 ---

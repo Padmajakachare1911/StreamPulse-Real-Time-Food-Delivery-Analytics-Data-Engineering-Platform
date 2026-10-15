@@ -75,10 +75,12 @@ def topic_offsets(topic: str) -> tuple[int, int]:
     return start, end
 
 
-def publish(topic: str, run_id: str, skip: int, limit: int) -> dict:
-    """Publish real orders with the real producer; return its run summary."""
+def publish(topic: str, run_id: str, skip: int, limit: int, input_file: str | None = None) -> dict:
+    """Publish orders with the real producer (the real dataset by default); return its run summary."""
     cmd = [PYTHON, "-m", "src.producer.dataset_producer", "--topic", topic, "--skip", str(skip), "--limit", str(limit),
            "--run-id", run_id]
+    if input_file:
+        cmd += ["--input", input_file]
     out = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, env={**os.environ, "PYTHONUTF8": "1"})
     summary_file = INGESTION_RUNS_DIR / f"{run_id}.json"
     if out.returncode != 0 or not summary_file.exists():
