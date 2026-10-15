@@ -1,6 +1,9 @@
-﻿kafka-python
-pyspark
-python-dotenv
-psycopg2-binary
-pandas
-pytest
+kafka-python==3.0.11
+pyspark==4.2.0
+python-dotenv==1.2.4
+psycopg2-binary==2.9.13
+pandas==3.0.6
+pyarrow==26.0.0
+PyYAML==6.0.3
+requests==2.34.2
+pytest==9.1.1

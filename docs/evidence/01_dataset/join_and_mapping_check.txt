@@ -1,0 +1,26 @@
+﻿Task ID: P1-03
+Date/time (UTC): 2026-10-15T16:25:23.6760177Z
+Date/time (local): 2026-10-15T21:55:23.6856201+05:30
+Command: $env:PYTHONUTF8='1'; & .\.venv\Scripts\python.exe scripts\check_join_mapping.py 2>&1
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: c3fc6ee
+--- output ---
+JOIN REPORT
+{
+  "orders_in_file": 99441,
+  "order_rows_after_join": 99441,
+  "join_changed_row_count": false,
+  "orders_without_items": 775,
+  "orders_without_payments": 1,
+  "orders_without_customer_row": 0
+}
+
+MAPPING RESULT
+rows mapped ok: 99441
+rows rejected by mapping: 0
+reasons: {}
+first replayed order purchase time: 2016-09-04 21:15:19
+last replayed order purchase time:  2018-10-17 17:30:18
+customer_state counts (top 5): {'SP': 41746, 'RJ': 12852, 'MG': 11635, 'RS': 5466, 'PR': 5045}
+
+--- exit code: 0 ---

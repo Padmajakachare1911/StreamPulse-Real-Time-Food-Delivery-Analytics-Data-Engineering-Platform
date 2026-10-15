@@ -35,7 +35,9 @@ $header | Set-Content -Path $OutFile -Encoding utf8
 
 # Run in a child PowerShell; cmd.exe merges stderr into stdout at OS level, so native
 # stderr text is saved as plain text instead of PowerShell error records.
-$childScript = "`$ProgressPreference = 'SilentlyContinue'; " + $Command
+# The child exits with the last native command's real exit code ($LASTEXITCODE).
+$childScript = "`$ProgressPreference = 'SilentlyContinue'; " + $Command +
+    "; if (`$null -ne `$LASTEXITCODE) { exit `$LASTEXITCODE }"
 $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($childScript))
 $output = cmd /c "powershell -NoProfile -NonInteractive -OutputFormat Text -EncodedCommand $encoded 2>&1" | Out-String
 $exit = $LASTEXITCODE

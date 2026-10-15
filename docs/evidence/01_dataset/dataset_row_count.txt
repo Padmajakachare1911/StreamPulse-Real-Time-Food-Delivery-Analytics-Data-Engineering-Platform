@@ -1,0 +1,19 @@
+﻿Task ID: P1-01
+Date/time (UTC): 2026-10-15T16:24:00.0955591Z
+Date/time (local): 2026-10-15T21:54:00.1035560+05:30
+Command: $env:PYTHONUTF8='1'; & '.\.venv\Scripts\python.exe' -I scripts\profile_dataset.py --summary 2>$null
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: c3fc6ee
+--- output ---
+file                                                rows  cols
+olist_customers_dataset.csv                       99,441     5
+olist_geolocation_dataset.csv                  1,000,163     5
+olist_order_items_dataset.csv                    112,650     7
+olist_order_payments_dataset.csv                 103,886     5
+olist_order_reviews_dataset.csv                   99,224     7
+olist_orders_dataset.csv                          99,441     8
+olist_products_dataset.csv                        32,951     9
+olist_sellers_dataset.csv                          3,095     4
+product_category_name_translation.csv                 71     2
+
+--- exit code: 0 ---

@@ -1,0 +1,14 @@
+Task ID: P1-04
+Date/time (UTC): 2026-10-15T16:30:00Z (approximate; recorded by the agent right after the search call)
+Command: web search (Firecrawl search tool) "Brazilian E-Commerce Public Dataset by Olist kaggle license CC BY-NC-SA 4.0"
+Working directory: n/a (web lookup, not a shell command)
+Git commit: c3fc6ee
+--- output (excerpt of the first result returned by the search tool) ---
+URL:   https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
+Title: Brazilian E-Commerce Public Dataset by Olist - Kaggle
+Text:  "# Brazilian E-Commerce Public Dataset by Olist
+        ## License
+        [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)"
+--- note ---
+This is a search-result excerpt of the Kaggle page, not a screenshot. The student should
+open the Kaggle page once and confirm the license line before submission.

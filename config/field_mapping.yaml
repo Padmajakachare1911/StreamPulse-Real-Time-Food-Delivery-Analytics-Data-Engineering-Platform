@@ -1,0 +1,48 @@
+# Field mapping: source column -> canonical field.
+#
+# Every source_column below exists in the real Olist files (checked by
+# scripts/profile_dataset.py, see docs/evidence/01_dataset/dataset_profile.txt).
+# The streamed entity is ONE ORDER EVENT per order_id (docs/07 section 4):
+#   - "orders" columns come straight from olist_orders_dataset.csv
+#   - "derived" columns are produced by src/common/orders_source.py from
+#     olist_customers_dataset.csv, olist_order_items_dataset.csv and
+#     olist_order_payments_dataset.csv
+#
+# Types: string | int | float | timestamp
+# timestamp = "%Y-%m-%d %H:%M:%S" in the source; the dataset carries no time zone,
+# so values are kept as naive timestamps and sent as ISO-8601 text.
+#
+# required: true  -> empty value is rejected (MISSING_REQUIRED)
+# required: false -> empty is allowed and becomes null. Example: order_delivered_customer_date
+#                    is legitimately empty for orders that are not delivered yet.
+
+timestamp_format: "%Y-%m-%d %H:%M:%S"
+
+fields:
+  # ---- from olist_orders_dataset.csv ----
+  - {source_column: order_id,                      canonical_name: order_id,                      type: string,    required: true,  origin: orders}
+  - {source_column: customer_id,                   canonical_name: customer_id,                   type: string,    required: true,  origin: orders}
+  - {source_column: order_status,                  canonical_name: order_status,                  type: string,    required: true,  origin: orders}
+  - {source_column: order_purchase_timestamp,      canonical_name: purchase_ts,                   type: timestamp, required: true,  origin: orders}
+  - {source_column: order_approved_at,             canonical_name: approved_ts,                   type: timestamp, required: false, origin: orders}
+  - {source_column: order_delivered_carrier_date,  canonical_name: delivered_carrier_ts,          type: timestamp, required: false, origin: orders}
+  - {source_column: order_delivered_customer_date, canonical_name: delivered_customer_ts,         type: timestamp, required: false, origin: orders}
+  - {source_column: order_estimated_delivery_date, canonical_name: estimated_delivery_ts,         type: timestamp, required: true,  origin: orders}
+
+  # ---- derived from olist_customers_dataset.csv (join on customer_id) ----
+  - {source_column: customer_unique_id,            canonical_name: customer_unique_id,            type: string,    required: false, origin: customers}
+  - {source_column: customer_zip_code_prefix,      canonical_name: customer_zip_code_prefix,      type: string,    required: false, origin: customers}
+  - {source_column: customer_city,                 canonical_name: customer_city,                 type: string,    required: false, origin: customers}
+  - {source_column: customer_state,                canonical_name: customer_state,                type: string,    required: false, origin: customers}
+
+  # ---- derived from olist_order_items_dataset.csv (aggregate per order_id) ----
+  # items_count = number of item rows; 0 when the order has no item rows (775 orders in the real data).
+  - {source_column: items_count,                   canonical_name: items_count,                   type: int,       required: true,  origin: order_items}
+  - {source_column: items_price_total,             canonical_name: items_price_total,             type: float,     required: true,  origin: order_items}
+  - {source_column: items_freight_total,           canonical_name: items_freight_total,           type: float,     required: true,  origin: order_items}
+
+  # ---- derived from olist_order_payments_dataset.csv (aggregate per order_id) ----
+  # payments_count = 0 when the order has no payment row (1 order in the real data).
+  - {source_column: payments_count,                canonical_name: payments_count,                type: int,       required: true,  origin: order_payments}
+  - {source_column: payments_value_total,          canonical_name: payments_value_total,          type: float,     required: true,  origin: order_payments}
+  - {source_column: payment_types,                 canonical_name: payment_types,                 type: string,    required: false, origin: order_payments}
