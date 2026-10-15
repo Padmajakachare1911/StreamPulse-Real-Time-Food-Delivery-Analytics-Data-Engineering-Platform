@@ -1,0 +1,13 @@
+﻿Task ID: KFK-02
+Date/time (UTC): 2026-10-15T16:41:03.7446798Z
+Date/time (local): 2026-10-15T22:11:03.7446798+05:30
+Command: .\scripts\kafka_partition_counts.ps1
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: a9f479d
+--- output ---
+ecommerce_orders  partition 0: start_offset=0 end_offset=33230 messages=33230
+ecommerce_orders  partition 1: start_offset=0 end_offset=33297 messages=33297
+ecommerce_orders  partition 2: start_offset=0 end_offset=32999 messages=32999
+TOTAL messages in topic: 99526
+
+--- exit code: 0 ---

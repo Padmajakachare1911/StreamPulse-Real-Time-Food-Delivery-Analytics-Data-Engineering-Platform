@@ -38,8 +38,12 @@ $header | Set-Content -Path $OutFile -Encoding utf8
 # The child exits with the last native command's real exit code ($LASTEXITCODE).
 # Native stderr lines arrive as error records; ToString() keeps only their text.
 $childScript = "`$ProgressPreference = 'SilentlyContinue'; `$ErrorActionPreference = 'Continue'; " +
-    "& { $Command } *>&1 | ForEach-Object { `$_.ToString() }; " +
-    "if (`$null -ne `$LASTEXITCODE) { exit `$LASTEXITCODE }"
+    "`$global:hadRealError = `$false; " +
+    "& { $Command } *>&1 | ForEach-Object { " +
+    "if (`$_ -is [System.Management.Automation.ErrorRecord] -and `$_.FullyQualifiedErrorId -notlike 'NativeCommandError*') { `$global:hadRealError = `$true }; " +
+    "`$_.ToString() }; " +
+    "if (`$null -ne `$LASTEXITCODE -and `$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }; " +
+    "if (`$global:hadRealError) { exit 1 }"
 $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($childScript))
 $output = cmd /c "powershell -NoProfile -NonInteractive -OutputFormat Text -EncodedCommand $encoded 2>&1" | Out-String
 $exit = $LASTEXITCODE

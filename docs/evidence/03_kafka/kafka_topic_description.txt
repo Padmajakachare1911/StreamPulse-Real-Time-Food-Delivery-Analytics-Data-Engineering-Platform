@@ -1,0 +1,13 @@
+﻿Task ID: KFK-01
+Date/time (UTC): 2026-10-15T16:38:48.4598296Z
+Date/time (local): 2026-10-15T22:08:48.4690165+05:30
+Command: .\scripts\kafka_describe_topic.ps1
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: a9f479d
+--- output ---
+Topic: ecommerce_orders	TopicId: YhNS3Ip9TEiPbCjX8Lz-gQ	PartitionCount: 3	ReplicationFactor: 1	Configs: min.insync.replicas=1
+	Topic: ecommerce_orders	Partition: 0	Leader: 1	Replicas: 1	Isr: 1	Elr: 	LastKnownElr: 
+	Topic: ecommerce_orders	Partition: 1	Leader: 1	Replicas: 1	Isr: 1	Elr: 	LastKnownElr: 
+	Topic: ecommerce_orders	Partition: 2	Leader: 1	Replicas: 1	Isr: 1	Elr: 	LastKnownElr: 
+
+--- exit code: 0 ---

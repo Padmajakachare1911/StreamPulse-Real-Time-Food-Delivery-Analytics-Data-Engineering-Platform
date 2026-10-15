@@ -1,0 +1,18 @@
+﻿Task ID: P3-02
+Date/time (UTC): 2026-10-15T16:36:51.8001112Z
+Date/time (local): 2026-10-15T22:06:51.8051104+05:30
+Command: & '.\.venv\Scripts\python.exe' -I scripts\measure_key_options.py
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: a9f479d
+--- output ---
+orders: 99,441   partitions: 3   (computed offline, murmur2)
+
+key=order_id        distinct keys=99,441   p0=33,203 (33.4%)  p1=33,258 (33.4%)  p2=32,980 (33.2%)
+key=customer_id     distinct keys=99,441   p0=33,041 (33.2%)  p1=33,243 (33.4%)  p2=33,157 (33.3%)
+key=customer_state  distinct keys=    27   p0=22,076 (22.2%)  p1=66,573 (66.9%)  p2=10,792 (10.9%)
+
+Ordering: a key keeps all messages with the same key in ONE partition, in order.
+order_id: every order is one event, so no per-order ordering is needed -> best spread.
+customer_state: ordering per state, but only 27 keys and SP alone is ~42% -> skewed.
+
+--- exit code: 0 ---

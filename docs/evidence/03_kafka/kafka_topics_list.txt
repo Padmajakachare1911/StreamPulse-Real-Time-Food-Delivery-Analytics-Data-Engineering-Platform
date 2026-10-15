@@ -1,0 +1,10 @@
+﻿Task ID: KFK-00
+Date/time (UTC): 2026-10-15T16:38:59.9283530Z
+Date/time (local): 2026-10-15T22:08:59.9283530+05:30
+Command: .\scripts\kafka_list_topics.ps1
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: a9f479d
+--- output ---
+ecommerce_orders
+
+--- exit code: 0 ---

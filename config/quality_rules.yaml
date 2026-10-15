@@ -1,0 +1,33 @@
+# Data quality rules for one mapped order payload (canonical field names).
+# Each rule was derived from the real profiling results (docs/data_quality_report.md);
+# the justification and the real-data count are in docs/data_quality_rules.md.
+#
+# severity: reject -> record goes to the dead-letter queue (never silently dropped)
+#           warn   -> record continues, but the warning is counted in the run summary
+#
+# Note: empty approved/delivered timestamps are NOT errors. They are normal for
+# orders that are not approved/shipped/delivered yet.
+
+allowed_order_status:            # closed set observed in the real data (8 values)
+  - delivered
+  - shipped
+  - canceled
+  - unavailable
+  - invoiced
+  - processing
+  - created
+  - approved
+
+purchase_date_range:             # real orders span 2016-09-04 .. 2018-10-17
+  min: "2016-01-01"
+  max: "2018-12-31"
+
+rules:
+  - {name: status_in_allowed_set,         severity: reject, reason_code: SCHEMA_MISMATCH, description: "order_status must be one of allowed_order_status"}
+  - {name: purchase_date_in_range,        severity: reject, reason_code: RANGE_ERROR,     description: "purchase_ts must be inside purchase_date_range"}
+  - {name: amounts_not_negative,          severity: reject, reason_code: RANGE_ERROR,     description: "items_price_total, items_freight_total and payments_value_total must be >= 0"}
+  - {name: approved_not_before_purchase,  severity: reject, reason_code: RANGE_ERROR,     description: "approved_ts must not be earlier than purchase_ts"}
+  - {name: delivered_not_before_purchase, severity: reject, reason_code: RANGE_ERROR,     description: "delivered_customer_ts must not be earlier than purchase_ts"}
+  - {name: delivered_status_has_date,     severity: reject, reason_code: INCONSISTENT,    description: "status 'delivered' requires delivered_customer_ts"}
+  - {name: delivered_date_matches_status, severity: reject, reason_code: INCONSISTENT,    description: "delivered_customer_ts is only allowed when status is 'delivered'"}
+  - {name: payment_total_positive,        severity: warn,   reason_code: RANGE_ERROR,     description: "orders with payment rows should have payments_value_total > 0"}

@@ -11,4 +11,13 @@ Every row points to a real saved file. Status uses the same vocabulary as `docs/
 | DS-01 | Dataset row counts + SHA-256 + profile | `docs/evidence/01_dataset/dataset_row_count.txt`, `dataset_profile.txt`, `dataset_profile.json` | orders 99,441 rows / 8 cols; order_id unique; all timestamps parse; 9 files hashed | VERIFIED_WITH_EVIDENCE |
 | DS-02 | Order join + mapping over all orders | `docs/evidence/01_dataset/join_and_mapping_check.txt` | 99,441 in, 99,441 out; 775 without items, 1 without payments; 0 mapping rejections | VERIFIED_WITH_EVIDENCE |
 | DS-03 | Dataset license | `docs/evidence/01_dataset/license_check.txt` | CC BY-NC-SA 4.0 (search-result excerpt of Kaggle page, not a screenshot) | TESTED |
+| API-01 | Real API request (one week) | `docs/evidence/02_api/api_real_request.txt` | HTTP 200, 5 daily BRL->USD rates, retrieved 2026-10-15 | VERIFIED_WITH_EVIDENCE |
+| API-02 | Real API request (full order span) | `docs/evidence/02_api/api_full_range_request.txt` | HTTP 200, 544 rows, 2016-09-04..2018-10-17 | VERIFIED_WITH_EVIDENCE |
+| API-03 | Client retry/backoff against unreachable host | `docs/evidence/02_api/api_retry_backoff_simulated.txt` | 3 attempts, waits 1s then 2s, clean error (simulated failure of the real client, not a mock API) | VERIFIED_WITH_EVIDENCE |
+| KFK-01 | Topic description | `docs/evidence/03_kafka/kafka_topic_description.txt` | `ecommerce_orders`: 3 partitions, RF 1 | VERIFIED_WITH_EVIDENCE |
+| KFK-02 | Producer dry run (full file) | `docs/evidence/03_kafka/producer_dry_run_full.txt`, `dead_letter_sample_dryrun.txt` | 99,441 read, 99,427 valid, 14 rejected (INCONSISTENT), nothing published; 14 dead-letter lines | VERIFIED_WITH_EVIDENCE |
+| KFK-03 | Limited run (100) | `docs/evidence/03_kafka/producer_limited_100.txt`, `partition_counts_after_limited_run.txt` | 99 published + 1 rejected; broker offsets 31/42/26 = callbacks 31/42/26 | VERIFIED_WITH_EVIDENCE |
+| KFK-04 | Full run | `docs/evidence/03_kafka/producer_full_run.txt`, `partition_counts_before_full_run.txt`, `partition_counts_after_full_run.txt` | published 99,427 = valid; failed 0; broker delta 33,199 + 33,255 + 32,973 = 99,427 | VERIFIED_WITH_EVIDENCE |
+| KFK-05 | Key choice | `docs/evidence/03_kafka/key_options_computed_offline.txt` | order_id 33.4/33.4/33.2 % vs customer_state 22.2/66.9/10.9 % (offline computation); order_id chosen; measured on broker in KFK-04 | VERIFIED_WITH_EVIDENCE |
+| KFK-06 | Sample message consumed | `docs/evidence/03_kafka/consume_sample_messages.txt` | envelope with payload, raw, record_uid, api_enrichment | VERIFIED_WITH_EVIDENCE |
 | DEMO-1..4 | Four manual demos | `docs/evidence/11_manual_demos/` | to be performed by the student | PENDING_HUMAN |

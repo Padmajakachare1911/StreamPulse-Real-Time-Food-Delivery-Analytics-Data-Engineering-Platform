@@ -1,0 +1,270 @@
+﻿Task ID: P3-03
+Date/time (UTC): 2026-10-15T16:39:19.4206602Z
+Date/time (local): 2026-10-15T22:09:19.4206602+05:30
+Command: $env:PYTHONUTF8='1'; & '.\.venv\Scripts\python.exe' -m src.producer.dataset_producer --full --run-id full-run-01
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: a9f479d
+--- output ---
+2026-10-15 22:09:21,350 INFO dataset_producer Run full-run-01 | input=olist_orders_dataset.csv | sha256=8df58ef3d2d7
+2026-10-15 22:09:29,805 INFO src.api.client API cache hit for 44e16c395630633433d76802b0dc82c7 (544 rows)
+C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\src\producer\dataset_producer.py:128: DeprecationWarning: key_serializer does not implement kafka.serializer.Serializer
+  producer = None if args.dry_run else create_producer(args.bootstrap)
+C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\src\producer\dataset_producer.py:128: DeprecationWarning: value_serializer does not implement kafka.serializer.Serializer
+  producer = None if args.dry_run else create_producer(args.bootstrap)
+2026-10-15 22:09:30,425 INFO kafka.net.manager Attempting bootstrap to bootstrap-0 at localhost:9092 (rack None)
+2026-10-15 22:09:30,425 INFO kafka.net.manager Initializing connection for node_id bootstrap-0 at localhost:9092 (rack=None)
+2026-10-15 22:09:30,436 INFO kafka.net.transport <KafkaTCPTransport [::1:9092<-49786]>: connected to <socket.socket fd=1324, family=23, type=1, proto=0, laddr=('::1', 49786, 0, 0), raddr=('::1', 9092, 0, 0)>
+2026-10-15 22:09:30,449 INFO kafka.net.connection <KafkaConnection node_id=bootstrap-0 host=[::1:9092<-49786] broker_version=unknown (initializing)>: Broker version identified as 4.1
+2026-10-15 22:09:30,449 INFO kafka.net.connection <KafkaConnection node_id=bootstrap-0 host=[::1:9092<-49786] broker_version=(4, 1) (connected)>: Connected
+2026-10-15 22:09:30,474 INFO kafka.cluster Updated metadata: ClusterMetadata(brokers: 1, topics: 0, coordinators: 0)
+2026-10-15 22:09:30,474 INFO kafka.net.manager Bootstrap complete: ClusterMetadata(brokers: 1, topics: 0, coordinators: 0)
+2026-10-15 22:09:30,474 INFO kafka.net.manager Closing bootstrap connection bootstrap-0
+2026-10-15 22:09:30,475 INFO kafka.net.transport <KafkaTCPTransport [::1:9092<-49786]>: Closing transport
+2026-10-15 22:09:30,477 INFO kafka.net.connection <KafkaConnection node_id=bootstrap-0 broker_version=(4, 1) (disconnected)>: Connection closed
+2026-10-15 22:09:30,478 INFO kafka.cluster Starting metadata refresh loop
+2026-10-15 22:09:30,479 INFO kafka.producer.kafka <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Instantiated an idempotent producer.
+2026-10-15 22:09:30,482 INFO kafka.producer.transaction_manager ProducerId set to -1 with epoch -1
+2026-10-15 22:09:30,500 INFO kafka.net.manager Initializing connection for node_id 1 at localhost:9092 (rack=None)
+2026-10-15 22:09:30,511 INFO kafka.net.transport <KafkaTCPTransport [::1:9092<-49787]>: connected to <socket.socket fd=1468, family=23, type=1, proto=0, laddr=('::1', 49787, 0, 0), raddr=('::1', 9092, 0, 0)>
+2026-10-15 22:09:30,516 INFO kafka.net.connection <KafkaConnection node_id=1 host=[::1:9092<-49787] broker_version=(4, 1) (connected)>: Connected
+2026-10-15 22:09:30,520 INFO kafka.producer.transaction_manager ProducerId set to 1 with epoch 0
+2026-10-15 22:09:30,596 INFO kafka.cluster Updated metadata: ClusterMetadata(brokers: 1, topics: 1, coordinators: 0)
+2026-10-15 22:09:31,047 INFO dataset_producer progress: read=505 valid=500 rejected=5 published=500
+2026-10-15 22:09:31,500 INFO dataset_producer progress: read=1005 valid=1000 rejected=5 published=1000
+2026-10-15 22:09:31,978 INFO dataset_producer progress: read=1505 valid=1500 rejected=5 published=1500
+2026-10-15 22:09:32,422 INFO dataset_producer progress: read=2005 valid=2000 rejected=5 published=2000
+2026-10-15 22:09:32,887 INFO dataset_producer progress: read=2505 valid=2500 rejected=5 published=2500
+2026-10-15 22:09:33,342 INFO dataset_producer progress: read=3005 valid=3000 rejected=5 published=3000
+2026-10-15 22:09:33,805 INFO dataset_producer progress: read=3505 valid=3500 rejected=5 published=3500
+2026-10-15 22:09:34,242 INFO dataset_producer progress: read=4005 valid=4000 rejected=5 published=4000
+2026-10-15 22:09:34,721 INFO dataset_producer progress: read=4505 valid=4500 rejected=5 published=4500
+2026-10-15 22:09:35,219 INFO dataset_producer progress: read=5005 valid=5000 rejected=5 published=5000
+2026-10-15 22:09:35,672 INFO dataset_producer progress: read=5505 valid=5500 rejected=5 published=5500
+2026-10-15 22:09:36,118 INFO dataset_producer progress: read=6005 valid=6000 rejected=5 published=6000
+2026-10-15 22:09:36,584 INFO dataset_producer progress: read=6505 valid=6500 rejected=5 published=6500
+2026-10-15 22:09:37,203 INFO dataset_producer progress: read=7005 valid=7000 rejected=5 published=7000
+2026-10-15 22:09:37,731 INFO dataset_producer progress: read=7505 valid=7500 rejected=5 published=7500
+2026-10-15 22:09:38,212 INFO dataset_producer progress: read=8005 valid=8000 rejected=5 published=8000
+2026-10-15 22:09:38,653 INFO dataset_producer progress: read=8505 valid=8500 rejected=5 published=8500
+2026-10-15 22:09:39,098 INFO dataset_producer progress: read=9005 valid=9000 rejected=5 published=9000
+2026-10-15 22:09:39,535 INFO dataset_producer progress: read=9505 valid=9500 rejected=5 published=9500
+2026-10-15 22:09:39,996 INFO dataset_producer progress: read=10005 valid=10000 rejected=5 published=10000
+2026-10-15 22:09:40,429 INFO dataset_producer progress: read=10505 valid=10500 rejected=5 published=10500
+2026-10-15 22:09:40,836 INFO dataset_producer progress: read=11005 valid=11000 rejected=5 published=11000
+2026-10-15 22:09:41,322 INFO dataset_producer progress: read=11506 valid=11500 rejected=6 published=11500
+2026-10-15 22:09:41,787 INFO dataset_producer progress: read=12006 valid=12000 rejected=6 published=12000
+2026-10-15 22:09:42,269 INFO dataset_producer progress: read=12506 valid=12500 rejected=6 published=12500
+2026-10-15 22:09:42,693 INFO dataset_producer progress: read=13006 valid=13000 rejected=6 published=13000
+2026-10-15 22:09:43,175 INFO dataset_producer progress: read=13506 valid=13500 rejected=6 published=13500
+2026-10-15 22:09:43,840 INFO dataset_producer progress: read=14006 valid=14000 rejected=6 published=14000
+2026-10-15 22:09:44,264 INFO dataset_producer progress: read=14506 valid=14500 rejected=6 published=14500
+2026-10-15 22:09:44,685 INFO dataset_producer progress: read=15006 valid=15000 rejected=6 published=15000
+2026-10-15 22:09:45,121 INFO dataset_producer progress: read=15506 valid=15500 rejected=6 published=15500
+2026-10-15 22:09:45,739 INFO dataset_producer progress: read=16006 valid=16000 rejected=6 published=16000
+2026-10-15 22:09:46,328 INFO dataset_producer progress: read=16506 valid=16500 rejected=6 published=16500
+2026-10-15 22:09:46,829 INFO dataset_producer progress: read=17006 valid=17000 rejected=6 published=17000
+2026-10-15 22:09:47,349 INFO dataset_producer progress: read=17506 valid=17500 rejected=6 published=17500
+2026-10-15 22:09:47,787 INFO dataset_producer progress: read=18006 valid=18000 rejected=6 published=18000
+2026-10-15 22:09:48,269 INFO dataset_producer progress: read=18506 valid=18500 rejected=6 published=18500
+2026-10-15 22:09:48,693 INFO dataset_producer progress: read=19006 valid=19000 rejected=6 published=19000
+2026-10-15 22:09:49,393 INFO dataset_producer progress: read=19506 valid=19500 rejected=6 published=19500
+2026-10-15 22:09:49,846 INFO dataset_producer progress: read=20006 valid=20000 rejected=6 published=20000
+2026-10-15 22:09:50,333 INFO dataset_producer progress: read=20506 valid=20500 rejected=6 published=20500
+2026-10-15 22:09:50,791 INFO dataset_producer progress: read=21006 valid=21000 rejected=6 published=21000
+2026-10-15 22:09:51,201 INFO dataset_producer progress: read=21506 valid=21500 rejected=6 published=21500
+2026-10-15 22:09:51,638 INFO dataset_producer progress: read=22006 valid=22000 rejected=6 published=22000
+2026-10-15 22:09:52,211 INFO dataset_producer progress: read=22506 valid=22500 rejected=6 published=22500
+2026-10-15 22:09:52,692 INFO dataset_producer progress: read=23006 valid=23000 rejected=6 published=23000
+2026-10-15 22:09:53,166 INFO dataset_producer progress: read=23506 valid=23500 rejected=6 published=23500
+2026-10-15 22:09:53,613 INFO dataset_producer progress: read=24006 valid=24000 rejected=6 published=24000
+2026-10-15 22:09:54,079 INFO dataset_producer progress: read=24506 valid=24500 rejected=6 published=24500
+2026-10-15 22:09:54,562 INFO dataset_producer progress: read=25006 valid=25000 rejected=6 published=25000
+2026-10-15 22:09:55,072 INFO dataset_producer progress: read=25506 valid=25500 rejected=6 published=25500
+2026-10-15 22:09:55,527 INFO dataset_producer progress: read=26006 valid=26000 rejected=6 published=26000
+2026-10-15 22:09:55,996 INFO dataset_producer progress: read=26506 valid=26500 rejected=6 published=26500
+2026-10-15 22:09:56,503 INFO dataset_producer progress: read=27006 valid=27000 rejected=6 published=27000
+2026-10-15 22:09:57,236 INFO dataset_producer progress: read=27506 valid=27500 rejected=6 published=27500
+2026-10-15 22:09:57,739 INFO dataset_producer progress: read=28006 valid=28000 rejected=6 published=28000
+2026-10-15 22:09:58,209 INFO dataset_producer progress: read=28506 valid=28500 rejected=6 published=28500
+2026-10-15 22:09:58,683 INFO dataset_producer progress: read=29006 valid=29000 rejected=6 published=29000
+2026-10-15 22:09:59,112 INFO dataset_producer progress: read=29506 valid=29500 rejected=6 published=29500
+2026-10-15 22:09:59,622 INFO dataset_producer progress: read=30006 valid=30000 rejected=6 published=30000
+2026-10-15 22:10:00,115 INFO dataset_producer progress: read=30506 valid=30500 rejected=6 published=30500
+2026-10-15 22:10:00,584 INFO dataset_producer progress: read=31006 valid=31000 rejected=6 published=31000
+2026-10-15 22:10:01,098 INFO dataset_producer progress: read=31506 valid=31500 rejected=6 published=31500
+2026-10-15 22:10:01,557 INFO dataset_producer progress: read=32006 valid=32000 rejected=6 published=32000
+2026-10-15 22:10:01,999 INFO dataset_producer progress: read=32506 valid=32500 rejected=6 published=32500
+2026-10-15 22:10:02,443 INFO dataset_producer progress: read=33006 valid=33000 rejected=6 published=33000
+2026-10-15 22:10:02,915 INFO dataset_producer progress: read=33506 valid=33500 rejected=6 published=33500
+2026-10-15 22:10:03,369 INFO dataset_producer progress: read=34006 valid=34000 rejected=6 published=34000
+2026-10-15 22:10:03,769 INFO dataset_producer progress: read=34506 valid=34500 rejected=6 published=34500
+2026-10-15 22:10:04,190 INFO dataset_producer progress: read=35006 valid=35000 rejected=6 published=35000
+2026-10-15 22:10:04,690 INFO dataset_producer progress: read=35506 valid=35500 rejected=6 published=35500
+2026-10-15 22:10:05,129 INFO dataset_producer progress: read=36006 valid=36000 rejected=6 published=36000
+2026-10-15 22:10:05,595 INFO dataset_producer progress: read=36506 valid=36500 rejected=6 published=36500
+2026-10-15 22:10:06,102 INFO dataset_producer progress: read=37006 valid=37000 rejected=6 published=37000
+2026-10-15 22:10:06,592 INFO dataset_producer progress: read=37506 valid=37500 rejected=6 published=37500
+2026-10-15 22:10:07,023 INFO dataset_producer progress: read=38006 valid=38000 rejected=6 published=38000
+2026-10-15 22:10:07,468 INFO dataset_producer progress: read=38506 valid=38500 rejected=6 published=38500
+2026-10-15 22:10:07,915 INFO dataset_producer progress: read=39006 valid=39000 rejected=6 published=39000
+2026-10-15 22:10:08,418 INFO dataset_producer progress: read=39507 valid=39500 rejected=7 published=39500
+2026-10-15 22:10:08,834 INFO dataset_producer progress: read=40007 valid=40000 rejected=7 published=40000
+2026-10-15 22:10:09,271 INFO dataset_producer progress: read=40507 valid=40500 rejected=7 published=40500
+2026-10-15 22:10:09,728 INFO dataset_producer progress: read=41007 valid=41000 rejected=7 published=41000
+2026-10-15 22:10:10,161 INFO dataset_producer progress: read=41507 valid=41500 rejected=7 published=41500
+2026-10-15 22:10:10,595 INFO dataset_producer progress: read=42007 valid=42000 rejected=7 published=42000
+2026-10-15 22:10:11,051 INFO dataset_producer progress: read=42507 valid=42500 rejected=7 published=42500
+2026-10-15 22:10:11,512 INFO dataset_producer progress: read=43007 valid=43000 rejected=7 published=43000
+2026-10-15 22:10:11,946 INFO dataset_producer progress: read=43507 valid=43500 rejected=7 published=43500
+2026-10-15 22:10:12,370 INFO dataset_producer progress: read=44007 valid=44000 rejected=7 published=44000
+2026-10-15 22:10:12,863 INFO dataset_producer progress: read=44507 valid=44500 rejected=7 published=44500
+2026-10-15 22:10:13,317 INFO dataset_producer progress: read=45007 valid=45000 rejected=7 published=45000
+2026-10-15 22:10:13,766 INFO dataset_producer progress: read=45507 valid=45500 rejected=7 published=45500
+2026-10-15 22:10:14,197 INFO dataset_producer progress: read=46007 valid=46000 rejected=7 published=46000
+2026-10-15 22:10:14,629 INFO dataset_producer progress: read=46507 valid=46500 rejected=7 published=46500
+2026-10-15 22:10:15,068 INFO dataset_producer progress: read=47007 valid=47000 rejected=7 published=47000
+2026-10-15 22:10:15,498 INFO dataset_producer progress: read=47507 valid=47500 rejected=7 published=47500
+2026-10-15 22:10:15,928 INFO dataset_producer progress: read=48007 valid=48000 rejected=7 published=48000
+2026-10-15 22:10:16,399 INFO dataset_producer progress: read=48507 valid=48500 rejected=7 published=48500
+2026-10-15 22:10:16,880 INFO dataset_producer progress: read=49007 valid=49000 rejected=7 published=49000
+2026-10-15 22:10:17,360 INFO dataset_producer progress: read=49507 valid=49500 rejected=7 published=49500
+2026-10-15 22:10:17,808 INFO dataset_producer progress: read=50007 valid=50000 rejected=7 published=50000
+2026-10-15 22:10:18,294 INFO dataset_producer progress: read=50507 valid=50500 rejected=7 published=50500
+2026-10-15 22:10:18,746 INFO dataset_producer progress: read=51007 valid=51000 rejected=7 published=51000
+2026-10-15 22:10:19,241 INFO dataset_producer progress: read=51507 valid=51500 rejected=7 published=51500
+2026-10-15 22:10:19,691 INFO dataset_producer progress: read=52007 valid=52000 rejected=7 published=52000
+2026-10-15 22:10:20,134 INFO dataset_producer progress: read=52507 valid=52500 rejected=7 published=52500
+2026-10-15 22:10:20,529 INFO dataset_producer progress: read=53007 valid=53000 rejected=7 published=53000
+2026-10-15 22:10:20,981 INFO dataset_producer progress: read=53507 valid=53500 rejected=7 published=53500
+2026-10-15 22:10:21,435 INFO dataset_producer progress: read=54007 valid=54000 rejected=7 published=54000
+2026-10-15 22:10:21,857 INFO dataset_producer progress: read=54507 valid=54500 rejected=7 published=54500
+2026-10-15 22:10:22,320 INFO dataset_producer progress: read=55007 valid=55000 rejected=7 published=55000
+2026-10-15 22:10:22,779 INFO dataset_producer progress: read=55507 valid=55500 rejected=7 published=55500
+2026-10-15 22:10:23,251 INFO dataset_producer progress: read=56007 valid=56000 rejected=7 published=56000
+2026-10-15 22:10:23,729 INFO dataset_producer progress: read=56507 valid=56500 rejected=7 published=56500
+2026-10-15 22:10:24,179 INFO dataset_producer progress: read=57008 valid=57000 rejected=8 published=57000
+2026-10-15 22:10:24,620 INFO dataset_producer progress: read=57508 valid=57500 rejected=8 published=57500
+2026-10-15 22:10:25,072 INFO dataset_producer progress: read=58008 valid=58000 rejected=8 published=58000
+2026-10-15 22:10:25,505 INFO dataset_producer progress: read=58508 valid=58500 rejected=8 published=58500
+2026-10-15 22:10:25,944 INFO dataset_producer progress: read=59008 valid=59000 rejected=8 published=59000
+2026-10-15 22:10:26,670 INFO dataset_producer progress: read=59508 valid=59500 rejected=8 published=59500
+2026-10-15 22:10:27,782 INFO dataset_producer progress: read=60008 valid=60000 rejected=8 published=60000
+2026-10-15 22:10:28,465 INFO dataset_producer progress: read=60508 valid=60500 rejected=8 published=60500
+2026-10-15 22:10:28,884 INFO dataset_producer progress: read=61008 valid=61000 rejected=8 published=61000
+2026-10-15 22:10:29,377 INFO dataset_producer progress: read=61508 valid=61500 rejected=8 published=61500
+2026-10-15 22:10:29,852 INFO dataset_producer progress: read=62008 valid=62000 rejected=8 published=62000
+2026-10-15 22:10:30,271 INFO dataset_producer progress: read=62508 valid=62500 rejected=8 published=62500
+2026-10-15 22:10:30,694 INFO dataset_producer progress: read=63008 valid=63000 rejected=8 published=63000
+2026-10-15 22:10:31,109 INFO dataset_producer progress: read=63508 valid=63500 rejected=8 published=63500
+2026-10-15 22:10:31,538 INFO dataset_producer progress: read=64008 valid=64000 rejected=8 published=64000
+2026-10-15 22:10:32,071 INFO dataset_producer progress: read=64508 valid=64500 rejected=8 published=64500
+2026-10-15 22:10:32,565 INFO dataset_producer progress: read=65008 valid=65000 rejected=8 published=65000
+2026-10-15 22:10:33,025 INFO dataset_producer progress: read=65508 valid=65500 rejected=8 published=65500
+2026-10-15 22:10:33,443 INFO dataset_producer progress: read=66008 valid=66000 rejected=8 published=66000
+2026-10-15 22:10:33,896 INFO dataset_producer progress: read=66508 valid=66500 rejected=8 published=66500
+2026-10-15 22:10:34,297 INFO dataset_producer progress: read=67008 valid=67000 rejected=8 published=67000
+2026-10-15 22:10:34,688 INFO dataset_producer progress: read=67508 valid=67500 rejected=8 published=67500
+2026-10-15 22:10:35,067 INFO dataset_producer progress: read=68008 valid=68000 rejected=8 published=68000
+2026-10-15 22:10:35,470 INFO dataset_producer progress: read=68508 valid=68500 rejected=8 published=68500
+2026-10-15 22:10:35,876 INFO dataset_producer progress: read=69008 valid=69000 rejected=8 published=69000
+2026-10-15 22:10:36,279 INFO dataset_producer progress: read=69508 valid=69500 rejected=8 published=69500
+2026-10-15 22:10:36,742 INFO dataset_producer progress: read=70008 valid=70000 rejected=8 published=70000
+2026-10-15 22:10:37,189 INFO dataset_producer progress: read=70508 valid=70500 rejected=8 published=70500
+2026-10-15 22:10:37,634 INFO dataset_producer progress: read=71008 valid=71000 rejected=8 published=71000
+2026-10-15 22:10:38,107 INFO dataset_producer progress: read=71508 valid=71500 rejected=8 published=71500
+2026-10-15 22:10:38,609 INFO dataset_producer progress: read=72008 valid=72000 rejected=8 published=72000
+2026-10-15 22:10:39,109 INFO dataset_producer progress: read=72508 valid=72500 rejected=8 published=72500
+2026-10-15 22:10:39,565 INFO dataset_producer progress: read=73008 valid=73000 rejected=8 published=73000
+2026-10-15 22:10:40,127 INFO dataset_producer progress: read=73508 valid=73500 rejected=8 published=73500
+2026-10-15 22:10:40,578 INFO dataset_producer progress: read=74008 valid=74000 rejected=8 published=74000
+2026-10-15 22:10:41,062 INFO dataset_producer progress: read=74508 valid=74500 rejected=8 published=74500
+2026-10-15 22:10:41,527 INFO dataset_producer progress: read=75008 valid=75000 rejected=8 published=75000
+2026-10-15 22:10:41,949 INFO dataset_producer progress: read=75508 valid=75500 rejected=8 published=75500
+2026-10-15 22:10:42,399 INFO dataset_producer progress: read=76008 valid=76000 rejected=8 published=76000
+2026-10-15 22:10:42,850 INFO dataset_producer progress: read=76508 valid=76500 rejected=8 published=76500
+2026-10-15 22:10:43,283 INFO dataset_producer progress: read=77008 valid=77000 rejected=8 published=77000
+2026-10-15 22:10:43,721 INFO dataset_producer progress: read=77508 valid=77500 rejected=8 published=77500
+2026-10-15 22:10:44,202 INFO dataset_producer progress: read=78008 valid=78000 rejected=8 published=78000
+2026-10-15 22:10:44,694 INFO dataset_producer progress: read=78508 valid=78500 rejected=8 published=78500
+2026-10-15 22:10:45,141 INFO dataset_producer progress: read=79008 valid=79000 rejected=8 published=79000
+2026-10-15 22:10:45,567 INFO dataset_producer progress: read=79508 valid=79500 rejected=8 published=79500
+2026-10-15 22:10:46,009 INFO dataset_producer progress: read=80008 valid=80000 rejected=8 published=80000
+2026-10-15 22:10:46,464 INFO dataset_producer progress: read=80508 valid=80500 rejected=8 published=80500
+2026-10-15 22:10:46,910 INFO dataset_producer progress: read=81008 valid=81000 rejected=8 published=81000
+2026-10-15 22:10:47,377 INFO dataset_producer progress: read=81508 valid=81500 rejected=8 published=81500
+2026-10-15 22:10:47,797 INFO dataset_producer progress: read=82009 valid=82000 rejected=9 published=82000
+2026-10-15 22:10:48,255 INFO dataset_producer progress: read=82509 valid=82500 rejected=9 published=82500
+2026-10-15 22:10:48,729 INFO dataset_producer progress: read=83009 valid=83000 rejected=9 published=83000
+2026-10-15 22:10:49,155 INFO dataset_producer progress: read=83509 valid=83500 rejected=9 published=83500
+2026-10-15 22:10:49,607 INFO dataset_producer progress: read=84009 valid=84000 rejected=9 published=84000
+2026-10-15 22:10:50,052 INFO dataset_producer progress: read=84510 valid=84500 rejected=10 published=84500
+2026-10-15 22:10:50,457 INFO dataset_producer progress: read=85010 valid=85000 rejected=10 published=85000
+2026-10-15 22:10:50,907 INFO dataset_producer progress: read=85510 valid=85500 rejected=10 published=85500
+2026-10-15 22:10:51,315 INFO dataset_producer progress: read=86011 valid=86000 rejected=11 published=86000
+2026-10-15 22:10:51,741 INFO dataset_producer progress: read=86511 valid=86500 rejected=11 published=86500
+2026-10-15 22:10:52,208 INFO dataset_producer progress: read=87014 valid=87000 rejected=14 published=87000
+2026-10-15 22:10:52,654 INFO dataset_producer progress: read=87514 valid=87500 rejected=14 published=87500
+2026-10-15 22:10:53,112 INFO dataset_producer progress: read=88014 valid=88000 rejected=14 published=88000
+2026-10-15 22:10:53,555 INFO dataset_producer progress: read=88514 valid=88500 rejected=14 published=88500
+2026-10-15 22:10:54,068 INFO dataset_producer progress: read=89014 valid=89000 rejected=14 published=89000
+2026-10-15 22:10:54,496 INFO dataset_producer progress: read=89514 valid=89500 rejected=14 published=89500
+2026-10-15 22:10:54,888 INFO dataset_producer progress: read=90014 valid=90000 rejected=14 published=90000
+2026-10-15 22:10:55,298 INFO dataset_producer progress: read=90514 valid=90500 rejected=14 published=90500
+2026-10-15 22:10:55,743 INFO dataset_producer progress: read=91014 valid=91000 rejected=14 published=91000
+2026-10-15 22:10:56,190 INFO dataset_producer progress: read=91514 valid=91500 rejected=14 published=91500
+2026-10-15 22:10:56,654 INFO dataset_producer progress: read=92014 valid=92000 rejected=14 published=92000
+2026-10-15 22:10:57,116 INFO dataset_producer progress: read=92514 valid=92500 rejected=14 published=92500
+2026-10-15 22:10:57,576 INFO dataset_producer progress: read=93014 valid=93000 rejected=14 published=93000
+2026-10-15 22:10:58,012 INFO dataset_producer progress: read=93514 valid=93500 rejected=14 published=93500
+2026-10-15 22:10:58,452 INFO dataset_producer progress: read=94014 valid=94000 rejected=14 published=94000
+2026-10-15 22:10:58,858 INFO dataset_producer progress: read=94514 valid=94500 rejected=14 published=94500
+2026-10-15 22:10:59,267 INFO dataset_producer progress: read=95014 valid=95000 rejected=14 published=95000
+2026-10-15 22:10:59,741 INFO dataset_producer progress: read=95514 valid=95500 rejected=14 published=95500
+2026-10-15 22:11:00,193 INFO dataset_producer progress: read=96014 valid=96000 rejected=14 published=96000
+2026-10-15 22:11:00,656 INFO dataset_producer progress: read=96514 valid=96500 rejected=14 published=96500
+2026-10-15 22:11:01,104 INFO dataset_producer progress: read=97014 valid=97000 rejected=14 published=97000
+2026-10-15 22:11:01,567 INFO dataset_producer progress: read=97514 valid=97500 rejected=14 published=97500
+2026-10-15 22:11:02,007 INFO dataset_producer progress: read=98014 valid=98000 rejected=14 published=98000
+2026-10-15 22:11:02,412 INFO dataset_producer progress: read=98514 valid=98500 rejected=14 published=98500
+2026-10-15 22:11:02,842 INFO dataset_producer progress: read=99014 valid=99000 rejected=14 published=99000
+2026-10-15 22:11:03,189 INFO kafka.producer.kafka <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2026-10-15 22:11:03,189 INFO kafka.net.transport <KafkaTCPTransport [::1:9092<-49787]>: Closing transport
+2026-10-15 22:11:03,190 INFO kafka.net.connection <KafkaConnection node_id=1 broker_version=(4, 1) (disconnected)>: Connection closed
+2026-10-15 22:11:03,190 INFO kafka.cluster Stopping metadata refresh loop
+{
+  "ingest_run_id": "full-run-01",
+  "started_at": "2026-10-15T16:39:21.326762+00:00",
+  "finished_at": "2026-10-15T16:41:03.191033+00:00",
+  "status": "completed",
+  "mode": "full",
+  "topic": "ecommerce_orders",
+  "key_field": "order_id",
+  "source_file": "olist_orders_dataset.csv",
+  "source_file_sha256": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf",
+  "rows_read": 99441,
+  "rows_valid": 99427,
+  "rows_rejected": 14,
+  "rows_with_warnings": 3,
+  "rows_published": 99427,
+  "rows_publish_failed": 0,
+  "rows_enriched": 99427,
+  "rows_not_enriched": 0,
+  "source_duplicates_in_input": 0,
+  "rejection_reasons": {
+    "INCONSISTENT": 14
+  },
+  "partition_counts_from_delivery_callbacks": {
+    "0": 33199,
+    "1": 33255,
+    "2": 32973
+  },
+  "dead_letter_file": "data\\dead_letter\\ingest\\full-run-01.jsonl",
+  "api": {
+    "api_source_name": "frankfurter-ecb",
+    "api_http_status": 200,
+    "api_retrieved_at": "2026-10-15T16:30:25.514359+00:00",
+    "cache_hit": true
+  }
+}
+
+--- exit code: 0 ---

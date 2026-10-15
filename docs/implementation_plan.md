@@ -21,8 +21,13 @@ P0 audit · P1 dataset + mapping · P2 API · P3 Kafka producer · P4 Spark · P
 | D6 | Replay sorted by `order_purchase_timestamp`. | Follows historical order flow. |
 | D7 | API choice: Frankfurter (ECB rates, no key) for BRL→USD by purchase date; confirmed after checking live docs in Phase 2. | Addendum §7 option 1; few requests; clear business meaning. Reasoning in `docs/api_integration.md`. |
 | D8 | Guarantee wording: at-least-once delivery + idempotent sink (`ON CONFLICT (record_uid)`). | Rule 13. |
+| D9 | Kafka message key = `order_id`. | Each order is one event, so no per-order ordering is needed. Measured: order_id spreads 33.4/33.4/33.2 %; customer_state would put 66.9 % in one partition (`docs/evidence/03_kafka/key_options_computed_offline.txt`). |
+| D10 | Producer: `acks=all`, idempotence on, gzip, batching; `--limit N` or `--full` is mandatory. | Safe default: a full 99k replay never starts by accident. |
+| D11 | 14 real orders are rejected at ingest (8 'delivered' without delivery date, 6 with a delivery date but a different status). | They contradict themselves and would distort delivery-time KPIs; they are kept in the dead-letter queue with the reason, not lost. |
+| D12 | Old `order_producer.py` deleted (kept in git history). | It generated random fake food orders, never the dataset. |
+| D13 | The limited 100-order run and the full run were published to the same topic. | The first orders therefore exist twice in the topic (same `record_uid`, different `ingest_run_id`); Phase 5/6 prove the sink ignores them. Topic total = 99 + 99,427 = 99,526. |
 
 ## Open items / assumptions
 - Professor did not name an API (`docs/inputs/api_info.md` absent), so the agent chooses.
-- Dataset license is "believed CC BY-NC-SA 4.0"; to be verified against the Kaggle page.
+- Dataset license CC BY-NC-SA 4.0 was seen on the Kaggle page via a search excerpt (`docs/evidence/01_dataset/license_check.txt`); the student should re-confirm it on the page before submission.
 - Four manual demos and all live screenshots are `PENDING_HUMAN`.

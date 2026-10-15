@@ -36,13 +36,17 @@ def _read(dataset_dir: Path, name: str) -> pd.DataFrame:
     return pd.read_csv(Path(dataset_dir) / name, dtype=str)
 
 
-def build_order_rows(dataset_dir: Path, orders_file: str = ORDERS_FILE) -> pd.DataFrame:
+def build_order_rows(dataset_dir: Path, orders_path: Path | None = None) -> pd.DataFrame:
     """Return the denormalized order rows (all values still text) in replay order.
+
+    `orders_path` defaults to the real orders file inside `dataset_dir`. A different
+    file with the same columns (for example the isolated Demo 3 test file) can be
+    given; customers, items and payments are always read from `dataset_dir`.
 
     `source_row_number` is the 1-based position of the order in the orders file
     (header not counted). It never changes, even though rows are sorted for replay.
     """
-    orders = _read(dataset_dir, orders_file)
+    orders = pd.read_csv(orders_path or Path(dataset_dir) / ORDERS_FILE, dtype=str)
     orders["source_row_number"] = range(1, len(orders) + 1)
 
     customers = _read(dataset_dir, CUSTOMERS_FILE)

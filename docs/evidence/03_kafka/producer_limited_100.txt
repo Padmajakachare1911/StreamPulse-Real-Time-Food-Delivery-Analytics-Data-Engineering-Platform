@@ -1,0 +1,72 @@
+﻿Task ID: P3-01
+Date/time (UTC): 2026-10-15T16:37:48.3446920Z
+Date/time (local): 2026-10-15T22:07:48.3457110+05:30
+Command: $env:PYTHONUTF8='1'; & '.\.venv\Scripts\python.exe' -m src.producer.dataset_producer --limit 100 --run-id limited-100
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: a9f479d
+--- output ---
+2026-10-15 22:07:50,129 INFO dataset_producer Run limited-100 | input=olist_orders_dataset.csv | sha256=8df58ef3d2d7
+2026-10-15 22:08:02,036 INFO src.api.client API GET https://api.frankfurter.dev/v2/providers/ecb/rates?base=BRL&quotes=USD&from=2016-09-04&to=2016-10-05 -> HTTP 200
+C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\src\producer\dataset_producer.py:128: DeprecationWarning: key_serializer does not implement kafka.serializer.Serializer
+  producer = None if args.dry_run else create_producer(args.bootstrap)
+C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\src\producer\dataset_producer.py:128: DeprecationWarning: value_serializer does not implement kafka.serializer.Serializer
+  producer = None if args.dry_run else create_producer(args.bootstrap)
+2026-10-15 22:08:02,673 INFO kafka.net.manager Attempting bootstrap to bootstrap-0 at localhost:9092 (rack None)
+2026-10-15 22:08:02,673 INFO kafka.net.manager Initializing connection for node_id bootstrap-0 at localhost:9092 (rack=None)
+2026-10-15 22:08:02,676 INFO kafka.net.transport <KafkaTCPTransport [::1:9092<-53179]>: connected to <socket.socket fd=1352, family=23, type=1, proto=0, laddr=('::1', 53179, 0, 0), raddr=('::1', 9092, 0, 0)>
+2026-10-15 22:08:02,688 INFO kafka.net.connection <KafkaConnection node_id=bootstrap-0 host=[::1:9092<-53179] broker_version=unknown (initializing)>: Broker version identified as 4.1
+2026-10-15 22:08:02,689 INFO kafka.net.connection <KafkaConnection node_id=bootstrap-0 host=[::1:9092<-53179] broker_version=(4, 1) (connected)>: Connected
+2026-10-15 22:08:02,695 INFO kafka.cluster Updated metadata: ClusterMetadata(brokers: 1, topics: 0, coordinators: 0)
+2026-10-15 22:08:02,696 INFO kafka.net.manager Bootstrap complete: ClusterMetadata(brokers: 1, topics: 0, coordinators: 0)
+2026-10-15 22:08:02,696 INFO kafka.net.manager Closing bootstrap connection bootstrap-0
+2026-10-15 22:08:02,696 INFO kafka.net.transport <KafkaTCPTransport [::1:9092<-53179]>: Closing transport
+2026-10-15 22:08:02,696 INFO kafka.net.connection <KafkaConnection node_id=bootstrap-0 broker_version=(4, 1) (disconnected)>: Connection closed
+2026-10-15 22:08:02,697 INFO kafka.cluster Starting metadata refresh loop
+2026-10-15 22:08:02,698 INFO kafka.producer.kafka <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Instantiated an idempotent producer.
+2026-10-15 22:08:02,700 INFO kafka.producer.transaction_manager ProducerId set to -1 with epoch -1
+2026-10-15 22:08:02,702 INFO kafka.net.manager Initializing connection for node_id 1 at localhost:9092 (rack=None)
+2026-10-15 22:08:02,705 INFO kafka.net.transport <KafkaTCPTransport [::1:9092<-53180]>: connected to <socket.socket fd=1472, family=23, type=1, proto=0, laddr=('::1', 53180, 0, 0), raddr=('::1', 9092, 0, 0)>
+2026-10-15 22:08:02,710 INFO kafka.net.connection <KafkaConnection node_id=1 host=[::1:9092<-53180] broker_version=(4, 1) (connected)>: Connected
+2026-10-15 22:08:02,925 INFO kafka.producer.transaction_manager ProducerId set to 0 with epoch 0
+2026-10-15 22:08:02,931 INFO kafka.cluster Updated metadata: ClusterMetadata(brokers: 1, topics: 1, coordinators: 0)
+2026-10-15 22:08:03,052 INFO kafka.producer.kafka <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2026-10-15 22:08:03,052 INFO kafka.net.transport <KafkaTCPTransport [::1:9092<-53180]>: Closing transport
+2026-10-15 22:08:03,053 INFO kafka.net.connection <KafkaConnection node_id=1 broker_version=(4, 1) (disconnected)>: Connection closed
+2026-10-15 22:08:03,053 INFO kafka.cluster Stopping metadata refresh loop
+{
+  "ingest_run_id": "limited-100",
+  "started_at": "2026-10-15T16:37:50.106422+00:00",
+  "finished_at": "2026-10-15T16:38:03.053687+00:00",
+  "status": "completed",
+  "mode": "limited",
+  "topic": "ecommerce_orders",
+  "key_field": "order_id",
+  "source_file": "olist_orders_dataset.csv",
+  "source_file_sha256": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf",
+  "rows_read": 100,
+  "rows_valid": 99,
+  "rows_rejected": 1,
+  "rows_with_warnings": 0,
+  "rows_published": 99,
+  "rows_publish_failed": 0,
+  "rows_enriched": 99,
+  "rows_not_enriched": 0,
+  "source_duplicates_in_input": 0,
+  "rejection_reasons": {
+    "INCONSISTENT": 1
+  },
+  "partition_counts_from_delivery_callbacks": {
+    "0": 31,
+    "1": 42,
+    "2": 26
+  },
+  "dead_letter_file": "data\\dead_letter\\ingest\\limited-100.jsonl",
+  "api": {
+    "api_source_name": "frankfurter-ecb",
+    "api_http_status": 200,
+    "api_retrieved_at": "2026-10-15T16:38:02.037003+00:00",
+    "cache_hit": false
+  }
+}
+
+--- exit code: 0 ---
