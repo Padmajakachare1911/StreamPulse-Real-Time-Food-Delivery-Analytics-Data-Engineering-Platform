@@ -61,7 +61,7 @@ POSTGRES_USER = get_setting("POSTGRES_USER", "streampulse")
 POSTGRES_PASSWORD = get_setting("POSTGRES_PASSWORD", "streampulse_dev_password")
 
 # External API (currency rates). API_KEY is optional: the chosen provider needs none.
-API_BASE_URL = get_setting("API_BASE_URL", "https://api.frankfurter.dev/v1")
+API_BASE_URL = get_setting("API_BASE_URL", "https://api.frankfurter.dev/v2")
 API_KEY = os.getenv("API_KEY", "")
 API_USER_AGENT = get_setting("API_USER_AGENT", "StreamPulse-student-project/1.0")
 

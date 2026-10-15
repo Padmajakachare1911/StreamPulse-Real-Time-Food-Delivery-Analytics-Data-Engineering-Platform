@@ -5,17 +5,17 @@ Statuses: `NOT_STARTED | IN_PROGRESS | BLOCKED | IMPLEMENTED_NOT_TESTED | TESTED
 
 | ID | Phase | Module | Task | Status | Evidence | Blocker / Notes | Commit |
 |---|---|---|---|---|---|---|---|
-| P0-01 | 0 | M0 | Git status & branch recorded | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/env_check.txt` | branch `main`, no commits before this work | |
-| P0-02 | 0 | M0 | Environment versions check | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/env_check.txt` | `scripts/check_env.ps1` | |
-| P0-03 | 0 | M0 | Kafka health + topic metadata + produce/consume | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/kafka_smoke_test.txt` | | |
-| P0-04 | 0 | M4 | Spark↔connector compatibility check | BLOCKED | `docs/evidence/00_environment/spark_baseline_existing_stream.txt` | Host Spark fails (winutils). Unblock: run Spark in Docker (Phase 4); dependent: P4-01 | |
-| P0-05 | 0 | M4 | winutils/HADOOP_HOME impact assessment | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/spark_baseline_existing_stream.txt` | Finding: it blocks SparkContext init; see `docs/baseline_audit.md` §4 | |
-| P0-06 | 0 | M0 | `.gitignore` audit | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/gitignore_audit.txt` | | |
-| P0-07 | 0 | — | baseline_audit / plan / tracker / register written | VERIFIED_WITH_EVIDENCE | `docs/baseline_audit.md` | | |
-| P1-01 | 1 | M1 | Dataset located & hashed | NOT_STARTED | | files present in `data/raw/` | |
-| P1-02 | 1 | M1 | Profiling (rows/cols/nulls/dupes) | NOT_STARTED | | | |
-| P1-03 | 1 | M1 | Field mapping config | NOT_STARTED | | | |
-| P1-04 | 1 | M11 | data_source / dictionary / DQ report | NOT_STARTED | | | |
+| P0-01 | 0 | M0 | Git status & branch recorded | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/env_check.txt` | branch main; no commits before this work | c3fc6ee |
+| P0-02 | 0 | M0 | Environment versions check | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/env_check.txt` | `scripts/check_env.ps1` | c3fc6ee |
+| P0-03 | 0 | M0 | Kafka health + topic metadata + produce/consume | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/kafka_smoke_test.txt` |  | c3fc6ee |
+| P0-04 | 0 | M4 | Spark↔connector compatibility check | BLOCKED | `docs/evidence/00_environment/spark_baseline_existing_stream.txt` | Host Spark fails (winutils). Unblock: run Spark in Docker (Phase 4); dependent: P4-01 | c3fc6ee |
+| P0-05 | 0 | M4 | winutils/HADOOP_HOME impact assessment | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/spark_baseline_existing_stream.txt` | Finding: blocks SparkContext init; see baseline_audit section 4 | c3fc6ee |
+| P0-06 | 0 | M0 | `.gitignore` audit | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/gitignore_audit.txt` |  | c3fc6ee |
+| P0-07 | 0 | — | baseline_audit / plan / tracker / register written | VERIFIED_WITH_EVIDENCE | `docs/baseline_audit.md` |  | c3fc6ee |
+| P1-01 | 1 | M1 | Dataset located & hashed | VERIFIED_WITH_EVIDENCE | `docs/evidence/01_dataset/dataset_row_count.txt` | 9 files hashed in dataset_profile.txt | 802c4a4 |
+| P1-02 | 1 | M1 | Profiling (rows/cols/nulls/dupes) | VERIFIED_WITH_EVIDENCE | `docs/evidence/01_dataset/dataset_profile.txt` | rows, nulls, duplicates, orphans, consistency | 802c4a4 |
+| P1-03 | 1 | M1 | Field mapping config | VERIFIED_WITH_EVIDENCE | `docs/evidence/01_dataset/join_and_mapping_check.txt` | 8 unit tests pass; 0 of 99,441 rows rejected by mapping | 802c4a4 |
+| P1-04 | 1 | M11 | data_source / dictionary / DQ report | VERIFIED_WITH_EVIDENCE | `docs/data_quality_report.md`; `docs/evidence/01_dataset/license_check.txt` | license from Kaggle page excerpt; student should re-confirm on the page | 802c4a4 |
 | P2-01 | 2 | M3 | API chosen & justified | NOT_STARTED | | no professor API given | |
 | P2-02 | 2 | M3 | API client + unit tests | NOT_STARTED | | | |
 | P2-03 | 2 | M3 | Real request succeeded & stored | NOT_STARTED | | | |

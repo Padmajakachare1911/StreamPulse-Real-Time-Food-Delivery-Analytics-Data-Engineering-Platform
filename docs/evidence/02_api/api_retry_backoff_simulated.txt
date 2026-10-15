@@ -1,0 +1,17 @@
+﻿Task ID: P2-02
+Date/time (UTC): 2026-10-15T16:31:02.3697058Z
+Date/time (local): 2026-10-15T22:01:02.3697058+05:30
+Command: $env:PYTHONUTF8='1'; & '.\.venv\Scripts\python.exe' scripts\api_demo_call.py --simulate-failure
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 802c4a4
+--- output ---
+2026-10-15 22:01:03,501 WARNING API attempt 1 failed: ConnectionError
+2026-10-15 22:01:03,501 WARNING Retrying in 1.0s (attempt 1 of 2)
+2026-10-15 22:01:04,506 WARNING API attempt 2 failed: ConnectionError
+2026-10-15 22:01:04,506 WARNING Retrying in 2.0s (attempt 2 of 2)
+2026-10-15 22:01:06,531 WARNING API attempt 3 failed: ConnectionError
+Provider : Frankfurter (ECB reference rates), docs https://frankfurter.dev
+Request  : BRL -> USD, 2017-10-02 to 2017-10-08
+RESULT   : request failed after retries: API failed after 3 attempts: ConnectionError
+
+--- exit code: 2 ---

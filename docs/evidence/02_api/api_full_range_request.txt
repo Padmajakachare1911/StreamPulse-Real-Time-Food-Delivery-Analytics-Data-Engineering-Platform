@@ -1,0 +1,26 @@
+﻿Task ID: P2-03
+Date/time (UTC): 2026-10-15T16:30:56.6516172Z
+Date/time (local): 2026-10-15T22:00:56.6516172+05:30
+Command: $env:PYTHONUTF8='1'; & '.\.venv\Scripts\python.exe' scripts\api_demo_call.py --full-range --no-cache
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 802c4a4
+--- output ---
+2026-10-15 22:01:02,080 INFO API GET https://api.frankfurter.dev/v2/providers/ecb/rates?base=BRL&quotes=USD&from=2016-09-04&to=2018-10-17 -> HTTP 200
+Provider : Frankfurter (ECB reference rates), docs https://frankfurter.dev
+Request  : BRL -> USD, 2016-09-04 to 2018-10-17
+Retrieved: 2026-10-15T16:31:02.087513+00:00
+URL      : https://api.frankfurter.dev/v2/providers/ecb/rates?base=BRL&quotes=USD&from=2016-09-04&to=2018-10-17
+HTTP     : 200   (served from local cache: False)
+Rows     : 544
+Excerpt  :
+    {"date": "2016-09-02", "base": "BRL", "quote": "USD", "rate": 0.30625}
+    {"date": "2016-09-05", "base": "BRL", "quote": "USD", "rate": 0.30768}
+    {"date": "2016-09-06", "base": "BRL", "quote": "USD", "rate": 0.30619}
+
+Enrichment on sample purchase dates:
+   2016-09-04 -> (0.30625, '2016-09-02', 'previous_business_day')
+   2017-10-07 -> (0.31641, '2017-10-06', 'previous_business_day')
+   2018-10-17 -> (0.26758, '2018-10-17', 'exact')
+   payload with 100.00 BRL -> {"fx_rate_brl_usd": 0.31918, "fx_rate_date": "2017-10-04", "fx_match_type": "exact", "payments_value_usd": 31.92, "api_source_name": "frankfurter-ecb", "api_endpoint": "https://api.frankfurter.dev/v2/providers/ecb/rates?base=BRL&quotes=USD&from=2016-09-04&to=2
+
+--- exit code: 0 ---
