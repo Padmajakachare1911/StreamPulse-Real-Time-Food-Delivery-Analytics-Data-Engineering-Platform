@@ -1,0 +1,39 @@
+﻿Task ID: P11-01
+Date/time (UTC): 2026-10-15T19:16:49.9499278Z
+Date/time (local): 2026-10-16T00:46:49.9509262+05:30
+Command: .\.venv\Scripts\python.exe -m pytest -m integration -v -rs -p no:cacheprovider -W ignore::DeprecationWarning
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: ccc7bc8
+--- output ---
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.7.0 -- C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\.venv\Scripts\python.exe
+rootdir: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.15.1
+collecting ... collected 100 items / 82 deselected / 1 skipped / 18 selected
+
+tests/integration/test_api_real.py::test_real_request_returns_valid_rates PASSED [  5%]
+tests/integration/test_api_stored_results.py::test_api_responses_are_cached_with_provenance PASSED [ 11%]
+tests/integration/test_api_stored_results.py::test_fx_rates_are_plausible_and_complete_for_the_order_period PASSED [ 16%]
+tests/integration/test_api_stored_results.py::test_enriched_orders_carry_api_provenance PASSED [ 22%]
+tests/integration/test_dashboard_queries.py::test_queries_on_an_empty_warehouse_return_empty_results_not_errors PASSED [ 27%]
+tests/integration/test_dashboard_queries.py::test_overview_kpis_and_recent_orders_reflect_the_stored_rows PASSED [ 33%]
+tests/integration/test_dashboard_queries.py::test_recent_orders_never_exposes_customer_identifiers PASSED [ 38%]
+tests/integration/test_dashboard_queries.py::test_completeness_counts_problem_rows PASSED [ 44%]
+tests/integration/test_dashboard_queries.py::test_limit_parameter_is_bound_not_formatted PASSED [ 50%]
+tests/integration/test_dashboard_queries.py::test_kafka_check_is_ok_against_the_real_broker PASSED [ 55%]
+tests/integration/test_dashboard_queries.py::test_numeric_view_columns_are_floats_not_decimals PASSED [ 61%]
+tests/integration/test_warehouse.py::test_schema_has_the_core_tables PASSED [ 66%]
+tests/integration/test_warehouse.py::test_first_insert_creates_one_row PASSED [ 72%]
+tests/integration/test_warehouse.py::test_inserting_the_same_batch_twice_keeps_one_row PASSED [ 77%]
+tests/integration/test_warehouse.py::test_same_order_with_new_record_uid_is_a_source_duplicate PASSED [ 83%]
+tests/integration/test_warehouse.py::test_source_duplicate_inside_one_batch_keeps_the_first_row PASSED [ 88%]
+tests/integration/test_warehouse.py::test_counts_always_add_up PASSED    [ 94%]
+tests/integration/test_warehouse.py::test_reingesting_a_discarded_source_duplicate_is_a_retry_and_is_not_logged_twice PASSED [100%]
+
+=========================== short test summary info ===========================
+SKIPPED [1] tests\unit\test_airflow_dag.py:12: the airflow library is only installed in the Airflow container
+================ 18 passed, 1 skipped, 82 deselected in 4.70s =================
+
+--- exit code: 0 ---

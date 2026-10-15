@@ -1,0 +1,25 @@
+﻿Task ID: P11-01
+Date/time (UTC): 2026-10-15T19:17:17.2116252Z
+Date/time (local): 2026-10-16T00:47:17.2116252+05:30
+Command: .\.venv\Scripts\python.exe -m pytest -m e2e -v -rs -p no:cacheprovider -W ignore::DeprecationWarning
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: ccc7bc8
+--- output ---
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.7.0 -- C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\.venv\Scripts\python.exe
+rootdir: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.15.1
+collecting ... collected 100 items / 96 deselected / 1 skipped / 4 selected
+
+tests/e2e/test_pipeline_e2e.py::test_data_quality_and_idempotent_reingestion_end_to_end PASSED [ 25%]
+tests/e2e/test_pipeline_e2e.py::test_malformed_messages_reach_the_stream_dead_letter_end_to_end PASSED [ 50%]
+tests/e2e/test_pipeline_e2e.py::test_stop_mid_backlog_and_restart_recovers_without_duplicates_end_to_end PASSED [ 75%]
+tests/e2e/test_pipeline_e2e.py::test_production_reconciliation_has_no_unexplained_differences PASSED [100%]
+
+=========================== short test summary info ===========================
+SKIPPED [1] tests\unit\test_airflow_dag.py:12: the airflow library is only installed in the Airflow container
+=========== 4 passed, 1 skipped, 96 deselected in 206.63s (0:03:26) ===========
+
+--- exit code: 0 ---

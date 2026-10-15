@@ -1,0 +1,94 @@
+﻿Task ID: P11-01
+Date/time (UTC): 2026-10-15T19:15:39.7439477Z
+Date/time (local): 2026-10-16T00:45:39.7519440+05:30
+Command: .\.venv\Scripts\python.exe -m pytest -m unit -v -rs -p no:cacheprovider -W ignore::DeprecationWarning
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: ccc7bc8
+--- output ---
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.7.0 -- C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\.venv\Scripts\python.exe
+rootdir: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.15.1
+collecting ... collected 100 items / 27 deselected / 1 skipped / 73 selected
+
+tests/unit/test_api_client.py::test_success_returns_rows_and_provenance PASSED [  1%]
+tests/unit/test_api_client.py::test_client_error_4xx_does_not_retry PASSED [  2%]
+tests/unit/test_api_client.py::test_429_honours_retry_after_then_succeeds PASSED [  4%]
+tests/unit/test_api_client.py::test_5xx_retries_with_backoff_then_fails PASSED [  5%]
+tests/unit/test_api_client.py::test_timeout_is_retried PASSED            [  6%]
+tests/unit/test_api_client.py::test_malformed_json_is_schema_error PASSED [  8%]
+tests/unit/test_api_client.py::test_schema_mismatch_is_rejected[body0] PASSED [  9%]
+tests/unit/test_api_client.py::test_schema_mismatch_is_rejected[body1] PASSED [ 10%]
+tests/unit/test_api_client.py::test_schema_mismatch_is_rejected[body2] PASSED [ 12%]
+tests/unit/test_api_client.py::test_schema_mismatch_is_rejected[body3] PASSED [ 13%]
+tests/unit/test_api_client.py::test_schema_mismatch_is_rejected[body4] PASSED [ 15%]
+tests/unit/test_api_client.py::test_second_call_is_served_from_cache PASSED [ 16%]
+tests/unit/test_api_client.py::test_sanitize_url_masks_secrets PASSED    [ 17%]
+tests/unit/test_api_client.py::test_find_rate_exact_and_weekend_fallback PASSED [ 19%]
+tests/unit/test_api_client.py::test_enrich_payload_converts_and_adds_provenance PASSED [ 20%]
+tests/unit/test_dashboard.py::test_kafka_check_reports_down_for_an_unreachable_broker PASSED [ 21%]
+tests/unit/test_dashboard.py::test_kafka_message_count_is_none_when_broker_is_unreachable PASSED [ 23%]
+tests/unit/test_dashboard.py::test_postgres_check_reports_down_when_the_query_fails PASSED [ 24%]
+tests/unit/test_dashboard.py::test_api_history_is_unknown_when_the_database_is_down PASSED [ 26%]
+tests/unit/test_dashboard.py::test_dataset_and_parquet_checks_fail_for_empty_folders PASSED [ 27%]
+tests/unit/test_dashboard.py::test_dataset_check_is_ok_only_with_all_nine_files PASSED [ 28%]
+tests/unit/test_dashboard.py::test_airflow_check_reports_down_when_nothing_listens PASSED [ 30%]
+tests/unit/test_dashboard.py::test_database_errors_are_sanitised_for_users PASSED [ 31%]
+tests/unit/test_dashboard.py::test_parquet_counts_raises_a_clear_error_when_there_is_no_data PASSED [ 32%]
+tests/unit/test_dashboard.py::test_decimal_columns_become_floats_so_charts_plot_numbers PASSED [ 34%]
+tests/unit/test_dashboard_source.py::test_dashboard_has_no_bare_expression_statements PASSED [ 35%]
+tests/unit/test_dashboard_source.py::test_the_guard_really_catches_the_original_mistake PASSED [ 36%]
+tests/unit/test_mapping.py::test_happy_path_converts_types PASSED        [ 38%]
+tests/unit/test_mapping.py::test_empty_optional_field_is_null_not_error PASSED [ 39%]
+tests/unit/test_mapping.py::test_missing_required_field_is_reported PASSED [ 41%]
+tests/unit/test_mapping.py::test_bad_type_is_reported PASSED             [ 42%]
+tests/unit/test_mapping.py::test_bad_timestamp_is_reported PASSED        [ 43%]
+tests/unit/test_mapping.py::test_extra_columns_are_not_modified PASSED   [ 45%]
+tests/unit/test_mapping.py::test_missing_setting_raises_clear_error PASSED [ 46%]
+tests/unit/test_mapping.py::test_default_and_override PASSED             [ 47%]
+tests/unit/test_parquet.py::test_counts_rows_files_and_distinct_ids_across_batch_folders PASSED [ 49%]
+tests/unit/test_parquet.py::test_overwriting_one_batch_folder_does_not_change_other_batches PASSED [ 50%]
+tests/unit/test_producer.py::test_record_uid_is_deterministic_and_row_specific PASSED [ 52%]
+tests/unit/test_producer.py::test_valid_record_is_published_with_envelope_and_key PASSED [ 53%]
+tests/unit/test_producer.py::test_invalid_record_goes_to_dead_letter_with_reason PASSED [ 54%]
+tests/unit/test_producer.py::test_dry_run_publishes_nothing PASSED       [ 56%]
+tests/unit/test_producer.py::test_publish_failure_is_counted PASSED      [ 57%]
+tests/unit/test_producer.py::test_exact_duplicate_is_counted_as_source_duplicate_but_not_dropped PASSED [ 58%]
+tests/unit/test_producer.py::test_rerun_of_same_file_gives_same_record_uids PASSED [ 60%]
+tests/unit/test_producer.py::test_limit_restricts_rows PASSED            [ 61%]
+tests/unit/test_producer.py::test_cli_requires_limit_or_full PASSED      [ 63%]
+tests/unit/test_producer.py::test_skip_selects_a_disjoint_slice_with_original_row_numbers PASSED [ 64%]
+tests/unit/test_reconcile.py::test_run_slice_defaults_to_the_start_of_the_file PASSED [ 65%]
+tests/unit/test_reconcile.py::test_overlapping_runs_are_not_counted_twice_at_source_level PASSED [ 67%]
+tests/unit/test_reconcile.py::test_union_respects_the_end_of_the_source_file PASSED [ 68%]
+tests/unit/test_reconcile.py::test_disjoint_slices_add_up PASSED         [ 69%]
+tests/unit/test_reconcile.py::test_status_ok_explained_and_unexplained PASSED [ 71%]
+tests/unit/test_reconcile.py::test_render_reports_failure_only_for_unexplained_differences PASSED [ 72%]
+tests/unit/test_stop_classification.py::test_clean_log_has_no_problems PASSED [ 73%]
+tests/unit/test_stop_classification.py::test_the_deliberate_stop_signature_after_the_marker_is_accepted PASSED [ 75%]
+tests/unit/test_stop_classification.py::test_the_old_interruption_without_the_signature_is_still_unexpected PASSED [ 76%]
+tests/unit/test_stop_classification.py::test_errors_before_the_stop_request_are_always_unexpected_even_if_the_signature_appears_later PASSED [ 78%]
+tests/unit/test_stop_classification.py::test_errors_without_any_stop_request_are_unexpected PASSED [ 79%]
+tests/unit/test_stop_classification.py::test_experiment_database_names_are_guarded_before_any_drop PASSED [ 80%]
+tests/unit/test_validators.py::test_clean_record_has_no_problems PASSED  [ 82%]
+tests/unit/test_validators.py::test_not_delivered_order_with_empty_delivery_date_is_valid PASSED [ 83%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change0-status_in_allowed_set] PASSED [ 84%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change1-purchase_date_in_range] PASSED [ 86%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change2-amounts_not_negative] PASSED [ 87%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change3-amounts_not_negative] PASSED [ 89%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change4-amounts_not_negative] PASSED [ 90%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change5-approved_not_before_purchase] PASSED [ 91%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change6-delivered_not_before_purchase] PASSED [ 93%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change7-delivered_status_has_date] PASSED [ 94%]
+tests/unit/test_validators.py::test_each_reject_rule_fires[change8-delivered_date_matches_status] PASSED [ 95%]
+tests/unit/test_validators.py::test_zero_payment_total_is_only_a_warning PASSED [ 97%]
+tests/unit/test_validators.py::test_dead_letter_record_format_and_file PASSED [ 98%]
+tests/unit/test_validators.py::test_dead_letter_file_is_replaced_for_the_same_run_id PASSED [100%]
+
+=========================== short test summary info ===========================
+SKIPPED [1] tests\unit\test_airflow_dag.py:12: the airflow library is only installed in the Airflow container
+=========== 73 passed, 1 skipped, 27 deselected in 67.84s (0:01:07) ===========
+
+--- exit code: 0 ---

@@ -3,14 +3,14 @@
 IDs, inputs, expected result, **actual result (from real runs)** and pass/fail. Evidence paths are under `docs/evidence/`.
 Automated suites are in `tests/` (markers: `unit`, `integration`, `e2e`, `spark`, `airflow`). Manual demo cases (MD-*) are **PENDING_HUMAN**.
 
-## A. Automated suites (last full run 2026-10-16)
+## A. Automated suites (FINAL full run on 2026-10-16, after the last code change: `docs/evidence/10_automated_tests/final_*.txt`)
 | Suite | Command | Actual result | Evidence |
 |---|---|---|---|
-| Unit (host) | `pytest -m unit` | 65 passed, 1 skipped (Airflow DAG module: needs the Airflow container) | `10_automated_tests/pytest_unit_20261016.txt` |
-| Integration (real PostgreSQL, Kafka, live API) | `pytest -m integration` | 18 passed, 0 skipped | `10_automated_tests/pytest_integration_20261016.txt` |
-| Spark (in Docker) | `scripts\run_tests_docker.ps1` | 5 passed | `10_automated_tests/pytest_spark_in_docker_20261016.txt` |
-| Airflow DAG (in container) | `scripts\run_tests_airflow.ps1` | 8 passed | `10_automated_tests/pytest_airflow_in_container_20261016.txt` |
-| End-to-end (real pipeline, isolated) | `pytest -m e2e` | **final: 4 passed** (quality + idempotency, malformed messages, stop-mid-backlog recovery, production reconciliation). The first run had 1 intermittent failure (F-07), fixed and re-run | `10_automated_tests/pytest_e2e_final_20261016.txt`; failed first run kept: `pytest_e2e_20261016_FAILED_stop_race.txt` |
+| Unit (host) | `pytest -m unit` | **73 passed, 1 skipped** (the skip is the Airflow DAG module, which needs the Airflow container; its 8 tests pass there) | `10_automated_tests/final_unit.txt` |
+| Integration (real PostgreSQL, Kafka, live API) | `pytest -m integration` | **18 passed** (the 1 skip shown by pytest is the same Airflow module, not an integration test) | `10_automated_tests/final_integration.txt` |
+| Spark (in Docker) | `scripts\run_tests_docker.ps1` | **5 passed** | `10_automated_tests/final_spark_docker.txt` |
+| Airflow DAG (in container) | `scripts\run_tests_airflow.ps1` | **8 passed** | `10_automated_tests/final_airflow_container.txt` |
+| End-to-end (real pipeline, isolated) | `pytest -m e2e` | **final: 4 passed** (quality + idempotency, malformed messages, stop-mid-backlog recovery, production reconciliation). The first run had 1 intermittent failure (F-07), fixed and re-run | `10_automated_tests/final_e2e.txt` (also `pytest_e2e_final_20261016.txt`); failed first run kept: `pytest_e2e_20261016_FAILED_stop_race.txt` |
 
 ## B. Functional test cases
 | ID | Area | Input | Expected | Actual | Result | Evidence / test |

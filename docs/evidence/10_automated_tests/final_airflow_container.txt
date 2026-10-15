@@ -1,0 +1,26 @@
+﻿Task ID: P11-01
+Date/time (UTC): 2026-10-15T19:17:12.3123265Z
+Date/time (local): 2026-10-16T00:47:12.3123265+05:30
+Command: .\scripts\run_tests_airflow.ps1
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: ccc7bc8
+--- output ---
+============================= test session starts ==============================
+platform linux -- Python 3.11.11, pytest-8.3.5, pluggy-1.5.0 -- /home/airflow/.local/bin/python
+rootdir: /opt/streampulse
+configfile: pytest.ini
+plugins: time-machine-2.16.0, anyio-4.8.0
+collecting ... collected 8 items
+
+tests/unit/test_airflow_dag.py::test_dags_import_without_errors PASSED   [ 12%]
+tests/unit/test_airflow_dag.py::test_expected_dags_exist PASSED          [ 25%]
+tests/unit/test_airflow_dag.py::test_batch_dag_has_the_finite_tasks PASSED [ 37%]
+tests/unit/test_airflow_dag.py::test_batch_dag_dependencies_follow_the_pipeline_order PASSED [ 50%]
+tests/unit/test_airflow_dag.py::test_every_task_has_retries_delay_and_timeout PASSED [ 62%]
+tests/unit/test_airflow_dag.py::test_the_infinite_stream_is_not_a_task PASSED [ 75%]
+tests/unit/test_airflow_dag.py::test_batch_dag_is_safe_to_run_repeatedly PASSED [ 87%]
+tests/unit/test_airflow_dag.py::test_no_secret_values_in_dag_files PASSED [100%]
+
+============================== 8 passed in 2.35s ===============================
+
+--- exit code: 0 ---

@@ -1,0 +1,25 @@
+﻿Task ID: P11-01
+Date/time (UTC): 2026-10-15T19:15:38.3479959Z
+Date/time (local): 2026-10-16T00:45:38.3559936+05:30
+Command: & 'C:\Users\PADMAJ~1\AppData\Local\Temp\claude\c--Users-Padmaja-Kachare-Documents-StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\9f61dbd3-53dd-4f0d-8a10-0a8eac46b4d2\scratchpad\final_suites.ps1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: ccc7bc8
+--- output ---
+Saved evidence to docs\evidence\10_automated_tests\final_unit.txt (exit code 0)
+final_unit                   =========== 73 passed, 1 skipped, 27 deselected in 67.84s (0:01:07) =========== | --- exit code: 0 ---
+Saved evidence to docs\evidence\10_automated_tests\final_integration.txt (exit code 0)
+final_integration            ================ 18 passed, 1 skipped, 82 deselected in 4.70s ================= | --- exit code: 0 ---
+Saved evidence to docs\evidence\10_automated_tests\final_spark_docker.txt (exit code 0)
+final_spark_docker           ======================== 5 passed, 1 warning in 13.04s ========================= | --- exit code: 0 ---
+Saved evidence to docs\evidence\10_automated_tests\final_airflow_container.txt (exit code 0)
+final_airflow_container      ============================== 8 passed in 2.35s =============================== | --- exit code: 0 ---
+Saved evidence to docs\evidence\10_automated_tests\final_e2e.txt (exit code 0)
+final_e2e                    =========== 4 passed, 1 skipped, 96 deselected in 206.63s (0:03:26) =========== | --- exit code: 0 ---
+Saved evidence to docs\evidence\10_automated_tests\final_reconcile_production.txt (exit code 0)
+final_reconcile_production   RESULT: all differences are zero or explained | --- exit code: 0 ---
+Saved evidence to docs\evidence\10_automated_tests\final_secret_scan.txt (exit code 0)
+final_secret_scan            RESULT: clean | --- exit code: 0 ---
+Saved evidence to docs\evidence\10_automated_tests\final_evidence_paths.txt (exit code 0)
+final_evidence_paths         RESULT: every cited evidence path exists | --- exit code: 0 ---
+
+--- exit code: 0 ---

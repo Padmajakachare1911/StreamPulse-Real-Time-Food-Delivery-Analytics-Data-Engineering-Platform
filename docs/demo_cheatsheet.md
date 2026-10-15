@@ -60,11 +60,11 @@ Terminals: **T1** infrastructure (stays open) · **T2** Spark (stays open while 
 ## 8. Tests
 | T | Command | Success looks like | Dry-run |
 |---|---|---|---|
-| T3 | `$py -m pytest -m unit -q` | `65 passed, 1 skipped` (the skip is the Airflow module: it runs in its container) | VERIFIED |
+| T3 | `$py -m pytest -m unit -q` | `73 passed, 1 skipped` (the skip is the Airflow module: it runs in its container) | VERIFIED |
 | T3 | `$py -m pytest -m integration -q` | `18 passed` (needs Kafka, PostgreSQL, internet) | VERIFIED |
 | T3 | `.\scripts\run_tests_docker.ps1` | `5 passed` (Spark) | VERIFIED |
 | T3 | `.\scripts\run_tests_airflow.ps1` | `8 passed` (Airflow must be running) | VERIFIED |
-| T3 | `$py -m pytest -m e2e -q` (~10 min) | `4 passed` (runs the real pipeline in isolation) | see test_cases.md |
+| T3 | `$py -m pytest -m e2e -q` (~3.5 min) | `4 passed` (runs the real pipeline in isolation) | VERIFIED |
 
 ## 9. Capture evidence
 | T | Command | Result |

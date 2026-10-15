@@ -26,6 +26,15 @@ P0 audit · P1 dataset + mapping · P2 API · P3 Kafka producer · P4 Spark · P
 | D11 | 14 real orders are rejected at ingest (8 'delivered' without delivery date, 6 with a delivery date but a different status). | They contradict themselves and would distort delivery-time KPIs; they are kept in the dead-letter queue with the reason, not lost. |
 | D12 | Old `order_producer.py` deleted (kept in git history). | It generated random fake food orders, never the dataset. |
 | D13 | The limited 100-order run and the full run were published to the same topic. | The first orders therefore exist twice in the topic (same `record_uid`, different `ingest_run_id`); Phase 5/6 prove the sink ignores them. Topic total = 99 + 99,427 = 99,526. |
+| D14 | `core.orders` is the warehouse table (not `core.food_orders`); reference tables (products, sellers, items, reviews, geolocation centroids) are batch-loaded, not streamed. | Naming matches the data; addendum section 4. |
+| D15 | Parquet is an append-only landing layer with one `batch_id=NNNNNNNN` folder per batch; PostgreSQL is the deduplicated layer. | A re-run batch overwrites only its own folder (idempotent); differences are explained by reconciliation. |
+| D16 | Reconciliation separates run-level counts from source-level unique counts. | Overlapping runs (a 100-order test run inside a full run) made the old accounting show 15 rejected instead of 14 unique. |
+| D17 | Airflow 2.10 with LocalExecutor, metadata in a separate `airflow` database of the existing PostgreSQL, project code in its own virtualenv; the container runs as root. | Reuses existing services; root is needed because the Spark container writes the shared checkpoint/Parquet folders as root (first DAG run failed with "Permission denied"). Documented trade-off. |
+| D18 | Airflow runs only finite steps (Spark with `availableNow`, bounded replay). | An infinite stream is not a finite task. |
+| D19 | Safe stop: a batch that starts after a stop request raises `StopRequested` before doing any work; a running batch finishes; `query.stop()` only when idle. | Spark has no public "stop between batches" call; the previous stop raced and produced an intermittent e2e failure. |
+| D20 | Demos 3 and 4 run in isolated environments (own topic, database, checkpoint); reset scripts are scoped and prefix-guarded. | Repeatable live demos that can never touch the production checkpoint or warehouse. |
+| D21 | Dashboard: queries (database access, sanitised errors), status checks (real requests), presentation are separate modules; status is "ok" only when a check really succeeded. | Rule 15: no fake green indicators. |
+| D22 | PySpark 4.2.0 with pandas 3.0.6 kept. | PySpark declares `pandas>=2.2.0` without an upper bound; the notice concerns pandas-conversion APIs the project never uses; all runs worked. |
 
 ## Open items / assumptions
 - Professor did not name an API (`docs/inputs/api_info.md` absent), so the agent chooses.

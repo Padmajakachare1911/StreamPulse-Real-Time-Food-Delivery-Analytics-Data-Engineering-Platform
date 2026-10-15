@@ -95,4 +95,5 @@ PySpark 4.2.0 (Scala 2.13) ↔ `org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0
 | Airflow task: `Permission denied` on `data/checkpoints/...` | Spark container writes as root | the Airflow container runs as root (see `docker-compose.yml`) |
 | Dashboard shows Kafka down while Kafka runs | (fixed) wrong client option | update the code; `status.check_kafka()` must return `ok` |
 | PowerShell: `A parameter cannot be found` when piping to `docker exec -i` | PowerShell 5.1 adds a BOM to piped text | use `docker cp` + `psql -f` as in the scripts |
+| `ImportError: DLL load failed ... The filename or extension is too long` when importing `psycopg2` or `pyarrow` | the virtual environment lives in a very deep folder (Windows path-length limit) | create the venv at a shorter path (e.g. `C:\sp\.venv`) or enable Windows long paths. A fresh venv from `requirements.txt` at a normal path installs and passes the unit tests (`docs/evidence/00_environment/fresh_venv_install_and_unit_tests.txt`); the failed attempts are kept next to it |
 | `kafka_describe_topic.ps1` fails to parse | statement inside a `param()` default | scripts resolve the topic after `param()` |

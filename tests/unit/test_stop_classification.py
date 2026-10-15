@@ -40,3 +40,13 @@ def test_errors_before_the_stop_request_are_always_unexpected_even_if_the_signat
 def test_errors_without_any_stop_request_are_unexpected():
     unexpected, stop_related = classify(["INFO ok", "Exception: boom"])
     assert unexpected == ["Exception: boom"] and stop_related == []
+
+
+def test_experiment_database_names_are_guarded_before_any_drop(monkeypatch):
+    """create_database DROPs first, so it must refuse names outside the experiment pattern (no DB connection is made)."""
+    def refuse_connection(_name):
+        raise AssertionError("must not connect for a refused name")
+    monkeypatch.setattr(experiments, "pg_connect", refuse_connection)
+    for bad in ("streampulse", "airflow", "streampulse_recovery_", "streampulse_recovery_x; DROP", "streampulse_test", "streampulse_recovery_A1"):
+        with pytest.raises(SystemExit):
+            experiments.create_database(bad)

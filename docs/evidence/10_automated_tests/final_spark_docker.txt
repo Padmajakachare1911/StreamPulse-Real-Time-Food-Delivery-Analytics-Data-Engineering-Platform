@@ -1,0 +1,30 @@
+﻿Task ID: P11-01
+Date/time (UTC): 2026-10-15T19:16:56.6826810Z
+Date/time (local): 2026-10-16T00:46:56.6826810+05:30
+Command: .\scripts\run_tests_docker.ps1
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: ccc7bc8
+--- output ---
+ Container streampulse-real-time-food-delivery-analytics-data-engineering-platform-spark-run-40d318384f3e Creating 
+ Container streampulse-real-time-food-delivery-analytics-data-engineering-platform-spark-run-40d318384f3e Created 
+============================= test session starts ==============================
+platform linux -- Python 3.11.17, pytest-9.1.1, pluggy-1.7.0 -- /usr/local/bin/python
+rootdir: /app
+configfile: pytest.ini
+collecting ... collected 5 items
+
+tests/unit/test_spark_transforms.py::test_valid_message_is_parsed_and_flattened_with_types PASSED [ 20%]
+tests/unit/test_spark_transforms.py::test_missing_enrichment_gives_api_enriched_false PASSED [ 40%]
+tests/unit/test_spark_transforms.py::test_malformed_json_is_routed_to_invalid_not_crashing PASSED [ 60%]
+tests/unit/test_spark_transforms.py::test_message_without_record_uid_is_schema_mismatch PASSED [ 80%]
+tests/unit/test_spark_transforms.py::test_in_batch_dedup_keeps_lowest_offset PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/unit/test_spark_transforms.py::test_valid_message_is_parsed_and_flattened_with_types
+  /usr/local/lib/python3.11/site-packages/pyspark/testing/utils.py:127: FutureWarning: PySpark does not yet fully support pandas >= 3.0.0. Some features may not work correctly. It is recommended to use pandas < 3.0.0 for now.
+    require_minimum_pandas_version()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 5 passed, 1 warning in 13.04s =========================
+
+--- exit code: 0 ---
