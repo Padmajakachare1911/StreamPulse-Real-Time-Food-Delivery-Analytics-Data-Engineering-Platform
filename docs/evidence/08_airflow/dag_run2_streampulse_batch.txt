@@ -1,0 +1,41 @@
+﻿Task ID: P7-02
+Date/time (UTC): 2026-10-15T18:14:21.1791262Z
+Date/time (local): 2026-10-15T23:44:21.1896357+05:30
+Command: & 'C:\Users\PADMAJ~1\AppData\Local\Temp\run_batch_dag.ps1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 773ac70
+--- output ---
+No paused DAGs were found
+[2026-10-15T18:14:26.887+0000] {__init__.py:43} INFO - Loaded API auth backend: airflow.api.auth.backend.session
+               |                   |                    | data_interval_sta |                    |          |                  | last_scheduling_d |                    |          |            |       
+conf           | dag_id            | dag_run_id         | rt                | data_interval_end  | end_date | external_trigger | ecision           | logical_date       | run_type | start_date | state 
+===============+===================+====================+===================+====================+==========+==================+===================+====================+==========+============+=======
+{'limit': 300} | streampulse_batch | manual__20261015T1 | 2026-10-15        | 2026-10-15         | None     | True             | None              | 2026-10-15         | manual   | None       | queued
+               |                   | 81422              | 18:14:27+00:00    | 18:14:27+00:00     |          |                  |                   | 18:14:27+00:00     |          |            |       
+                                                                                                                                                                                                        
+Triggered streampulse_batch run_id=manual__20261015T181422 conf={"limit": 300}
+23:44:40  run state: running
+23:44:52  run state: running
+23:45:04  run state: running
+23:45:26  run state: running
+23:45:45  run state: running
+23:45:57  run state: running
+23:46:10  run state: running
+23:46:22  run state: success
+
+--- task states ---
+dag_id            | execution_date            | task_id                    | state   | start_date                       | end_date                        
+==================+===========================+============================+=========+==================================+=================================
+streampulse_batch | 2026-10-15T18:14:27+00:00 | run_spark_available_now    | success | 2026-10-15T18:14:38.673306+00:00 | 2026-10-15T18:15:48.903808+00:00
+streampulse_batch | 2026-10-15T18:14:27+00:00 | run_quality_checks_sql     | success | 2026-10-15T18:15:50.193248+00:00 | 2026-10-15T18:15:57.701147+00:00
+streampulse_batch | 2026-10-15T18:14:27+00:00 | check_dataset_present      | success | 2026-10-15T18:14:27.748366+00:00 | 2026-10-15T18:14:28.779954+00:00
+streampulse_batch | 2026-10-15T18:14:27+00:00 | api_health_check           | success | 2026-10-15T18:14:29.678130+00:00 | 2026-10-15T18:14:30.764998+00:00
+streampulse_batch | 2026-10-15T18:14:27+00:00 | validate_dataset_profile   | success | 2026-10-15T18:14:29.678112+00:00 | 2026-10-15T18:14:32.132006+00:00
+streampulse_batch | 2026-10-15T18:14:27+00:00 | ingest_batch_to_kafka      | success | 2026-10-15T18:14:32.697958+00:00 | 2026-10-15T18:14:37.600681+00:00
+streampulse_batch | 2026-10-15T18:14:27+00:00 | load_runs_dead_letters_api | success | 2026-10-15T18:15:59.895913+00:00 | 2026-10-15T18:16:00.978247+00:00
+streampulse_batch | 2026-10-15T18:14:27+00:00 | reconcile_counts           | success | 2026-10-15T18:16:02.050787+00:00 | 2026-10-15T18:16:13.959983+00:00
+streampulse_batch | 2026-10-15T18:14:27+00:00 | refresh_analytics          | success | 2026-10-15T18:16:14.669065+00:00 | 2026-10-15T18:16:15.053820+00:00
+                                                                                                                                                          
+FINAL STATE: success   (dag=streampulse_batch run_id=manual__20261015T181422)
+
+--- exit code: 0 ---

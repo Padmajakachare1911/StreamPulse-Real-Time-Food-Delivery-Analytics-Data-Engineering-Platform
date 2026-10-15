@@ -1,0 +1,772 @@
+﻿Task ID: P7-01
+Date/time (UTC): 2026-10-15T17:48:18.5532733Z
+Date/time (local): 2026-10-15T23:18:18.5582804+05:30
+Command: .\scripts\airflow_up.ps1
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 773ac70
+--- output ---
+ Container streampulse-kafka Running 
+ Container streampulse-postgres Running 
+Created database airflow
+#< CLIXML
+#1 [internal] load local bake definitions
+#1 reading from stdin 786B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.23kB 0.0s done
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/apache/airflow:2.10.5-python3.11
+#3 ...
+
+#4 [auth] apache/airflow:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/apache/airflow:2.10.5-python3.11
+#3 DONE 3.3s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 2B 0.0s done
+#5 DONE 0.1s
+
+#6 [1/5] FROM docker.io/apache/airflow:2.10.5-python3.11@sha256:b16e19f925ae0dcabaa2271b37212891ed68bf74e26c2db61f46dddd7d502937
+#6 resolve docker.io/apache/airflow:2.10.5-python3.11@sha256:b16e19f925ae0dcabaa2271b37212891ed68bf74e26c2db61f46dddd7d502937 0.0s done
+#6 DONE 0.6s
+
+#6 [1/5] FROM docker.io/apache/airflow:2.10.5-python3.11@sha256:b16e19f925ae0dcabaa2271b37212891ed68bf74e26c2db61f46dddd7d502937
+#6 sha256:29b5abe07a3bf3afb33945f5c872a1073976fb13cc9a063be95e7520b3cefc5e 0B / 421B 0.2s
+#6 sha256:406a0354251cd9e596f58d87752103cfb7ba25166b720819f4f97c754db59e00 0B / 114B 0.2s
+#6 sha256:6c01bc612e9f86663f15615a9d8797508ed8d4ca262fa36b48270bca072621f9 0B / 1.06kB 0.2s
+#6 sha256:35d168acb0f07a9f7b6bb971c8dc2ae5867f5a3c9677d827315d0a972a3bb9d5 0B / 5.21kB 0.2s
+#6 sha256:29b5abe07a3bf3afb33945f5c872a1073976fb13cc9a063be95e7520b3cefc5e 421B / 421B 0.4s done
+#6 sha256:e5fca426a23edecc72d408879b0acd6ad971f52c8c537e232260bb05c0e3bed2 0B / 420B 0.2s
+#6 sha256:406a0354251cd9e596f58d87752103cfb7ba25166b720819f4f97c754db59e00 114B / 114B 0.6s done
+#6 sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 0B / 32B 0.2s
+#6 sha256:6c01bc612e9f86663f15615a9d8797508ed8d4ca262fa36b48270bca072621f9 1.06kB / 1.06kB 0.9s done
+#6 sha256:35d168acb0f07a9f7b6bb971c8dc2ae5867f5a3c9677d827315d0a972a3bb9d5 5.21kB / 5.21kB 0.9s done
+#6 sha256:e5fca426a23edecc72d408879b0acd6ad971f52c8c537e232260bb05c0e3bed2 420B / 420B 0.7s done
+#6 sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 32B / 32B 0.4s done
+#6 sha256:7e5ffb8a34dbc9aa94f9a5680cf4ceff322b0ddd4f6794416d7f7a018b14ac5e 0B / 291B 0.2s
+#6 sha256:7cbf01db0cc01d715487dc5eb47570c8fd082f53340b288d3f0fe84f7d1196eb 0B / 492B 0.2s
+#6 sha256:bb52c308e36bbf177b62ba923cd89b079f2eed9dd1644dea91cb030de68c1c36 0B / 17.52kB 0.2s
+#6 sha256:7e5ffb8a34dbc9aa94f9a5680cf4ceff322b0ddd4f6794416d7f7a018b14ac5e 291B / 291B 0.3s done
+#6 sha256:ec474c07bf72723b85d8951cacd0197d32ab0a0878692809115a9785d71ced3f 0B / 3.87kB 0.2s
+#6 sha256:7cbf01db0cc01d715487dc5eb47570c8fd082f53340b288d3f0fe84f7d1196eb 492B / 492B 0.4s done
+#6 sha256:bb52c308e36bbf177b62ba923cd89b079f2eed9dd1644dea91cb030de68c1c36 17.52kB / 17.52kB 0.4s done
+#6 sha256:4e80eac6d15c1390d05ca54e458d3a72ebe025a0360d1426ba4515f2d243796e 0B / 7.14kB 0.2s
+#6 sha256:ec474c07bf72723b85d8951cacd0197d32ab0a0878692809115a9785d71ced3f 3.87kB / 3.87kB 0.5s done
+#6 sha256:4e80eac6d15c1390d05ca54e458d3a72ebe025a0360d1426ba4515f2d243796e 7.14kB / 7.14kB 0.4s done
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 0B / 277.86MB 0.2s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 0B / 22.20MB 0.2s
+#6 sha256:e7875897d83150f5f9b3f712f90fb9052c554247e0ef875bf3cc77dd6f949bac 0B / 2.03kB 0.2s
+#6 sha256:9ffeec8286d09c15958d0f44cb077c44ecdda7b8d6f51a1d7daadad3fea4a05a 0B / 2.31kB 0.2s
+#6 sha256:e7875897d83150f5f9b3f712f90fb9052c554247e0ef875bf3cc77dd6f949bac 2.03kB / 2.03kB 0.5s done
+#6 sha256:9ffeec8286d09c15958d0f44cb077c44ecdda7b8d6f51a1d7daadad3fea4a05a 2.31kB / 2.31kB 0.5s done
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 0B / 89.53MB 0.2s
+#6 sha256:ad3b14759e4f8c9a73d51c897a8b96f022ec96ffc237502ad3f1f12b0b0e361f 0B / 249B 0.2s
+#6 sha256:ad3b14759e4f8c9a73d51c897a8b96f022ec96ffc237502ad3f1f12b0b0e361f 249B / 249B 0.3s done
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 0B / 16.20MB 0.2s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 2.10MB / 22.20MB 2.4s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 4.19MB / 22.20MB 4.1s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 14.68MB / 277.86MB 5.1s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 1.05MB / 89.53MB 5.3s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 6.29MB / 22.20MB 6.2s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 0B / 16.20MB 5.3s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 1.05MB / 16.20MB 6.2s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 8.39MB / 22.20MB 7.8s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 10.49MB / 22.20MB 9.3s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 2.10MB / 16.20MB 8.3s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 27.26MB / 277.86MB 10.2s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 12.58MB / 22.20MB 10.5s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 3.15MB / 89.53MB 10.4s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 3.15MB / 16.20MB 9.9s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 14.68MB / 22.20MB 11.6s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 4.19MB / 16.20MB 11.1s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 16.78MB / 22.20MB 12.6s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 5.24MB / 16.20MB 12.3s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 18.87MB / 22.20MB 13.8s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 6.29MB / 16.20MB 13.7s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 20.97MB / 22.20MB 15.0s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 35.65MB / 277.86MB 15.3s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 7.34MB / 16.20MB 14.6s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 22.20MB / 22.20MB 15.9s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 6.29MB / 89.53MB 15.5s
+#6 sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 22.20MB / 22.20MB 16.1s done
+#6 sha256:011b25d36b13ccc49a000ae413bc3cc700f71953c21f001c491aae9e0d064bb1 0B / 1.51kB 0.2s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 8.39MB / 16.20MB 15.5s
+#6 sha256:011b25d36b13ccc49a000ae413bc3cc700f71953c21f001c491aae9e0d064bb1 1.51kB / 1.51kB 0.4s done
+#6 sha256:73c4bbda278d9a2b5133d6dabfac3eec43a92b8c8c15da914f298b4c966bea53 0B / 3.51MB 0.2s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 9.44MB / 16.20MB 16.1s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 10.49MB / 16.20MB 16.7s
+#6 sha256:73c4bbda278d9a2b5133d6dabfac3eec43a92b8c8c15da914f298b4c966bea53 1.05MB / 3.51MB 1.5s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 11.53MB / 16.20MB 17.6s
+#6 sha256:73c4bbda278d9a2b5133d6dabfac3eec43a92b8c8c15da914f298b4c966bea53 2.10MB / 3.51MB 2.6s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 12.58MB / 16.20MB 18.3s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 11.53MB / 89.53MB 18.9s
+#6 sha256:73c4bbda278d9a2b5133d6dabfac3eec43a92b8c8c15da914f298b4c966bea53 3.15MB / 3.51MB 3.4s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 13.63MB / 16.20MB 19.1s
+#6 sha256:73c4bbda278d9a2b5133d6dabfac3eec43a92b8c8c15da914f298b4c966bea53 3.51MB / 3.51MB 3.7s done
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 41.94MB / 277.86MB 20.4s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 0B / 28.21MB 0.2s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 14.68MB / 16.20MB 19.8s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 15.73MB / 16.20MB 20.7s
+#6 sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 16.20MB / 16.20MB 21.1s done
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 2.10MB / 28.21MB 2.6s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 16.78MB / 89.53MB 22.9s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 4.19MB / 28.21MB 5.1s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 54.53MB / 277.86MB 25.5s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 22.02MB / 89.53MB 26.5s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 6.29MB / 28.21MB 7.8s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 8.39MB / 28.21MB 9.8s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 27.26MB / 89.53MB 29.7s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 66.06MB / 277.86MB 30.6s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 10.49MB / 28.21MB 12.6s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 32.51MB / 89.53MB 33.1s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 12.58MB / 28.21MB 15.0s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 74.45MB / 277.86MB 35.7s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 37.75MB / 89.53MB 35.2s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 14.68MB / 28.21MB 17.1s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 42.99MB / 89.53MB 37.3s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 16.78MB / 28.21MB 18.5s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 18.87MB / 28.21MB 19.8s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 80.74MB / 277.86MB 40.8s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 48.23MB / 89.53MB 40.2s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 20.97MB / 28.21MB 21.5s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 23.07MB / 28.21MB 24.5s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 53.48MB / 89.53MB 44.8s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 87.03MB / 277.86MB 45.9s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 25.17MB / 28.21MB 26.0s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 27.26MB / 28.21MB 27.0s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 58.72MB / 89.53MB 48.0s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 98.57MB / 277.86MB 51.0s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 63.96MB / 89.53MB 50.2s
+#6 sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 28.21MB / 28.21MB 30.7s done
+#6 extracting sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260
+#6 extracting sha256:c29f5b76f736a8b555fd191c48d6581bb918bcd605a7cbcc76205dd6acff3260 1.6s done
+#6 extracting sha256:73c4bbda278d9a2b5133d6dabfac3eec43a92b8c8c15da914f298b4c966bea53
+#6 extracting sha256:73c4bbda278d9a2b5133d6dabfac3eec43a92b8c8c15da914f298b4c966bea53 0.3s done
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 69.21MB / 89.53MB 52.3s
+#6 extracting sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335
+#6 extracting sha256:acc53c3e87ac87c98e44b79e0d2a6293146650f5cba576f424dab77f8c0a4335 0.8s done
+#6 extracting sha256:ad3b14759e4f8c9a73d51c897a8b96f022ec96ffc237502ad3f1f12b0b0e361f 0.0s done
+#6 extracting sha256:011b25d36b13ccc49a000ae413bc3cc700f71953c21f001c491aae9e0d064bb1 0.1s done
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 74.45MB / 89.53MB 54.6s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 111.15MB / 277.86MB 56.1s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 79.69MB / 89.53MB 57.0s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 84.93MB / 89.53MB 60.4s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 121.63MB / 277.86MB 61.2s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 89.53MB / 89.53MB 64.2s
+#6 sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 89.53MB / 89.53MB 64.3s done
+#6 extracting sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 132.12MB / 277.86MB 66.3s
+#6 extracting sha256:504270c6a97e45e4991153b8f1e219425f379b6db1ad39b5d7cb3a5e8249faa3 1.6s done
+#6 extracting sha256:9ffeec8286d09c15958d0f44cb077c44ecdda7b8d6f51a1d7daadad3fea4a05a 0.0s done
+#6 extracting sha256:e7875897d83150f5f9b3f712f90fb9052c554247e0ef875bf3cc77dd6f949bac 0.0s done
+#6 extracting sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4
+#6 extracting sha256:96484fb4b3d0a714d51444f98eb3ec2acd4f0ad9f67dd47c4afe7d33e3d067c4 0.4s done
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 146.80MB / 277.86MB 70.6s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 161.48MB / 277.86MB 74.1s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 176.16MB / 277.86MB 77.5s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 190.84MB / 277.86MB 80.8s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 205.52MB / 277.86MB 84.3s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 220.20MB / 277.86MB 87.6s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 234.88MB / 277.86MB 90.9s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 249.56MB / 277.86MB 94.3s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 264.24MB / 277.86MB 97.6s
+#6 sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 277.86MB / 277.86MB 100.8s done
+#6 extracting sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956
+#6 extracting sha256:66e69f744e4f074de210691c4a032f2ffd5fbe17a3524eefe45fbc23d8221956 46.5s done
+#6 DONE 149.2s
+
+#6 [1/5] FROM docker.io/apache/airflow:2.10.5-python3.11@sha256:b16e19f925ae0dcabaa2271b37212891ed68bf74e26c2db61f46dddd7d502937
+#6 extracting sha256:4e80eac6d15c1390d05ca54e458d3a72ebe025a0360d1426ba4515f2d243796e
+#6 extracting sha256:4e80eac6d15c1390d05ca54e458d3a72ebe025a0360d1426ba4515f2d243796e 0.3s done
+#6 DONE 149.5s
+
+#6 [1/5] FROM docker.io/apache/airflow:2.10.5-python3.11@sha256:b16e19f925ae0dcabaa2271b37212891ed68bf74e26c2db61f46dddd7d502937
+#6 extracting sha256:bb52c308e36bbf177b62ba923cd89b079f2eed9dd1644dea91cb030de68c1c36
+#6 extracting sha256:bb52c308e36bbf177b62ba923cd89b079f2eed9dd1644dea91cb030de68c1c36 0.3s done
+#6 DONE 149.8s
+
+#6 [1/5] FROM docker.io/apache/airflow:2.10.5-python3.11@sha256:b16e19f925ae0dcabaa2271b37212891ed68bf74e26c2db61f46dddd7d502937
+#6 extracting sha256:ec474c07bf72723b85d8951cacd0197d32ab0a0878692809115a9785d71ced3f
+#6 extracting sha256:ec474c07bf72723b85d8951cacd0197d32ab0a0878692809115a9785d71ced3f 0.5s done
+#6 DONE 150.2s
+
+#6 [1/5] FROM docker.io/apache/airflow:2.10.5-python3.11@sha256:b16e19f925ae0dcabaa2271b37212891ed68bf74e26c2db61f46dddd7d502937
+#6 extracting sha256:7cbf01db0cc01d715487dc5eb47570c8fd082f53340b288d3f0fe84f7d1196eb 0.0s done
+#6 extracting sha256:7e5ffb8a34dbc9aa94f9a5680cf4ceff322b0ddd4f6794416d7f7a018b14ac5e 0.0s done
+#6 extracting sha256:35d168acb0f07a9f7b6bb971c8dc2ae5867f5a3c9677d827315d0a972a3bb9d5 0.0s done
+#6 extracting sha256:6c01bc612e9f86663f15615a9d8797508ed8d4ca262fa36b48270bca072621f9 0.0s done
+#6 DONE 150.3s
+
+#6 [1/5] FROM docker.io/apache/airflow:2.10.5-python3.11@sha256:b16e19f925ae0dcabaa2271b37212891ed68bf74e26c2db61f46dddd7d502937
+#6 extracting sha256:406a0354251cd9e596f58d87752103cfb7ba25166b720819f4f97c754db59e00 0.1s done
+#6 extracting sha256:29b5abe07a3bf3afb33945f5c872a1073976fb13cc9a063be95e7520b3cefc5e 0.0s done
+#6 extracting sha256:e5fca426a23edecc72d408879b0acd6ad971f52c8c537e232260bb05c0e3bed2 0.1s done
+#6 DONE 150.5s
+
+#6 [1/5] FROM docker.io/apache/airflow:2.10.5-python3.11@sha256:b16e19f925ae0dcabaa2271b37212891ed68bf74e26c2db61f46dddd7d502937
+#6 extracting sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 0.0s done
+#6 DONE 150.5s
+
+#7 [2/5] RUN apt-get update     && apt-get install -y --no-install-recommends openjdk-17-jre-headless procps     && rm -rf /var/lib/apt/lists/*
+#7 1.420 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+#7 1.577 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+#7 1.638 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [34.8 kB]
+#7 1.670 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8790 kB]
+#7 1.934 Get:5 https://download.docker.com/linux/debian bookworm InRelease [46.6 kB]
+#7 2.122 Get:6 https://download.docker.com/linux/debian bookworm/stable amd64 Packages [84.7 kB]
+#7 2.188 Get:7 https://archive.mariadb.org/mariadb-10.11/repo/debian bookworm InRelease [15.6 kB]
+#7 2.188 Get:8 https://apt.postgresql.org/pub/repos/apt bookworm-pgdg InRelease [189 kB]
+#7 2.276 Get:9 https://packages.microsoft.com/debian/12/prod bookworm InRelease [3618 B]
+#7 2.530 Get:10 https://packages.microsoft.com/debian/12/prod bookworm/main all Packages [576 B]
+#7 2.569 Get:11 https://archive.mariadb.org/mariadb-10.11/repo/debian bookworm/main arm64 Packages [17.7 kB]
+#7 2.581 Get:12 https://packages.microsoft.com/debian/12/prod bookworm/main arm64 Packages [391 kB]
+#7 2.848 Get:13 https://packages.microsoft.com/debian/12/prod bookworm/main amd64 Packages [521 kB]
+#7 2.863 Get:14 https://apt.postgresql.org/pub/repos/apt bookworm-pgdg/main arm64 Packages [890 kB]
+#7 3.128 Get:15 https://archive.mariadb.org/mariadb-10.11/repo/debian bookworm/main amd64 Packages [19.9 kB]
+#7 4.219 Get:16 https://apt.postgresql.org/pub/repos/apt bookworm-pgdg/main amd64 Packages [904 kB]
+#7 4.683 Get:17 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+#7 4.685 Get:18 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [353 kB]
+#7 5.691 Fetched 12.5 MB in 5s (2735 kB/s)
+#7 5.691 Reading package lists...
+#7 6.244 Reading package lists...
+#7 6.744 Building dependency tree...
+#7 6.890 Reading state information...
+#7 7.043 The following additional packages will be installed:
+#7 7.043   ca-certificates-java fontconfig-config fonts-dejavu-core java-common
+#7 7.043   libasound2 libasound2-data libavahi-client3 libavahi-common-data
+#7 7.043   libavahi-common3 libcups2 libdbus-1-3 libfontconfig1 libfreetype6
+#7 7.043   libglib2.0-0 libgraphite2-3 libharfbuzz0b libjpeg62-turbo liblcms2-2
+#7 7.044   libnspr4 libnss3 libpcsclite1 libpng16-16 libproc2-0
+#7 7.046 Suggested packages:
+#7 7.046   default-jre libasound2-plugins alsa-utils cups-common low-memory-monitor
+#7 7.046   liblcms2-utils pcscd libnss-mdns fonts-dejavu-extra fonts-ipafont-gothic
+#7 7.046   fonts-ipafont-mincho fonts-wqy-microhei | fonts-wqy-zenhei fonts-indic
+#7 7.046 Recommended packages:
+#7 7.046   alsa-ucm-conf alsa-topology-conf dbus libglib2.0-data shared-mime-info
+#7 7.046   xdg-user-dirs psmisc
+#7 7.139 The following NEW packages will be installed:
+#7 7.140   ca-certificates-java fontconfig-config fonts-dejavu-core java-common
+#7 7.141   libasound2 libasound2-data libavahi-client3 libavahi-common-data
+#7 7.142   libavahi-common3 libcups2 libdbus-1-3 libfontconfig1 libfreetype6
+#7 7.142   libglib2.0-0 libgraphite2-3 libharfbuzz0b libjpeg62-turbo liblcms2-2
+#7 7.145   libnspr4 libnss3 libpcsclite1 libpng16-16 libproc2-0 openjdk-17-jre-headless
+#7 7.145   procps
+#7 7.248 0 upgraded, 25 newly installed, 0 to remove and 92 not upgraded.
+#7 7.248 Need to get 53.4 MB of archives.
+#7 7.248 After this operation, 217 MB of additional disk space will be used.
+#7 7.248 Get:1 http://deb.debian.org/debian bookworm/main amd64 libproc2-0 amd64 2:4.0.2-3 [62.8 kB]
+#7 7.307 Get:2 http://deb.debian.org/debian bookworm/main amd64 procps amd64 2:4.0.2-3 [709 kB]
+#7 7.421 Get:3 http://deb.debian.org/debian bookworm/main amd64 ca-certificates-java all 20230710~deb12u1 [11.9 kB]
+#7 7.424 Get:4 http://deb.debian.org/debian bookworm/main amd64 fonts-dejavu-core all 2.37-6 [1068 kB]
+#7 7.528 Get:5 http://deb.debian.org/debian bookworm/main amd64 fontconfig-config amd64 2.14.1-4 [315 kB]
+#7 7.574 Get:6 http://deb.debian.org/debian bookworm/main amd64 java-common all 0.74 [6388 B]
+#7 7.575 Get:7 http://deb.debian.org/debian bookworm/main amd64 libasound2-data all 1.2.8-1 [20.5 kB]
+#7 7.575 Get:8 http://deb.debian.org/debian bookworm/main amd64 libasound2 amd64 1.2.8-1+b1 [362 kB]
+#7 7.597 Get:9 http://deb.debian.org/debian bookworm/main amd64 libavahi-common-data amd64 0.8-10+deb12u1 [107 kB]
+#7 7.601 Get:10 http://deb.debian.org/debian bookworm/main amd64 libavahi-common3 amd64 0.8-10+deb12u1 [42.1 kB]
+#7 7.604 Get:11 http://deb.debian.org/debian bookworm/main amd64 libdbus-1-3 amd64 1.14.10-1~deb12u1 [201 kB]
+#7 7.678 Get:12 http://deb.debian.org/debian bookworm/main amd64 libavahi-client3 amd64 0.8-10+deb12u1 [45.8 kB]
+#7 7.697 Get:13 http://deb.debian.org/debian bookworm/main amd64 libcups2 amd64 2.4.2-3+deb12u9 [245 kB]
+#7 7.727 Get:14 http://deb.debian.org/debian-security bookworm-security/main amd64 libpng16-16 amd64 1.6.39-2+deb12u6 [277 kB]
+#7 7.929 Get:15 http://deb.debian.org/debian bookworm/main amd64 libfreetype6 amd64 2.12.1+dfsg-5+deb12u4 [398 kB]
+#7 7.956 Get:16 http://deb.debian.org/debian bookworm/main amd64 libfontconfig1 amd64 2.14.1-4 [386 kB]
+#7 7.971 Get:17 http://deb.debian.org/debian bookworm/main amd64 libglib2.0-0 amd64 2.74.6-2+deb12u9 [1403 kB]
+#7 8.240 Get:18 http://deb.debian.org/debian bookworm/main amd64 libgraphite2-3 amd64 1.3.14-1+deb12u1 [74.6 kB]
+#7 8.249 Get:19 http://deb.debian.org/debian bookworm/main amd64 libharfbuzz0b amd64 6.0.0+dfsg-3 [1945 kB]
+#7 9.969 Get:20 http://deb.debian.org/debian bookworm/main amd64 libjpeg62-turbo amd64 1:2.1.5-2 [166 kB]
+#7 10.03 Get:21 http://deb.debian.org/debian bookworm/main amd64 liblcms2-2 amd64 2.14-2+deb12u1 [154 kB]
+#7 10.06 Get:22 http://deb.debian.org/debian bookworm/main amd64 libnspr4 amd64 2:4.35-1 [113 kB]
+#7 10.07 Get:23 http://deb.debian.org/debian-security bookworm-security/main amd64 libnss3 amd64 2:3.87.1-1+deb12u4 [1331 kB]
+#7 10.14 Get:24 http://deb.debian.org/debian bookworm/main amd64 libpcsclite1 amd64 1.9.9-2 [49.7 kB]
+#7 10.14 Get:25 http://deb.debian.org/debian-security bookworm-security/main amd64 openjdk-17-jre-headless amd64 17.0.20.1+1-1~deb12u1 [43.9 MB]
+#7 20.04 Preconfiguring packages ...
+#7 20.09 Fetched 53.4 MB in 12s (4417 kB/s)
+#7 20.11 Selecting previously unselected package libproc2-0:amd64.
+#7 20.11 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 12145 files and directories currently installed.)
+#7 20.13 Preparing to unpack .../00-libproc2-0_2%3a4.0.2-3_amd64.deb ...
+#7 20.14 Unpacking libproc2-0:amd64 (2:4.0.2-3) ...
+#7 20.17 Selecting previously unselected package procps.
+#7 20.18 Preparing to unpack .../01-procps_2%3a4.0.2-3_amd64.deb ...
+#7 20.19 Unpacking procps (2:4.0.2-3) ...
+#7 20.26 Selecting previously unselected package ca-certificates-java.
+#7 20.26 Preparing to unpack .../02-ca-certificates-java_20230710~deb12u1_all.deb ...
+#7 20.27 Unpacking ca-certificates-java (20230710~deb12u1) ...
+#7 20.30 Selecting previously unselected package fonts-dejavu-core.
+#7 20.30 Preparing to unpack .../03-fonts-dejavu-core_2.37-6_all.deb ...
+#7 20.30 Unpacking fonts-dejavu-core (2.37-6) ...
+#7 20.40 Selecting previously unselected package fontconfig-config.
+#7 20.40 Preparing to unpack .../04-fontconfig-config_2.14.1-4_amd64.deb ...
+#7 20.48 Unpacking fontconfig-config (2.14.1-4) ...
+#7 20.52 Selecting previously unselected package java-common.
+#7 20.52 Preparing to unpack .../05-java-common_0.74_all.deb ...
+#7 20.52 Unpacking java-common (0.74) ...
+#7 20.55 Selecting previously unselected package libasound2-data.
+#7 20.55 Preparing to unpack .../06-libasound2-data_1.2.8-1_all.deb ...
+#7 20.55 Unpacking libasound2-data (1.2.8-1) ...
+#7 20.59 Selecting previously unselected package libasound2:amd64.
+#7 20.59 Preparing to unpack .../07-libasound2_1.2.8-1+b1_amd64.deb ...
+#7 20.60 Unpacking libasound2:amd64 (1.2.8-1+b1) ...
+#7 20.64 Selecting previously unselected package libavahi-common-data:amd64.
+#7 20.64 Preparing to unpack .../08-libavahi-common-data_0.8-10+deb12u1_amd64.deb ...
+#7 20.64 Unpacking libavahi-common-data:amd64 (0.8-10+deb12u1) ...
+#7 20.68 Selecting previously unselected package libavahi-common3:amd64.
+#7 20.68 Preparing to unpack .../09-libavahi-common3_0.8-10+deb12u1_amd64.deb ...
+#7 20.68 Unpacking libavahi-common3:amd64 (0.8-10+deb12u1) ...
+#7 20.71 Selecting previously unselected package libdbus-1-3:amd64.
+#7 20.71 Preparing to unpack .../10-libdbus-1-3_1.14.10-1~deb12u1_amd64.deb ...
+#7 20.71 Unpacking libdbus-1-3:amd64 (1.14.10-1~deb12u1) ...
+#7 20.76 Selecting previously unselected package libavahi-client3:amd64.
+#7 20.76 Preparing to unpack .../11-libavahi-client3_0.8-10+deb12u1_amd64.deb ...
+#7 20.76 Unpacking libavahi-client3:amd64 (0.8-10+deb12u1) ...
+#7 20.79 Selecting previously unselected package libcups2:amd64.
+#7 20.79 Preparing to unpack .../12-libcups2_2.4.2-3+deb12u9_amd64.deb ...
+#7 20.80 Unpacking libcups2:amd64 (2.4.2-3+deb12u9) ...
+#7 20.85 Selecting previously unselected package libpng16-16:amd64.
+#7 20.86 Preparing to unpack .../13-libpng16-16_1.6.39-2+deb12u6_amd64.deb ...
+#7 20.86 Unpacking libpng16-16:amd64 (1.6.39-2+deb12u6) ...
+#7 20.94 Selecting previously unselected package libfreetype6:amd64.
+#7 20.94 Preparing to unpack .../14-libfreetype6_2.12.1+dfsg-5+deb12u4_amd64.deb ...
+#7 20.94 Unpacking libfreetype6:amd64 (2.12.1+dfsg-5+deb12u4) ...
+#7 21.05 Selecting previously unselected package libfontconfig1:amd64.
+#7 21.05 Preparing to unpack .../15-libfontconfig1_2.14.1-4_amd64.deb ...
+#7 21.07 Unpacking libfontconfig1:amd64 (2.14.1-4) ...
+#7 21.21 Selecting previously unselected package libglib2.0-0:amd64.
+#7 21.21 Preparing to unpack .../16-libglib2.0-0_2.74.6-2+deb12u9_amd64.deb ...
+#7 21.23 Unpacking libglib2.0-0:amd64 (2.74.6-2+deb12u9) ...
+#7 21.40 Selecting previously unselected package libgraphite2-3:amd64.
+#7 21.40 Preparing to unpack .../17-libgraphite2-3_1.3.14-1+deb12u1_amd64.deb ...
+#7 21.42 Unpacking libgraphite2-3:amd64 (1.3.14-1+deb12u1) ...
+#7 21.51 Selecting previously unselected package libharfbuzz0b:amd64.
+#7 21.51 Preparing to unpack .../18-libharfbuzz0b_6.0.0+dfsg-3_amd64.deb ...
+#7 21.51 Unpacking libharfbuzz0b:amd64 (6.0.0+dfsg-3) ...
+#7 21.64 Selecting previously unselected package libjpeg62-turbo:amd64.
+#7 21.64 Preparing to unpack .../19-libjpeg62-turbo_1%3a2.1.5-2_amd64.deb ...
+#7 21.65 Unpacking libjpeg62-turbo:amd64 (1:2.1.5-2) ...
+#7 21.78 Selecting previously unselected package liblcms2-2:amd64.
+#7 21.78 Preparing to unpack .../20-liblcms2-2_2.14-2+deb12u1_amd64.deb ...
+#7 21.79 Unpacking liblcms2-2:amd64 (2.14-2+deb12u1) ...
+#7 21.90 Selecting previously unselected package libnspr4:amd64.
+#7 21.90 Preparing to unpack .../21-libnspr4_2%3a4.35-1_amd64.deb ...
+#7 21.91 Unpacking libnspr4:amd64 (2:4.35-1) ...
+#7 22.03 Selecting previously unselected package libnss3:amd64.
+#7 22.03 Preparing to unpack .../22-libnss3_2%3a3.87.1-1+deb12u4_amd64.deb ...
+#7 22.08 Unpacking libnss3:amd64 (2:3.87.1-1+deb12u4) ...
+#7 22.29 Selecting previously unselected package libpcsclite1:amd64.
+#7 22.29 Preparing to unpack .../23-libpcsclite1_1.9.9-2_amd64.deb ...
+#7 22.30 Unpacking libpcsclite1:amd64 (1.9.9-2) ...
+#7 22.41 Selecting previously unselected package openjdk-17-jre-headless:amd64.
+#7 22.41 Preparing to unpack .../24-openjdk-17-jre-headless_17.0.20.1+1-1~deb12u1_amd64.deb ...
+#7 22.41 Unpacking openjdk-17-jre-headless:amd64 (17.0.20.1+1-1~deb12u1) ...
+#7 30.02 Setting up libgraphite2-3:amd64 (1.3.14-1+deb12u1) ...
+#7 30.04 Setting up liblcms2-2:amd64 (2.14-2+deb12u1) ...
+#7 30.06 Setting up java-common (0.74) ...
+#7 30.09 Setting up libglib2.0-0:amd64 (2.74.6-2+deb12u9) ...
+#7 30.11 No schema files found: doing nothing.
+#7 30.12 Setting up libasound2-data (1.2.8-1) ...
+#7 30.13 Setting up libjpeg62-turbo:amd64 (1:2.1.5-2) ...
+#7 30.15 Setting up libnspr4:amd64 (2:4.35-1) ...
+#7 30.17 Setting up libavahi-common-data:amd64 (0.8-10+deb12u1) ...
+#7 30.18 Setting up libdbus-1-3:amd64 (1.14.10-1~deb12u1) ...
+#7 30.20 Setting up libproc2-0:amd64 (2:4.0.2-3) ...
+#7 30.22 Setting up libpng16-16:amd64 (1.6.39-2+deb12u6) ...
+#7 30.23 Setting up fonts-dejavu-core (2.37-6) ...
+#7 30.30 Setting up libpcsclite1:amd64 (1.9.9-2) ...
+#7 30.32 Setting up procps (2:4.0.2-3) ...
+#7 30.37 Setting up libasound2:amd64 (1.2.8-1+b1) ...
+#7 30.39 Setting up ca-certificates-java (20230710~deb12u1) ...
+#7 30.42 No JRE found. Skipping Java certificates setup.
+#7 30.44 Setting up fontconfig-config (2.14.1-4) ...
+#7 30.72 Setting up libavahi-common3:amd64 (0.8-10+deb12u1) ...
+#7 30.74 Setting up libnss3:amd64 (2:3.87.1-1+deb12u4) ...
+#7 30.77 Setting up libfreetype6:amd64 (2.12.1+dfsg-5+deb12u4) ...
+#7 30.81 Setting up libharfbuzz0b:amd64 (6.0.0+dfsg-3) ...
+#7 30.86 Setting up libfontconfig1:amd64 (2.14.1-4) ...
+#7 30.88 Setting up libavahi-client3:amd64 (0.8-10+deb12u1) ...
+#7 30.91 Setting up libcups2:amd64 (2.4.2-3+deb12u9) ...
+#7 30.95 Setting up openjdk-17-jre-headless:amd64 (17.0.20.1+1-1~deb12u1) ...
+#7 31.28 update-alternatives: using /usr/lib/jvm/java-17-openjdk-amd64/bin/java to provide /usr/bin/java (java) in auto mode
+#7 31.30 update-alternatives: using /usr/lib/jvm/java-17-openjdk-amd64/bin/jpackage to provide /usr/bin/jpackage (jpackage) in auto mode
+#7 31.31 update-alternatives: using /usr/lib/jvm/java-17-openjdk-amd64/bin/keytool to provide /usr/bin/keytool (keytool) in auto mode
+#7 31.31 update-alternatives: using /usr/lib/jvm/java-17-openjdk-amd64/bin/rmiregistry to provide /usr/bin/rmiregistry (rmiregistry) in auto mode
+#7 31.33 update-alternatives: using /usr/lib/jvm/java-17-openjdk-amd64/lib/jexec to provide /usr/bin/jexec (jexec) in auto mode
+#7 31.38 Processing triggers for libc-bin (2.36-9+deb12u9) ...
+#7 31.45 Processing triggers for ca-certificates-java (20230710~deb12u1) ...
+#7 31.71 Adding debian:ACCVRAIZ1.pem
+#7 31.71 Adding debian:AC_RAIZ_FNMT-RCM.pem
+#7 31.73 Adding debian:AC_RAIZ_FNMT-RCM_SERVIDORES_SEGUROS.pem
+#7 31.73 Adding debian:ANF_Secure_Server_Root_CA.pem
+#7 31.73 Adding debian:Actalis_Authentication_Root_CA.pem
+#7 31.74 Adding debian:AffirmTrust_Commercial.pem
+#7 31.74 Adding debian:AffirmTrust_Networking.pem
+#7 31.74 Adding debian:AffirmTrust_Premium.pem
+#7 31.74 Adding debian:AffirmTrust_Premium_ECC.pem
+#7 31.74 Adding debian:Amazon_Root_CA_1.pem
+#7 31.74 Adding debian:Amazon_Root_CA_2.pem
+#7 31.75 Adding debian:Amazon_Root_CA_3.pem
+#7 31.75 Adding debian:Amazon_Root_CA_4.pem
+#7 31.75 Adding debian:Atos_TrustedRoot_2011.pem
+#7 31.75 Adding debian:Autoridad_de_Certificacion_Firmaprofesional_CIF_A62634068.pem
+#7 31.75 Adding debian:Autoridad_de_Certificacion_Firmaprofesional_CIF_A62634068_2.pem
+#7 31.76 Adding debian:Baltimore_CyberTrust_Root.pem
+#7 31.76 Adding debian:Buypass_Class_2_Root_CA.pem
+#7 31.76 Adding debian:Buypass_Class_3_Root_CA.pem
+#7 31.76 Adding debian:CA_Disig_Root_R2.pem
+#7 31.76 Adding debian:CFCA_EV_ROOT.pem
+#7 31.77 Adding debian:COMODO_Certification_Authority.pem
+#7 31.77 Adding debian:COMODO_ECC_Certification_Authority.pem
+#7 31.77 Adding debian:COMODO_RSA_Certification_Authority.pem
+#7 31.77 Adding debian:Certainly_Root_E1.pem
+#7 31.77 Adding debian:Certainly_Root_R1.pem
+#7 31.77 Adding debian:Certigna.pem
+#7 31.78 Adding debian:Certigna_Root_CA.pem
+#7 31.78 Adding debian:Certum_EC-384_CA.pem
+#7 31.78 Adding debian:Certum_Trusted_Network_CA.pem
+#7 31.78 Adding debian:Certum_Trusted_Network_CA_2.pem
+#7 31.78 Adding debian:Certum_Trusted_Root_CA.pem
+#7 31.79 Adding debian:Comodo_AAA_Services_root.pem
+#7 31.79 Adding debian:D-TRUST_BR_Root_CA_1_2020.pem
+#7 31.79 Adding debian:D-TRUST_EV_Root_CA_1_2020.pem
+#7 31.79 Adding debian:D-TRUST_Root_Class_3_CA_2_2009.pem
+#7 31.80 Adding debian:D-TRUST_Root_Class_3_CA_2_EV_2009.pem
+#7 31.80 Adding debian:DigiCert_Assured_ID_Root_CA.pem
+#7 31.80 Adding debian:DigiCert_Assured_ID_Root_G2.pem
+#7 31.80 Adding debian:DigiCert_Assured_ID_Root_G3.pem
+#7 31.80 Adding debian:DigiCert_Global_Root_CA.pem
+#7 31.80 Adding debian:DigiCert_Global_Root_G2.pem
+#7 31.81 Adding debian:DigiCert_Global_Root_G3.pem
+#7 31.81 Adding debian:DigiCert_High_Assurance_EV_Root_CA.pem
+#7 31.81 Adding debian:DigiCert_TLS_ECC_P384_Root_G5.pem
+#7 31.81 Adding debian:DigiCert_TLS_RSA4096_Root_G5.pem
+#7 31.81 Adding debian:DigiCert_Trusted_Root_G4.pem
+#7 31.81 Adding debian:E-Tugra_Certification_Authority.pem
+#7 31.81 Adding debian:E-Tugra_Global_Root_CA_ECC_v3.pem
+#7 31.82 Adding debian:E-Tugra_Global_Root_CA_RSA_v3.pem
+#7 31.82 Adding debian:Entrust.net_Premium_2048_Secure_Server_CA.pem
+#7 31.82 Adding debian:Entrust_Root_Certification_Authority.pem
+#7 31.82 Adding debian:Entrust_Root_Certification_Authority_-_EC1.pem
+#7 31.82 Adding debian:Entrust_Root_Certification_Authority_-_G2.pem
+#7 31.82 Adding debian:Entrust_Root_Certification_Authority_-_G4.pem
+#7 31.82 Adding debian:GDCA_TrustAUTH_R5_ROOT.pem
+#7 31.83 Adding debian:GLOBALTRUST_2020.pem
+#7 31.83 Adding debian:GTS_Root_R1.pem
+#7 31.83 Adding debian:GTS_Root_R2.pem
+#7 31.83 Adding debian:GTS_Root_R3.pem
+#7 31.83 Adding debian:GTS_Root_R4.pem
+#7 31.83 Adding debian:GlobalSign_ECC_Root_CA_-_R4.pem
+#7 31.83 Adding debian:GlobalSign_ECC_Root_CA_-_R5.pem
+#7 31.83 Adding debian:GlobalSign_Root_CA.pem
+#7 31.83 Adding debian:GlobalSign_Root_CA_-_R3.pem
+#7 31.84 Adding debian:GlobalSign_Root_CA_-_R6.pem
+#7 31.84 Adding debian:GlobalSign_Root_E46.pem
+#7 31.84 Adding debian:GlobalSign_Root_R46.pem
+#7 31.84 Adding debian:Go_Daddy_Class_2_CA.pem
+#7 31.84 Adding debian:Go_Daddy_Root_Certificate_Authority_-_G2.pem
+#7 31.84 Adding debian:HARICA_TLS_ECC_Root_CA_2021.pem
+#7 31.85 Adding debian:HARICA_TLS_RSA_Root_CA_2021.pem
+#7 31.85 Adding debian:Hellenic_Academic_and_Research_Institutions_ECC_RootCA_2015.pem
+#7 31.85 Adding debian:Hellenic_Academic_and_Research_Institutions_RootCA_2015.pem
+#7 31.85 Adding debian:HiPKI_Root_CA_-_G1.pem
+#7 31.85 Adding debian:Hongkong_Post_Root_CA_1.pem
+#7 31.85 Adding debian:Hongkong_Post_Root_CA_3.pem
+#7 31.85 Adding debian:ISRG_Root_X1.pem
+#7 31.86 Adding debian:ISRG_Root_X2.pem
+#7 31.86 Adding debian:IdenTrust_Commercial_Root_CA_1.pem
+#7 31.86 Adding debian:IdenTrust_Public_Sector_Root_CA_1.pem
+#7 31.86 Adding debian:Izenpe.com.pem
+#7 31.86 Adding debian:Microsec_e-Szigno_Root_CA_2009.pem
+#7 31.86 Adding debian:Microsoft_ECC_Root_Certificate_Authority_2017.pem
+#7 31.86 Adding debian:Microsoft_RSA_Root_Certificate_Authority_2017.pem
+#7 31.87 Adding debian:NAVER_Global_Root_Certification_Authority.pem
+#7 31.87 Adding debian:NetLock_Arany_=Class_Gold=_Főtanúsítvány.pem
+#7 31.87 Adding debian:OISTE_WISeKey_Global_Root_GB_CA.pem
+#7 31.87 Adding debian:OISTE_WISeKey_Global_Root_GC_CA.pem
+#7 31.87 Adding debian:QuoVadis_Root_CA_1_G3.pem
+#7 31.87 Adding debian:QuoVadis_Root_CA_2.pem
+#7 31.87 Adding debian:QuoVadis_Root_CA_2_G3.pem
+#7 31.88 Adding debian:QuoVadis_Root_CA_3.pem
+#7 31.88 Adding debian:QuoVadis_Root_CA_3_G3.pem
+#7 31.88 Adding debian:SSL.com_EV_Root_Certification_Authority_ECC.pem
+#7 31.88 Adding debian:SSL.com_EV_Root_Certification_Authority_RSA_R2.pem
+#7 31.88 Adding debian:SSL.com_Root_Certification_Authority_ECC.pem
+#7 31.88 Adding debian:SSL.com_Root_Certification_Authority_RSA.pem
+#7 31.88 Adding debian:SZAFIR_ROOT_CA2.pem
+#7 31.88 Adding debian:SecureSign_RootCA11.pem
+#7 31.89 Adding debian:SecureTrust_CA.pem
+#7 31.89 Adding debian:Secure_Global_CA.pem
+#7 31.89 Adding debian:Security_Communication_ECC_RootCA1.pem
+#7 31.89 Adding debian:Security_Communication_RootCA2.pem
+#7 31.89 Adding debian:Security_Communication_RootCA3.pem
+#7 31.89 Adding debian:Security_Communication_Root_CA.pem
+#7 31.89 Adding debian:Starfield_Class_2_CA.pem
+#7 31.90 Adding debian:Starfield_Root_Certificate_Authority_-_G2.pem
+#7 31.90 Adding debian:Starfield_Services_Root_Certificate_Authority_-_G2.pem
+#7 31.90 Adding debian:SwissSign_Gold_CA_-_G2.pem
+#7 31.90 Adding debian:SwissSign_Silver_CA_-_G2.pem
+#7 31.90 Adding debian:T-TeleSec_GlobalRoot_Class_2.pem
+#7 31.90 Adding debian:T-TeleSec_GlobalRoot_Class_3.pem
+#7 31.90 Adding debian:TUBITAK_Kamu_SM_SSL_Kok_Sertifikasi_-_Surum_1.pem
+#7 31.91 Adding debian:TWCA_Global_Root_CA.pem
+#7 31.91 Adding debian:TWCA_Root_Certification_Authority.pem
+#7 31.91 Adding debian:TeliaSonera_Root_CA_v1.pem
+#7 31.91 Adding debian:Telia_Root_CA_v2.pem
+#7 31.91 Adding debian:TrustCor_ECA-1.pem
+#7 31.91 Adding debian:TrustCor_RootCert_CA-1.pem
+#7 31.91 Adding debian:TrustCor_RootCert_CA-2.pem
+#7 31.91 Adding debian:Trustwave_Global_Certification_Authority.pem
+#7 31.92 Adding debian:Trustwave_Global_ECC_P256_Certification_Authority.pem
+#7 31.92 Adding debian:Trustwave_Global_ECC_P384_Certification_Authority.pem
+#7 31.92 Adding debian:TunTrust_Root_CA.pem
+#7 31.93 Adding debian:UCA_Extended_Validation_Root.pem
+#7 31.93 Adding debian:UCA_Global_G2_Root.pem
+#7 31.93 Adding debian:USERTrust_ECC_Certification_Authority.pem
+#7 31.93 Adding debian:USERTrust_RSA_Certification_Authority.pem
+#7 31.93 Adding debian:XRamp_Global_CA_Root.pem
+#7 31.93 Adding debian:certSIGN_ROOT_CA.pem
+#7 31.93 Adding debian:certSIGN_Root_CA_G2.pem
+#7 31.93 Adding debian:e-Szigno_Root_CA_2017.pem
+#7 31.94 Adding debian:ePKI_Root_Certification_Authority.pem
+#7 31.94 Adding debian:emSign_ECC_Root_CA_-_C3.pem
+#7 31.94 Adding debian:emSign_ECC_Root_CA_-_G3.pem
+#7 31.94 Adding debian:emSign_Root_CA_-_C1.pem
+#7 31.94 Adding debian:emSign_Root_CA_-_G1.pem
+#7 31.94 Adding debian:vTrus_ECC_Root_CA.pem
+#7 31.94 Adding debian:vTrus_Root_CA.pem
+#7 31.97 done.
+#7 DONE 37.0s
+
+#8 [3/5] RUN pip install --no-cache-dir pytest==8.3.5
+#8 1.737 Collecting pytest==8.3.5
+#8 1.968   Downloading pytest-8.3.5-py3-none-any.whl.metadata (7.6 kB)
+#8 2.023 Collecting iniconfig (from pytest==8.3.5)
+#8 2.051   Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+#8 2.060 Requirement already satisfied: packaging in /home/airflow/.local/lib/python3.11/site-packages (from pytest==8.3.5) (24.2)
+#8 2.061 Requirement already satisfied: pluggy<2,>=1.5 in /home/airflow/.local/lib/python3.11/site-packages (from pytest==8.3.5) (1.5.0)
+#8 2.111 Downloading pytest-8.3.5-py3-none-any.whl (343 kB)
+#8 2.234 Downloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+#8 2.545 Installing collected packages: iniconfig, pytest
+#8 2.775 Successfully installed iniconfig-2.3.1 pytest-8.3.5
+#8 2.992 
+#8 2.992 [notice] A new release of pip is available: 25.0 -> 26.2.1
+#8 2.992 [notice] To update, run: pip install --upgrade pip
+#8 DONE 3.3s
+
+#9 [4/5] RUN python -m venv /home/airflow/project-venv     && /home/airflow/project-venv/bin/pip install --no-cache-dir        pyspark==4.2.0 kafka-python==3.0.11 psycopg2-binary==2.9.13 PyYAML==6.0.3 python-dotenv==1.2.4        pandas==3.0.6 pyarrow==26.0.0 requests==2.34.2 pytest==9.1.1
+#9 6.676 Collecting pyspark==4.2.0
+#9 6.835   Downloading pyspark-4.2.0.tar.gz (450.1 MB)
+#9 111.5      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 450.1/450.1 MB 5.0 MB/s eta 0:00:00
+#9 122.4   Installing build dependencies: started
+#9 132.5   Installing build dependencies: finished with status 'done'
+#9 132.5   Getting requirements to build wheel: started
+#9 133.1   Getting requirements to build wheel: finished with status 'done'
+#9 133.1   Preparing metadata (pyproject.toml): started
+#9 134.4   Preparing metadata (pyproject.toml): finished with status 'done'
+#9 134.5 Collecting kafka-python==3.0.11
+#9 134.5   Downloading kafka_python-3.0.11-py3-none-any.whl.metadata (11 kB)
+#9 134.7 Collecting psycopg2-binary==2.9.13
+#9 134.7   Downloading psycopg2_binary-2.9.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+#9 134.8 Collecting PyYAML==6.0.3
+#9 134.8   Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+#9 134.9 Collecting python-dotenv==1.2.4
+#9 134.9   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+#9 135.4 Collecting pandas==3.0.6
+#9 135.4   Downloading pandas-3.0.6-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (79 kB)
+#9 135.4      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 79.5/79.5 kB 6.5 MB/s eta 0:00:00
+#9 135.5 Collecting pyarrow==26.0.0
+#9 135.6   Downloading pyarrow-26.0.0-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (3.0 kB)
+#9 135.7 Collecting requests==2.34.2
+#9 135.7   Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+#9 135.8 Collecting pytest==9.1.1
+#9 135.8   Downloading pytest-9.1.1-py3-none-any.whl.metadata (7.6 kB)
+#9 135.9 Collecting py4j<0.10.9.10,>=0.10.9.7 (from pyspark==4.2.0)
+#9 135.9   Downloading py4j-0.10.9.9-py2.py3-none-any.whl.metadata (1.3 kB)
+#9 136.3 Collecting numpy>=1.26.0 (from pandas==3.0.6)
+#9 136.3   Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+#9 136.3 Collecting python-dateutil>=2.8.2 (from pandas==3.0.6)
+#9 136.4   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+#9 136.6 Collecting charset_normalizer<4,>=2 (from requests==2.34.2)
+#9 136.7   Downloading charset_normalizer-3.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+#9 136.7      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46.4/46.4 kB 21.2 MB/s eta 0:00:00
+#9 136.7 Collecting idna<4,>=2.5 (from requests==2.34.2)
+#9 136.8   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#9 136.8 Collecting urllib3<3,>=1.26 (from requests==2.34.2)
+#9 136.9   Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+#9 136.9 Collecting certifi>=2023.5.7 (from requests==2.34.2)
+#9 137.0   Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+#9 137.0 Collecting iniconfig>=1.0.1 (from pytest==9.1.1)
+#9 137.0   Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+#9 137.1 Collecting packaging>=22 (from pytest==9.1.1)
+#9 137.1   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+#9 137.2 Collecting pluggy<2,>=1.5 (from pytest==9.1.1)
+#9 137.2   Downloading pluggy-1.7.0-py3-none-any.whl.metadata (5.0 kB)
+#9 137.3 Collecting pygments>=2.7.2 (from pytest==9.1.1)
+#9 137.3   Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+#9 137.4 Collecting six>=1.5 (from python-dateutil>=2.8.2->pandas==3.0.6)
+#9 137.4   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+#9 137.5 Downloading kafka_python-3.0.11-py3-none-any.whl (614 kB)
+#9 137.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 614.2/614.2 kB 5.5 MB/s eta 0:00:00
+#9 137.7 Downloading psycopg2_binary-2.9.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.3 MB)
+#9 138.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 6.0 MB/s eta 0:00:00
+#9 138.4 Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+#9 138.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 6.1 MB/s eta 0:00:00
+#9 138.6 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+#9 138.6 Downloading pandas-3.0.6-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (11.1 MB)
+#9 141.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.1/11.1 MB 3.6 MB/s eta 0:00:00
+#9 141.7 Downloading pyarrow-26.0.0-cp311-cp311-manylinux_2_28_x86_64.whl (53.9 MB)
+#9 199.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 53.9/53.9 MB 604.4 kB/s eta 0:00:00
+#9 199.7 Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+#9 199.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.1/73.1 kB 861.3 kB/s eta 0:00:00
+#9 199.8 Downloading pytest-9.1.1-py3-none-any.whl (386 kB)
+#9 200.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 386.5/386.5 kB 930.1 kB/s eta 0:00:00
+#9 200.2 Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+#9 200.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 137.0/137.0 kB 1.2 MB/s eta 0:00:00
+#9 200.4 Downloading charset_normalizer-3.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (269 kB)
+#9 200.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 270.0/270.0 kB 1.3 MB/s eta 0:00:00
+#9 200.6 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#9 200.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 69.6/69.6 kB 2.0 MB/s eta 0:00:00
+#9 200.7 Downloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+#9 200.7 Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
+#9 205.9    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 4.2 MB/s eta 0:00:00
+#9 206.0 Downloading packaging-26.3-py3-none-any.whl (129 kB)
+#9 206.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 130.0/130.0 kB 7.2 MB/s eta 0:00:00
+#9 206.0 Downloading pluggy-1.7.0-py3-none-any.whl (27 kB)
+#9 206.1 Downloading py4j-0.10.9.9-py2.py3-none-any.whl (203 kB)
+#9 206.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 203.0/203.0 kB 4.9 MB/s eta 0:00:00
+#9 206.1 Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+#9 206.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 5.2 MB/s eta 0:00:00
+#9 206.4 Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+#9 206.5    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 229.9/229.9 kB 6.3 MB/s eta 0:00:00
+#9 206.5 Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+#9 206.5    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 135.7/135.7 kB 12.9 MB/s eta 0:00:00
+#9 206.5 Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+#9 206.7 Building wheels for collected packages: pyspark
+#9 206.7   Building wheel for pyspark (pyproject.toml): started
+#9 257.3   Building wheel for pyspark (pyproject.toml): finished with status 'done'
+#9 257.6   Created wheel for pyspark: filename=pyspark-4.2.0-py2.py3-none-any.whl size=450798675 sha256=6828300251db7aa9dfdc05b8927b77e178c94903610d1adf94f791bb3d4efca0
+#9 257.6   Stored in directory: /tmp/pip-ephem-wheel-cache-2cor9jr_/wheels/61/69/04/e7d825c33d54d9b6e7a1b94c56998f54832c38b64553603219
+#9 257.6 Successfully built pyspark
+#9 257.7 Installing collected packages: py4j, urllib3, six, PyYAML, python-dotenv, pyspark, pygments, pyarrow, psycopg2-binary, pluggy, packaging, numpy, kafka-python, iniconfig, idna, charset_normalizer, certifi, requests, python-dateutil, pytest, pandas
+#9 283.7 Successfully installed PyYAML-6.0.3 certifi-2026.7.22 charset_normalizer-3.5.2 idna-3.20 iniconfig-2.3.1 kafka-python-3.0.11 numpy-2.4.6 packaging-26.3 pandas-3.0.6 pluggy-1.7.0 psycopg2-binary-2.9.13 py4j-0.10.9.9 pyarrow-26.0.0 pygments-2.21.0 pyspark-4.2.0 pytest-9.1.1 python-dateutil-2.9.0.post0 python-dotenv-1.2.4 requests-2.34.2 six-1.17.0 urllib3-2.8.0
+#9 283.9 
+#9 283.9 [notice] A new release of pip is available: 24.0 -> 26.2.1
+#9 283.9 [notice] To update, run: python3.11 -m pip install --upgrade pip
+#9 DONE 284.6s
+
+#10 [5/5] RUN /home/airflow/project-venv/bin/python -c "from pyspark.sql import SparkSession; s = SparkSession.builder.master('local[1]').config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0').getOrCreate(); s.stop()"
+#10 1.037 WARNING: Using incubator modules: jdk.incubator.vector
+#10 1.940 Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+#10 1.953 26/10/15 17:56:22 WARN Utils: Your hostname, buildkitsandbox, resolves to a loopback address: 127.0.0.1; using 172.17.0.2 instead (on interface eth0)
+#10 1.957 26/10/15 17:56:22 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+#10 2.335 :: loading settings :: url = jar:file:/home/airflow/project-venv/lib/python3.11/site-packages/pyspark/jars/ivy-2.5.3.jar!/org/apache/ivy/core/settings/ivysettings.xml
+#10 2.416 Ivy Default Cache set to: /home/airflow/.ivy2.5.2/cache
+#10 2.416 The jars for the packages stored in: /home/airflow/.ivy2.5.2/jars
+#10 2.426 org.apache.spark#spark-sql-kafka-0-10_2.13 added as a dependency
+#10 2.428 :: resolving dependencies :: org.apache.spark#spark-submit-parent-14892b5f-fd49-4172-b44b-b76a2f81531a;1.0
+#10 2.428 	confs: [default]
+#10 9.672 	found org.apache.spark#spark-sql-kafka-0-10_2.13;4.2.0 in central
+#10 10.23 	found org.apache.spark#spark-token-provider-kafka-0-10_2.13;4.2.0 in central
+#10 10.52 	found org.apache.kafka#kafka-clients;3.9.2 in central
+#10 10.87 	found at.yawk.lz4#lz4-java;1.11.0 in central
+#10 11.10 	found org.xerial.snappy#snappy-java;1.1.10.8 in central
+#10 13.37 	found org.slf4j#slf4j-api;2.0.17 in central
+#10 15.67 	found org.apache.hadoop#hadoop-client-runtime;3.5.0 in central
+#10 15.95 	found org.apache.hadoop#hadoop-client-api;3.5.0 in central
+#10 16.07 	found com.google.code.findbugs#jsr305;3.0.0 in central
+#10 16.25 	found org.scala-lang.modules#scala-parallel-collections_2.13;1.2.0 in central
+#10 19.44 	found org.apache.commons#commons-pool2;2.13.1 in central
+#10 19.51 downloading https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.13/4.2.0/spark-sql-kafka-0-10_2.13-4.2.0.jar ...
+#10 19.66 	[SUCCESSFUL ] org.apache.spark#spark-sql-kafka-0-10_2.13;4.2.0!spark-sql-kafka-0-10_2.13.jar (208ms)
+#10 19.72 downloading https://repo1.maven.org/maven2/org/apache/spark/spark-token-provider-kafka-0-10_2.13/4.2.0/spark-token-provider-kafka-0-10_2.13-4.2.0.jar ...
+#10 19.76 	[SUCCESSFUL ] org.apache.spark#spark-token-provider-kafka-0-10_2.13;4.2.0!spark-token-provider-kafka-0-10_2.13.jar (101ms)
+#10 19.81 downloading https://repo1.maven.org/maven2/org/scala-lang/modules/scala-parallel-collections_2.13/1.2.0/scala-parallel-collections_2.13-1.2.0.jar ...
+#10 19.93 	[SUCCESSFUL ] org.scala-lang.modules#scala-parallel-collections_2.13;1.2.0!scala-parallel-collections_2.13.jar (168ms)
+#10 20.03 downloading https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/3.9.2/kafka-clients-3.9.2.jar ...
+#10 21.75 	[SUCCESSFUL ] org.apache.kafka#kafka-clients;3.9.2!kafka-clients.jar (1820ms)
+#10 21.80 downloading https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.jar ...
+#10 21.87 	[SUCCESSFUL ] com.google.code.findbugs#jsr305;3.0.0!jsr305.jar (112ms)
+#10 21.91 downloading https://repo1.maven.org/maven2/org/apache/commons/commons-pool2/2.13.1/commons-pool2-2.13.1.jar ...
+#10 22.02 	[SUCCESSFUL ] org.apache.commons#commons-pool2;2.13.1!commons-pool2.jar (149ms)
+#10 22.21 downloading https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-client-runtime/3.5.0/hadoop-client-runtime-3.5.0.jar ...
+#10 28.06 	[SUCCESSFUL ] org.apache.hadoop#hadoop-client-runtime;3.5.0!hadoop-client-runtime.jar (6041ms)
+#10 28.13 downloading https://repo1.maven.org/maven2/at/yawk/lz4/lz4-java/1.11.0/lz4-java-1.11.0.jar ...
+#10 28.37 	[SUCCESSFUL ] at.yawk.lz4#lz4-java;1.11.0!lz4-java.jar (305ms)
+#10 28.49 downloading https://repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.10.8/snappy-java-1.1.10.8.jar ...
+#10 28.96 	[SUCCESSFUL ] org.xerial.snappy#snappy-java;1.1.10.8!snappy-java.jar(bundle) (592ms)
+#10 29.02 downloading https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar ...
+#10 29.08 	[SUCCESSFUL ] org.slf4j#slf4j-api;2.0.17!slf4j-api.jar (119ms)
+#10 29.13 downloading https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-client-api/3.5.0/hadoop-client-api-3.5.0.jar ...
+#10 33.38 	[SUCCESSFUL ] org.apache.hadoop#hadoop-client-api;3.5.0!hadoop-client-api.jar (4295ms)
+#10 33.38 :: resolution report :: resolve 17025ms :: artifacts dl 13924ms
+#10 33.38 	:: modules in use:
+#10 33.38 	at.yawk.lz4#lz4-java;1.11.0 from central in [default]
+#10 33.38 	com.google.code.findbugs#jsr305;3.0.0 from central in [default]
+#10 33.38 	org.apache.commons#commons-pool2;2.13.1 from central in [default]
+#10 33.38 	org.apache.hadoop#hadoop-client-api;3.5.0 from central in [default]
+#10 33.38 	org.apache.hadoop#hadoop-client-runtime;3.5.0 from central in [default]
+#10 33.38 	org.apache.kafka#kafka-clients;3.9.2 from central in [default]
+#10 33.38 	org.apache.spark#spark-sql-kafka-0-10_2.13;4.2.0 from central in [default]
+#10 33.38 	org.apache.spark#spark-token-provider-kafka-0-10_2.13;4.2.0 from central in [default]
+#10 33.38 	org.scala-lang.modules#scala-parallel-collections_2.13;1.2.0 from central in [default]
+#10 33.38 	org.slf4j#slf4j-api;2.0.17 from central in [default]
+#10 33.38 	org.xerial.snappy#snappy-java;1.1.10.8 from central in [default]
+#10 33.38 	---------------------------------------------------------------------
+#10 33.38 	|                  |            modules            ||   artifacts   |
+#10 33.38 	|       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+#10 33.38 	---------------------------------------------------------------------
+#10 33.38 	|      default     |   11  |   11  |   11  |   0   ||   11  |   11  |
+#10 33.38 	---------------------------------------------------------------------
+#10 33.39 :: retrieving :: org.apache.spark#spark-submit-parent-14892b5f-fd49-4172-b44b-b76a2f81531a
+#10 33.39 	confs: [default]
+#10 33.61 	11 artifacts copied, 0 already retrieved (62888kB/226ms)
+#10 33.90 26/10/15 17:56:54 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+#10 34.09 Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+#10 34.09 Setting default log level to "WARN".
+#10 34.09 To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+#10 35.07 /home/airflow/project-venv/lib/python3.11/site-packages/pyspark/testing/utils.py:127: FutureWarning: PySpark does not yet fully support pandas >= 3.0.0. Some features may not work correctly. It is recommended to use pandas < 3.0.0 for now.
+#10 35.07   require_minimum_pandas_version()
+#10 DONE 44.5s
+
+#11 exporting to image
+#11 exporting layers
+#11 exporting layers 42.2s done
+#11 exporting manifest sha256:fbcdea3719f1263c65ec2170c5c88ca66eacf1a514c0bcc4b2bc3ae49197d7c5 0.0s done
+#11 exporting config sha256:226eb8fe0ad79bbd6f1a428582d635dd0fb85484f3cd474ce756f2c09e9d6409 0.0s done
+#11 exporting attestation manifest sha256:9600aeb9316d921b0a21c75fcd1e8c5e45dfef7821384146a5c98e715684a9e2 0.1s done
+#11 exporting manifest list sha256:b0f63f40c4fbd7bc7a2325269050fa48058e1c67d234c5b12b31f34e4da18244
+#11 exporting manifest list sha256:b0f63f40c4fbd7bc7a2325269050fa48058e1c67d234c5b12b31f34e4da18244 0.0s done
+#11 naming to docker.io/library/streampulse-airflow:2.10.5 done
+#11 unpacking to docker.io/library/streampulse-airflow:2.10.5
+#11 unpacking to docker.io/library/streampulse-airflow:2.10.5 101.0s done
+#11 DONE 143.7s
+
+#12 resolving provenance for metadata file
+#12 DONE 0.1s
+Airflow is healthy: metadatabase=healthy scheduler=healthy
+UI: http://localhost:8080   user: admin   password: see AIRFLOW_ADMIN_PASSWORD in .env
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04"><S S="Error">docker :  Image streampulse-airflow:2.10.5 Building _x000D__x000A_</S><S S="Error">At C:\Users\Padmaja _x000D__x000A_</S><S S="Error">Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\scripts\airflow_up.ps1:18 _x000D__x000A_</S><S S="Error">char:1_x000D__x000A_</S><S S="Error">+ docker compose --profile airflow up -d --build airflow 2&gt;&amp;1 | Out-Hos ..._x000D__x000A_</S><S S="Error">+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_x000D__x000A_</S><S S="Error">    + CategoryInfo          : NotSpecified: ( Image streampu....10.5 Building :String) [], RemoteException_x000D__x000A_</S><S S="Error">    + FullyQualifiedErrorId : NativeCommandError_x000D__x000A_</S><S S="Error"> _x000D__x000A_</S><S S="Error"> Image streampulse-airflow:2.10.5 Built _x000D__x000A_</S><S S="Error"> Container streampulse-kafka Running _x000D__x000A_</S><S S="Error"> Container streampulse-postgres Running _x000D__x000A_</S><S S="Error"> Container streampulse-airflow Creating _x000D__x000A_</S><S S="Error"> Container streampulse-airflow Created _x000D__x000A_</S><S S="Error"> Container streampulse-kafka Waiting _x000D__x000A_</S><S S="Error"> Container streampulse-postgres Waiting _x000D__x000A_</S><S S="Error"> Container streampulse-postgres Healthy _x000D__x000A_</S><S S="Error"> Container streampulse-kafka Healthy _x000D__x000A_</S><S S="Error"> Container streampulse-airflow Starting _x000D__x000A_</S><S S="Error"> Container streampulse-airflow Started _x000D__x000A_</S></Objs>
+
+--- exit code: 0 ---

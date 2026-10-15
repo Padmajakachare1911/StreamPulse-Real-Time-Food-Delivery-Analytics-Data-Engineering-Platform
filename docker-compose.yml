@@ -87,6 +87,56 @@
       - ./pytest.ini:/app/pytest.ini
       - ./data:/app/data
 
+  # Airflow (profile "airflow"): orchestrates the FINITE steps only. Start with scripts/airflow_up.ps1.
+  airflow:
+    image: streampulse-airflow:2.10.5
+    build: ./docker/airflow
+    container_name: streampulse-airflow
+    profiles: ["airflow"]
+    # Runs as root on purpose: the shared ./data folder (Spark checkpoint, Parquet) is written by the Spark
+    # container as root, so tasks need the same identity (first DAG run failed with "Permission denied").
+    # HOME keeps the pre-downloaded Spark connector (ivy cache) of the airflow user in use.
+    user: "0:0"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      HOME: /home/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-streampulse}:${POSTGRES_PASSWORD:-}@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY:-change-me-in-env}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-}
+      # settings read by the StreamPulse code that the tasks run
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_TOPIC: ${KAFKA_TOPIC:-ecommerce_orders}
+      SPARK_MAX_OFFSETS_PER_TRIGGER: ${SPARK_MAX_OFFSETS_PER_TRIGGER:-10000}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-streampulse}
+      POSTGRES_USER: ${POSTGRES_USER:-streampulse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./src:/opt/streampulse/src
+      - ./config:/opt/streampulse/config
+      - ./scripts:/opt/streampulse/scripts
+      - ./sql:/opt/streampulse/sql
+      - ./tests:/opt/streampulse/tests
+      - ./pytest.ini:/opt/streampulse/pytest.ini
+      - ./docs:/opt/streampulse/docs:ro
+      - ./data:/opt/streampulse/data
+    command: >
+      bash -c "airflow db migrate
+      && (airflow users create --username admin --firstname Stream --lastname Pulse --role Admin
+      --email admin@example.com --password \"$$AIRFLOW_ADMIN_PASSWORD\" || true)
+      && (airflow scheduler &) && exec airflow webserver"
+
 volumes:
   kafka_data:
   postgres_data:

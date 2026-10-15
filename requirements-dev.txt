@@ -1,0 +1,2 @@
+﻿# Extra tools used to capture real screenshots (scripts/capture_screenshots.py)
+playwright==1.64.0

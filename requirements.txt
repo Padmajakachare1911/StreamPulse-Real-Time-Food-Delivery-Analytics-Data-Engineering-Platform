@@ -7,3 +7,4 @@ pyarrow==26.0.0
 PyYAML==6.0.3
 requests==2.34.2
 pytest==9.1.1
+streamlit==1.66.0

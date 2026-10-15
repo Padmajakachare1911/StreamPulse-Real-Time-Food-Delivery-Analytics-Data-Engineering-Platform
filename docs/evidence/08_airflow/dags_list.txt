@@ -1,0 +1,24 @@
+﻿Task ID: P7-01
+Date/time (UTC): 2026-10-15T18:05:21.2398284Z
+Date/time (local): 2026-10-15T23:35:21.2398284+05:30
+Command: .\scripts\airflow.ps1 dags list; .\scripts\airflow.ps1 dags list-import-errors; .\scripts\airflow.ps1 tasks list streampulse_batch --tree
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 773ac70
+--- output ---
+dag_id                   | fileloc                                           | owners      | is_paused
+=========================+===================================================+=============+==========
+streampulse_batch        | /opt/airflow/dags/streampulse_batch_dag.py        | streampulse | True     
+streampulse_failure_demo | /opt/airflow/dags/streampulse_failure_demo_dag.py | streampulse | True     
+                                                                                                      
+No data found
+<Task(BashOperator): check_dataset_present>
+    <Task(BashOperator): api_health_check>
+    <Task(BashOperator): validate_dataset_profile>
+        <Task(BashOperator): ingest_batch_to_kafka>
+            <Task(BashOperator): run_spark_available_now>
+                <Task(BashOperator): run_quality_checks_sql>
+                    <Task(BashOperator): load_runs_dead_letters_api>
+                        <Task(BashOperator): reconcile_counts>
+                            <Task(BashOperator): refresh_analytics>
+
+--- exit code: 0 ---

@@ -77,7 +77,8 @@ def render(title_rows: list[tuple[str, list[dict]]]) -> tuple[str, bool]:
 # ------------------------------------------------------------------ readers of the real layers
 def load_runs(selected, topic) -> list[dict]:
     runs = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(INGESTION_RUNS_DIR.glob("*.json"))]
-    runs = [r for r in runs if r["mode"] != "dry-run" and r["topic"] == topic]
+    # Only runs that replayed the real orders file can be checked against it (a test CSV has other rows).
+    runs = [r for r in runs if r["mode"] != "dry-run" and r["topic"] == topic and r["source_file"] == ORDERS_FILE]
     if selected:
         runs = [r for r in runs if r["ingest_run_id"] in selected]
     return sorted(runs, key=lambda r: r["started_at"])

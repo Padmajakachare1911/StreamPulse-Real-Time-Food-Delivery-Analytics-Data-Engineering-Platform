@@ -1,0 +1,25 @@
+﻿Task ID: P7-02
+Date/time (UTC): 2026-10-15T18:12:17.8316788Z
+Date/time (local): 2026-10-15T23:42:17.8421870+05:30
+Command: docker exec streampulse-airflow airflow dags list-runs -d streampulse_batch; docker exec streampulse-airflow airflow tasks states-for-dag-run streampulse_batch manual__20261015T180545
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 773ac70
+--- output ---
+dag_id            | run_id                  | state  | execution_date            | start_date                       | end_date                        
+==================+=========================+========+===========================+==================================+=================================
+streampulse_batch | manual__20261015T180545 | failed | 2026-10-15T18:05:50+00:00 | 2026-10-15T18:05:50.430527+00:00 | 2026-10-15T18:07:51.024366+00:00
+                                                                                                                                                      
+dag_id            | execution_date            | task_id                    | state           | start_date                       | end_date                        
+==================+===========================+============================+=================+==================================+=================================
+streampulse_batch | 2026-10-15T18:05:50+00:00 | run_spark_available_now    | failed          | 2026-10-15T18:07:32.111322+00:00 | 2026-10-15T18:07:46.499591+00:00
+streampulse_batch | 2026-10-15T18:05:50+00:00 | check_dataset_present      | success         | 2026-10-15T18:05:50.734469+00:00 | 2026-10-15T18:05:51.747128+00:00
+streampulse_batch | 2026-10-15T18:05:50+00:00 | validate_dataset_profile   | success         | 2026-10-15T18:05:52.819820+00:00 | 2026-10-15T18:05:55.184924+00:00
+streampulse_batch | 2026-10-15T18:05:50+00:00 | api_health_check           | success         | 2026-10-15T18:05:52.819778+00:00 | 2026-10-15T18:05:55.484372+00:00
+streampulse_batch | 2026-10-15T18:05:50+00:00 | ingest_batch_to_kafka      | success         | 2026-10-15T18:05:56.381120+00:00 | 2026-10-15T18:06:08.175311+00:00
+streampulse_batch | 2026-10-15T18:05:50+00:00 | run_quality_checks_sql     | upstream_failed | 2026-10-15T18:07:46.562914+00:00 | 2026-10-15T18:07:46.562914+00:00
+streampulse_batch | 2026-10-15T18:05:50+00:00 | load_runs_dead_letters_api | upstream_failed | 2026-10-15T18:07:47.025872+00:00 | 2026-10-15T18:07:47.025872+00:00
+streampulse_batch | 2026-10-15T18:05:50+00:00 | reconcile_counts           | upstream_failed | 2026-10-15T18:07:48.113621+00:00 | 2026-10-15T18:07:48.113621+00:00
+streampulse_batch | 2026-10-15T18:05:50+00:00 | refresh_analytics          | upstream_failed | 2026-10-15T18:07:49.859134+00:00 | 2026-10-15T18:07:49.859134+00:00
+                                                                                                                                                                  
+
+--- exit code: 0 ---

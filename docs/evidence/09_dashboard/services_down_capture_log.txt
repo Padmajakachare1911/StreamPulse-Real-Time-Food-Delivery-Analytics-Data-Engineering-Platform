@@ -1,0 +1,21 @@
+﻿Task ID: P8-02
+Date/time (UTC): 2026-10-15T18:24:15.2755495Z
+Date/time (local): 2026-10-15T23:54:15.2828729+05:30
+Command: & 'C:\Users\PADMAJ~1\AppData\Local\Temp\claude\c--Users-Padmaja-Kachare-Documents-StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\9f61dbd3-53dd-4f0d-8a10-0a8eac46b4d2\scratchpad\services_down.ps1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 773ac70
+--- output ---
+dashboard started
+=== STOP KAFKA (real outage) ===
+saved docs\evidence\09_dashboard\dashboard_kafka_down_01_overview_and_status.png (139,226 bytes)
+saved docs\evidence\09_dashboard\dashboard_kafka_down_02_ingestion_and_reconciliation.png (102,161 bytes)
+=== STOP POSTGRESQL as well ===
+saved docs\evidence\09_dashboard\dashboard_all_down_01_overview_and_status.png (138,012 bytes)
+saved docs\evidence\09_dashboard\dashboard_all_down_02_business_kpis.png (89,977 bytes)
+saved docs\evidence\09_dashboard\dashboard_all_down_03_recent_records.png (74,353 bytes)
+=== RESTORE SERVICES ===
+postgres healthy: True
+kafka healthy: True
+core.orders rows after restore: 99427
+
+--- exit code: 0 ---

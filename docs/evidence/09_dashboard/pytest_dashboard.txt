@@ -1,0 +1,35 @@
+﻿Task ID: P8-01
+Date/time (UTC): 2026-10-15T18:28:24.1808647Z
+Date/time (local): 2026-10-15T23:58:24.1908742+05:30
+Command: .\.venv\Scripts\python.exe -m pytest tests/unit/test_dashboard.py tests/integration/test_dashboard_queries.py -v -p no:cacheprovider -W ignore::DeprecationWarning
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 773ac70
+--- output ---
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.7.0 -- C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\.venv\Scripts\python.exe
+rootdir: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+configfile: pytest.ini
+plugins: anyio-4.15.1
+collecting ... collected 17 items
+
+tests/unit/test_dashboard.py::test_kafka_check_reports_down_for_an_unreachable_broker PASSED [  5%]
+tests/unit/test_dashboard.py::test_kafka_message_count_is_none_when_broker_is_unreachable PASSED [ 11%]
+tests/unit/test_dashboard.py::test_postgres_check_reports_down_when_the_query_fails PASSED [ 17%]
+tests/unit/test_dashboard.py::test_api_history_is_unknown_when_the_database_is_down PASSED [ 23%]
+tests/unit/test_dashboard.py::test_dataset_and_parquet_checks_fail_for_empty_folders PASSED [ 29%]
+tests/unit/test_dashboard.py::test_dataset_check_is_ok_only_with_all_nine_files PASSED [ 35%]
+tests/unit/test_dashboard.py::test_airflow_check_reports_down_when_nothing_listens PASSED [ 41%]
+tests/unit/test_dashboard.py::test_database_errors_are_sanitised_for_users PASSED [ 47%]
+tests/unit/test_dashboard.py::test_parquet_counts_raises_a_clear_error_when_there_is_no_data PASSED [ 52%]
+tests/unit/test_dashboard.py::test_decimal_columns_become_floats_so_charts_plot_numbers PASSED [ 58%]
+tests/integration/test_dashboard_queries.py::test_queries_on_an_empty_warehouse_return_empty_results_not_errors PASSED [ 64%]
+tests/integration/test_dashboard_queries.py::test_overview_kpis_and_recent_orders_reflect_the_stored_rows PASSED [ 70%]
+tests/integration/test_dashboard_queries.py::test_recent_orders_never_exposes_customer_identifiers PASSED [ 76%]
+tests/integration/test_dashboard_queries.py::test_completeness_counts_problem_rows PASSED [ 82%]
+tests/integration/test_dashboard_queries.py::test_limit_parameter_is_bound_not_formatted PASSED [ 88%]
+tests/integration/test_dashboard_queries.py::test_kafka_check_is_ok_against_the_real_broker PASSED [ 94%]
+tests/integration/test_dashboard_queries.py::test_numeric_view_columns_are_floats_not_decimals PASSED [100%]
+
+======================== 17 passed in 68.47s (0:01:08) ========================
+
+--- exit code: 0 ---
