@@ -121,6 +121,9 @@ def run(args: argparse.Namespace) -> dict:
     log.info("Run %s | input=%s | sha256=%s", run_id, input_path.name, file_sha[:12])
     frame = build_order_rows(DATASET_DIR, input_path)
     records = frame.to_dict(orient="records")
+    skip = getattr(args, "skip", 0)          # replay-order position to start from (disjoint slices for tests)
+    if skip:
+        records = records[skip:]
     if args.limit:
         records = records[: args.limit]
 
@@ -206,6 +209,7 @@ def run(args: argparse.Namespace) -> dict:
         "key_field": args.key_field,
         "source_file": input_path.name,
         "source_file_sha256": file_sha,
+        "skip_rows": getattr(args, "skip", 0),
         "rows_read": counts["read"],
         "rows_valid": counts["valid"],
         "rows_rejected": counts["rejected"],
@@ -231,6 +235,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--bootstrap", default=KAFKA_BOOTSTRAP_SERVERS, help="Kafka bootstrap servers")
     parser.add_argument("--topic", default=KAFKA_TOPIC, help="Kafka topic")
     parser.add_argument("--limit", type=int, default=0, help="send only the first N orders in replay order")
+    parser.add_argument("--skip", type=int, default=0, help="skip the first N orders in replay order (use with --limit)")
     parser.add_argument("--full", action="store_true", help="send every order (needs this flag on purpose)")
     parser.add_argument("--dry-run", action="store_true", help="validate and count, publish nothing")
     parser.add_argument("--rate", type=float, default=REPLAY_RATE, help="records per second, 0 = as fast as possible")

@@ -1,0 +1,27 @@
+﻿Task ID: P4-05
+Date/time (UTC): 2026-10-15T17:25:37.8943090Z
+Date/time (local): 2026-10-15T22:55:37.9039635+05:30
+Command: $env:PYTHONUTF8='1'; & .\.venv\Scripts\python.exe scripts\reconcile.py
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 792df69
+--- output ---
+Runs included: limited-100, full-run-01   topic: ecommerce_orders
+
+Stage                                      Expected     Actual  Difference  Explanation
+------------------------------------------------------------------------------------------------------------------------
+1 rows read from source                      99,541     99,541          +0  [OK] full runs: rows in the orders file; limited runs: rows replayed
+2 valid (accepted)                           99,526     99,526          +0  [OK] expected re-derived from the source with the same quality rules
+3 rejected (producer summary)                    15         15          +0  [OK] rejected = read - valid
+3b rejected (dead-letter file lines)             15         15          +0  [OK] every rejected row is stored with its reason
+4a published (producer callbacks)            99,526     99,526          +0  [OK] failed publishes: 0
+4b messages in Kafka topic                   99,526     99,526          +0  [OK] end offsets minus start offsets, all partitions
+5 consumed by Spark                          99,526     99,526          +0  [OK] sum of input_rows over 10 micro-batches
+5b rejected by Spark (malformed)                  0          0          +0  [OK] messages the stream could not parse (dead letter, stage=stream)
+6 rows in Parquet                            99,427     99,427          +0  [OK] consumed - malformed - in-batch duplicates (99)
+7 rows in PostgreSQL core.orders             99,427     99,427          +0  [OK] distinct record_uid in Parquet; 0 Parquet rows are retry duplicates (same record_uid, ignored by the upsert)
+7b retry duplicates ignored                       0          0          +0  [OK] same record_uid seen again (repeated runs); counted by the PostgreSQL writer
+8 unique analytics-ready orders              99,427     99,427          +0  [OK] distinct order_id; count(DISTINCT record_uid) = 99427
+------------------------------------------------------------------------------------------------------------------------
+RESULT: all differences are zero or explained
+
+--- exit code: 0 ---

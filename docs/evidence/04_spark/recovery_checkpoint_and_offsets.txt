@@ -1,0 +1,15 @@
+﻿Task ID: P4-02
+Date/time (UTC): 2026-10-15T17:25:22.9840603Z
+Date/time (local): 2026-10-15T22:55:22.9920591+05:30
+Command: $c='data\test_runs\recovery_r2\checkpoints\recovery_r2'; 'committed batch ids: ' + ((Get-ChildItem $c\commits -File | Where-Object { $_.Name -match '^\d+$' } | Sort-Object { [int]$_.Name } | ForEach-Object Name) -join ','); foreach ($n in 0,1,2,16) { 'offsets file ' + $n + ': ' + ((Get-Content $c\offsets\$n)[-1]) }; 'run1 full log problem lines (ERROR/Traceback/Exception): ' + (Select-String -Path data\test_runs\recovery_r2\run1_full.log -Pattern 'ERROR|Traceback|Exception' | Measure-Object).Count
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 792df69
+--- output ---
+committed batch ids: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+offsets file 0: {"recovery_test_r2":{"0":500}}
+offsets file 1: {"recovery_test_r2":{"0":1000}}
+offsets file 2: {"recovery_test_r2":{"0":1500}}
+offsets file 16: {"recovery_test_r2":{"0":8094}}
+run1 full log problem lines (ERROR/Traceback/Exception): 0
+
+--- exit code: 0 ---

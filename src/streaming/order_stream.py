@@ -32,6 +32,7 @@ from src.streaming.transforms import dedup_in_batch, flatten_valid, parse_messag
 log = logging.getLogger("order_stream")
 KAFKA_PACKAGE = "org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0"  # must match PySpark 4.2.0 / Scala 2.13
 BATCH_LOG_DIR = PROJECT_ROOT / "data" / "processed" / "spark_batches"
+STATE = {"in_batch": False}  # True while a micro-batch is being processed (used for a graceful stop)
 
 
 def make_batch_processor(mapping: dict, stream_name: str, parquet_dir: Path, dead_letter_dir: Path,
@@ -41,6 +42,7 @@ def make_batch_processor(mapping: dict, stream_name: str, parquet_dir: Path, dea
 
     def process_batch(batch_df, batch_id: int) -> None:
         started = time.time()
+        STATE["in_batch"] = True
         batch_df.persist()
         try:
             input_rows = batch_df.count()
@@ -88,6 +90,7 @@ def make_batch_processor(mapping: dict, stream_name: str, parquet_dir: Path, dea
                 unique.unpersist()
         finally:
             batch_df.unpersist()
+            STATE["in_batch"] = False
 
     return process_batch
 
@@ -157,7 +160,12 @@ def main() -> int:
         # Check every 2 seconds for Ctrl+C / SIGTERM / the stop file written by stop_stream.ps1.
         while query.isActive:
             if stop_requested["flag"] or stop_file.exists():
-                log.info("Stop requested: finishing the current batch, then stopping")
+                log.info("Stop requested: waiting for the current batch to finish (max 120 s), then stopping")
+                wait_until = time.time() + 120
+                while STATE["in_batch"] and time.time() < wait_until:
+                    time.sleep(0.5)
+                if STATE["in_batch"]:
+                    log.warning("Batch still running after 120 s: stopping anyway; it will be re-run after a restart")
                 query.stop()
                 break
             query.awaitTermination(2)

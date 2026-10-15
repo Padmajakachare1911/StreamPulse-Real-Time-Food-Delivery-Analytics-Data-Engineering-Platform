@@ -8,7 +8,7 @@ Statuses: `NOT_STARTED | IN_PROGRESS | BLOCKED | IMPLEMENTED_NOT_TESTED | TESTED
 | P0-01 | 0 | M0 | Git status & branch recorded | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/env_check.txt` | branch main; no commits before this work | c3fc6ee |
 | P0-02 | 0 | M0 | Environment versions check | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/env_check.txt` | `scripts/check_env.ps1` | c3fc6ee |
 | P0-03 | 0 | M0 | Kafka health + topic metadata + produce/consume | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/kafka_smoke_test.txt` |  | c3fc6ee |
-| P0-04 | 0 | M4 | Spark↔connector compatibility check | BLOCKED | `docs/evidence/00_environment/spark_baseline_existing_stream.txt` | Host Spark fails (winutils). Unblock: run Spark in Docker (Phase 4); dependent: P4-01 | c3fc6ee |
+| P0-04 | 0 | M4 | Spark↔connector compatibility check | VERIFIED_WITH_EVIDENCE | `docs/evidence/04_spark/spark_transform_tests_docker.txt`, `docs/evidence/04_spark/recovery_test.txt` | Resolved by running Spark 4.2.0 (Scala 2.13) + spark-sql-kafka-0-10_2.13:4.2.0 in Docker: reads Kafka, writes Parquet | PHASE4 |
 | P0-05 | 0 | M4 | winutils/HADOOP_HOME impact assessment | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/spark_baseline_existing_stream.txt` | Finding: blocks SparkContext init; see baseline_audit section 4 | c3fc6ee |
 | P0-06 | 0 | M0 | `.gitignore` audit | VERIFIED_WITH_EVIDENCE | `docs/evidence/00_environment/gitignore_audit.txt` |  | c3fc6ee |
 | P0-07 | 0 | — | baseline_audit / plan / tracker / register written | VERIFIED_WITH_EVIDENCE | `docs/baseline_audit.md` |  | c3fc6ee |
@@ -22,8 +22,8 @@ Statuses: `NOT_STARTED | IN_PROGRESS | BLOCKED | IMPLEMENTED_NOT_TESTED | TESTED
 | P3-01 | 3 | M2 | Replay producer (limit/dry-run/full) | VERIFIED_WITH_EVIDENCE | `docs/evidence/03_kafka/producer_dry_run_full.txt`, `producer_limited_100.txt` | limit/dry-run/full work; 9 producer unit tests pass | PHASE3 |
 | P3-02 | 3 | M2 | Partition key + measured distribution | VERIFIED_WITH_EVIDENCE | `docs/evidence/03_kafka/partition_counts_after_full_run.txt`, `key_options_computed_offline.txt` | key=order_id; measured 33,199/33,255/32,973 | PHASE3 |
 | P3-03 | 3 | M2 | Full ingestion run (~100k) | VERIFIED_WITH_EVIDENCE | `docs/evidence/03_kafka/producer_full_run.txt` | 99,441 read = 99,427 valid + 14 rejected; 99,427 published, 0 failed | PHASE3 |
-| P4-01 | 4 | M4 | Kafka→Spark→Parquet verified | NOT_STARTED | | | |
-| P4-02 | 4 | M4 | Checkpoint restart verified | NOT_STARTED | | | |
+| P4-01 | 4 | M4 | Kafka→Spark→Parquet verified | VERIFIED_WITH_EVIDENCE | `docs/evidence/04_spark/parquet_readback_spark.txt`, `docs/evidence/04_spark/reconciliation_production.txt` | Kafka->Spark->Parquet->PostgreSQL: 99,526 messages consumed, 99,427 unique rows in Parquet and PostgreSQL; Spark read-back matches all 10 batch logs | 792df69 |
+| P4-02 | 4 | M4 | Checkpoint restart verified | VERIFIED_WITH_EVIDENCE | `docs/evidence/04_spark/recovery_test.txt`, `docs/evidence/04_spark/malformed_message_test.txt` | Isolated experiment: stop after 2 committed batches, publish 2,000 new + 99 duplicate records while down, restart: resumed at offset 1000, 18/18 checks pass; stream dead-letter 7/7. Attempt 1 (stop during a batch) also passed, kept as history | PHASE4 |
 | P5-01 | 5 | M5 | Rule engine + DLQ | NOT_STARTED | | | |
 | P5-02 | 5 | M5 | Duplicate/idempotency proof | NOT_STARTED | | | |
 | P6-01 | 6 | M6 | Schema + upsert + views | NOT_STARTED | | | |

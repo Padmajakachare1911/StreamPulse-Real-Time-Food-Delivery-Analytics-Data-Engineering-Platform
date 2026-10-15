@@ -146,3 +146,12 @@ def test_limit_restricts_rows(env, monkeypatch):
 def test_cli_requires_limit_or_full():
     with pytest.raises(SystemExit):
         dp.parse_args([])
+
+
+def test_skip_selects_a_disjoint_slice_with_original_row_numbers(env, monkeypatch):
+    fake = FakeProducer()
+    monkeypatch.setattr(dp, "create_producer", lambda bootstrap: fake)
+    second = GOOD.replace("o1", "o9")
+    summary = dp.run(make_args(env, [GOOD, second], skip=1, limit=1, full=False))
+    assert summary["rows_read"] == 1 and summary["skip_rows"] == 1
+    assert fake.sent[0]["key"] == "o9" and fake.sent[0]["value"]["source_row_number"] == 2   # row number is not renumbered

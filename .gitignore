@@ -42,3 +42,6 @@ derby.log
 # Airflow local runtime files
 airflow/logs/
 airflow/airflow.db
+
+# Isolated experiment runs (checkpoints, Parquet, logs)
+data/test_runs/

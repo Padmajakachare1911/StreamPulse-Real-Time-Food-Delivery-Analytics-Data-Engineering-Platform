@@ -1,0 +1,20 @@
+﻿Task ID: P4-02
+Date/time (UTC): 2026-10-15T17:25:24.7109425Z
+Date/time (local): 2026-10-15T22:55:24.7109425+05:30
+Command: docker exec streampulse-postgres psql -U streampulse -d streampulse_recovery_r2 -c 'SELECT count(*) AS rows, count(DISTINCT record_uid) AS distinct_record_uid, count(DISTINCT order_id) AS distinct_order_id FROM core.orders' -c 'SELECT ingest_run_id, count(*) FROM core.orders GROUP BY 1 ORDER BY 1'
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 792df69
+--- output ---
+ rows | distinct_record_uid | distinct_order_id 
+------+---------------------+-------------------
+ 7995 |                7995 |              7995
+(1 row)
+
+ ingest_run_id | count 
+---------------+-------
+ rec-A-r2      |  5995
+ rec-B-r2      |  2000
+(2 rows)
+
+
+--- exit code: 0 ---
