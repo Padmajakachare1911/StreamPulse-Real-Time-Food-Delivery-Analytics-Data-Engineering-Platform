@@ -17,7 +17,7 @@ from pathlib import Path
 import pandas as pd
 from psycopg2.extras import Json, execute_values
 
-from src.common.config import DATASET_DIR, DEAD_LETTER_DIR, INGESTION_RUNS_DIR, PROJECT_ROOT
+from src.common.config import DATASET_DIR, DEAD_LETTER_DIR, INGESTION_RUNS_DIR, KAFKA_TOPIC, PROJECT_ROOT
 from src.warehouse.db import get_connection
 
 log = logging.getLogger("load_reference")
@@ -109,18 +109,26 @@ def load_geolocation(conn, dataset_dir: Path) -> dict:
     rows = []
     for zip_code, (lat_sum, lng_sum, n) in sums.items():
         city, state = names[zip_code].most_common(1)[0][0]
-        rows.append((zip_code, lat_sum / n, lng_sum / n, city, state, n))
+        rows.append((zip_code, float(lat_sum / n), float(lng_sum / n), city, state, int(n)))
     with conn.cursor() as cur:
         _insert(cur, """INSERT INTO core.geo_zip (zip_code_prefix, lat, lng, city, state, source_rows) VALUES %s
                         ON CONFLICT (zip_code_prefix) DO NOTHING""", rows)
     return {"geolocation_rows_read": total, "rows_outside_brazil_ignored": outside, "zip_prefixes_loaded": len(rows)}
 
 
-def load_ingestion_runs(conn, runs_dir: Path = INGESTION_RUNS_DIR) -> dict:
+def production_runs(topic: str, runs_dir: Path = INGESTION_RUNS_DIR) -> list[dict]:
+    """Runs that published to `topic` (dry runs and runs of other topics, e.g. experiments, are left out)."""
+    runs = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(Path(runs_dir).glob("*.json"))]
+    return [r for r in runs if r["topic"] == topic and r["mode"] != "dry-run"]
+
+
+def load_ingestion_runs(conn, runs_dir: Path = INGESTION_RUNS_DIR, topic: str | None = None) -> dict:
     files = sorted(Path(runs_dir).glob("*.json"))
     rows = []
     for path in files:
         run = json.loads(path.read_text(encoding="utf-8"))
+        if topic and (run["topic"] != topic or run["mode"] == "dry-run"):
+            continue
         rows.append((run["ingest_run_id"], run["started_at"], run["finished_at"], run["source_file"],
                      run["source_file_sha256"], run["rows_read"], run["rows_valid"], run["rows_rejected"],
                      run["rows_published"], run["rows_publish_failed"], run["mode"]))
@@ -133,15 +141,18 @@ def load_ingestion_runs(conn, runs_dir: Path = INGESTION_RUNS_DIR) -> dict:
                         rows_valid = EXCLUDED.rows_valid, rows_rejected = EXCLUDED.rows_rejected,
                         rows_published = EXCLUDED.rows_published, rows_publish_failed = EXCLUDED.rows_publish_failed,
                         mode = EXCLUDED.mode""", rows)
-    return {"ingestion_run_files": len(files)}
+    return {"ingestion_run_files_seen": len(files), "runs_loaded": len(rows)}
 
 
-def load_dead_letters(conn, dlq_dir: Path = DEAD_LETTER_DIR) -> dict:
+def load_dead_letters(conn, dlq_dir: Path = DEAD_LETTER_DIR, run_ids: set[str] | None = None) -> dict:
     """Replace-per-run: for every (stage, run) found on disk, its rows are deleted and re-inserted,
-    so reloading never duplicates and never touches other runs."""
+    so reloading never duplicates and never touches other runs.
+    `run_ids` (optional) limits the load to those runs (stream dead letters use the stream name as run id)."""
     records = []
     for path in sorted(Path(dlq_dir).rglob("*.jsonl")):
         records += [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if run_ids is not None:
+        records = [r for r in records if r["ingest_run_id"] in run_ids]
     groups = {(r["stage"], r["ingest_run_id"]) for r in records}
     with conn.cursor() as cur:
         for stage, run_id in groups:
@@ -179,8 +190,8 @@ LOADERS = {
     "items": lambda c: load_order_items(c, DATASET_DIR),
     "reviews": lambda c: load_reviews(c, DATASET_DIR),
     "geo": lambda c: load_geolocation(c, DATASET_DIR),
-    "runs": load_ingestion_runs,
-    "dlq": load_dead_letters,
+    "runs": lambda c: load_ingestion_runs(c, topic=KAFKA_TOPIC),
+    "dlq": lambda c: load_dead_letters(c, run_ids={r["ingest_run_id"] for r in production_runs(KAFKA_TOPIC)} | {"orders"}),
     "api": load_api_cache,
 }
 

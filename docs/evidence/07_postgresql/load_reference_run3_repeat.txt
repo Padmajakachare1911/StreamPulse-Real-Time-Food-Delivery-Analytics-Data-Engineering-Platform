@@ -1,0 +1,50 @@
+﻿Task ID: P6-01
+Date/time (UTC): 2026-10-15T17:41:17.5691887Z
+Date/time (local): 2026-10-15T23:11:17.5691887+05:30
+Command: $env:PYTHONUTF8='1'; & .\.venv\Scripts\python.exe -m src.warehouse.load_reference
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 236d32d
+--- output ---
+2026-10-15 23:11:19,903 INFO products -> {'products_in_file': 32951, 'untranslated_category_rows': 623}
+2026-10-15 23:11:19,969 INFO sellers -> {'sellers_in_file': 3095}
+2026-10-15 23:11:22,373 INFO items -> {'order_items_in_file': 112650}
+2026-10-15 23:11:24,443 INFO reviews -> {'reviews_in_file': 99224, 'repeated_review_id_order_id_pairs_skipped': 0}
+2026-10-15 23:11:29,503 INFO geo -> {'geolocation_rows_read': 1000163, 'rows_outside_brazil_ignored': 42, 'zip_prefixes_loaded': 19010}
+2026-10-15 23:11:29,574 INFO runs -> {'ingestion_run_files_seen': 13, 'runs_loaded': 3}
+2026-10-15 23:11:29,619 INFO dlq -> {'dead_letter_records_loaded': 16, 'run_groups_replaced': 3}
+2026-10-15 23:11:29,705 INFO api -> {'api_cache_files': 7, 'fx_rate_rows_seen': 786}
+{
+  "products": {
+    "products_in_file": 32951,
+    "untranslated_category_rows": 623
+  },
+  "sellers": {
+    "sellers_in_file": 3095
+  },
+  "items": {
+    "order_items_in_file": 112650
+  },
+  "reviews": {
+    "reviews_in_file": 99224,
+    "repeated_review_id_order_id_pairs_skipped": 0
+  },
+  "geo": {
+    "geolocation_rows_read": 1000163,
+    "rows_outside_brazil_ignored": 42,
+    "zip_prefixes_loaded": 19010
+  },
+  "runs": {
+    "ingestion_run_files_seen": 13,
+    "runs_loaded": 3
+  },
+  "dlq": {
+    "dead_letter_records_loaded": 16,
+    "run_groups_replaced": 3
+  },
+  "api": {
+    "api_cache_files": 7,
+    "fx_rate_rows_seen": 786
+  }
+}
+
+--- exit code: 0 ---

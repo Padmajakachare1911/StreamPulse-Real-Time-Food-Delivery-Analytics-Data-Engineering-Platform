@@ -1,0 +1,42 @@
+﻿Task ID: P6-01
+Date/time (UTC): 2026-10-15T17:41:52.5506715Z
+Date/time (local): 2026-10-15T23:11:52.5506715+05:30
+Command: docker exec streampulse-postgres psql -U streampulse -d streampulse -f /tmp/qc.sql
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 236d32d
+--- output ---
+       check_name       | value 
+------------------------+-------
+ rows in core.orders    | 99427
+ distinct record_uid    | 99427
+ distinct order_id      | 99427
+ distinct business_hash | 99427
+(4 rows)
+
+               check_name               | problem_rows 
+----------------------------------------+--------------
+ status outside the allowed set         |            0
+ duplicate order_id (problem_rows)      |            0
+ delivery date but status not delivered |            0
+ delivered before purchase              |            0
+ negative amounts                       |            0
+ delivered without delivery date        |            0
+(6 rows)
+
+               info               | stage  | reason_code  | rows 
+----------------------------------+--------+--------------+------
+ dead-letter rows by stage/reason | ingest | INCONSISTENT |   16
+(1 row)
+
+ info | duplicate_type | rows 
+------+----------------+------
+(0 rows)
+
+                  info                   | rows 
+-----------------------------------------+------
+ orders without payments (kept, count 0) |    1
+ orders without items (kept, count 0)    |  775
+(2 rows)
+
+
+--- exit code: 0 ---

@@ -40,6 +40,9 @@ Source: `docs/evidence/01_dataset/dataset_profile.txt` and `join_and_mapping_che
 | reviews → unknown order_id | 0 |
 | orders without any review | 768 (not an error; reviews are optional) |
 
+## 3b. Rejections in the real run
+The quality rules reject **14 real orders** (8 `delivered` without a delivery date, 6 with a delivery date but status `canceled`). Run-level dead-letter files show more lines when runs overlap: `docs/evidence/07_postgresql/rejected_14_vs_15_explained.txt`.
+
 ## 4. What this means for the pipeline
 - `order_id` is a verified natural key, so `business_hash` = hash of `order_id` and source duplicates are detected by it.
 - Valid-looking replay of the full dataset should produce **0 mapping rejections**; the invalid-data demo therefore uses an isolated test file (Demo 3), not the real file.

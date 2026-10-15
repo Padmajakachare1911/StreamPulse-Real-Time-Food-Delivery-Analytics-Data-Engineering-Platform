@@ -1,0 +1,46 @@
+﻿Task ID: P6-02
+Date/time (UTC): 2026-10-15T17:37:40.9851803Z
+Date/time (local): 2026-10-15T23:07:40.9920182+05:30
+Command: $env:PYTHONUTF8='1'; & .\.venv\Scripts\python.exe scripts\reconcile.py
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 236d32d
+--- output ---
+Topic: ecommerce_orders   Database: streampulse   Runs: limited-100, full-run-01
+
+== RUN LEVEL (each run vs the source slice it covered; runs may overlap) ==
+Stage                                          Expected     Actual  Difference  Explanation
+-----------------------------------------------------------------------------------------------------------------------------
+[limited-100] rows read                             100        100          +0  [OK] slice 0..99 (count taken from the run summary)
+[limited-100] valid                                  99         99          +0  [OK] re-derived from that slice with the same rules
+[limited-100] rejected                                1          1          +0  [OK] read - valid
+[limited-100] published = valid                      99         99          +0  [OK] failed publishes: 0
+[limited-100] dead-letter lines = rejected            1          1          +0  [OK] every rejected row is stored with its reason
+[full-run-01] rows read                          99,441     99,441          +0  [OK] whole orders file
+[full-run-01] valid                              99,427     99,427          +0  [OK] re-derived from that slice with the same rules
+[full-run-01] rejected                               14         14          +0  [OK] read - valid
+[full-run-01] published = valid                  99,427     99,427          +0  [OK] failed publishes: 0
+[full-run-01] dead-letter lines = rejected           14         14          +0  [OK] every rejected row is stored with its reason
+
+== SOURCE LEVEL (unique records over the union of covered rows) ==
+Stage                                          Expected     Actual  Difference  Explanation
+-----------------------------------------------------------------------------------------------------------------------------
+unique source rows covered                       99,441     99,441          +0  [OK] union of run slices; the runs read 99,541 rows in total, so 100 rows were replayed more than once
+unique rejected records (distinct record_uid in DLQ)         14         14          +0  [OK] 15 dead-letter LINES exist because overlapping runs rejected the same record again; unique records are counted by record_uid
+
+== PIPELINE STAGES (Kafka -> Spark -> Parquet -> PostgreSQL) ==
+Stage                                          Expected     Actual  Difference  Explanation
+-----------------------------------------------------------------------------------------------------------------------------
+4 messages in Kafka topic                        99,526     99,526          +0  [OK] sum of run publishes; 99 of them are repeats of an already published record_uid
+5 consumed by Spark                              99,526     99,526          +0  [OK] sum of input_rows over 10 micro-batches
+5b malformed/invalid in Spark                         0          0          +0  [OK] stage=stream dead letters
+6 rows in Parquet (landing layer)                99,427     99,427          +0  [OK] consumed - invalid - in-batch duplicates (99); repeats from later batches are kept here
+6b distinct record_uid in Parquet                99,427     99,427          +0  [OK] = unique valid source records
+7 rows in PostgreSQL core.orders                 99,427     99,427          +0  [OK] distinct record_uid in Parquet minus discarded source duplicates
+7b retry duplicates ignored by PostgreSQL             0          0          +0  [OK] Parquet rows - distinct record_uid = repeats that reached a later batch
+8 distinct order_id in PostgreSQL                99,427     99,427          +0  [OK] unique valid order_ids computed from the source
+8b rows = distinct business_hash                 99,427     99,427          +0  [OK] one row per natural key
+
+-----------------------------------------------------------------------------------------------------------------------------
+RESULT: all differences are zero or explained
+
+--- exit code: 0 ---

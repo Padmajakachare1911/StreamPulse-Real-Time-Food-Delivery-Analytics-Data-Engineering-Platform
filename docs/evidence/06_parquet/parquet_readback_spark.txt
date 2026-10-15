@@ -1,0 +1,83 @@
+﻿Task ID: P6-01
+Date/time (UTC): 2026-10-15T17:42:10.4296361Z
+Date/time (local): 2026-10-15T23:12:10.4296361+05:30
+Command: docker compose --profile spark run --rm --no-deps -T spark python scripts/parquet_readback_spark.py
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 236d32d
+--- output ---
+ Container streampulse-real-time-food-delivery-analytics-data-engineering-platform-spark-run-1621bf3800c8 Creating 
+ Container streampulse-real-time-food-delivery-analytics-data-engineering-platform-spark-run-1621bf3800c8 Created 
+WARNING: Using incubator modules: jdk.incubator.vector
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+/usr/local/lib/python3.11/site-packages/pyspark/testing/utils.py:127: FutureWarning: PySpark does not yet fully support pandas >= 3.0.0. Some features may not work correctly. It is recommended to use pandas < 3.0.0 for now.
+  require_minimum_pandas_version()
+26/10/15 17:42:13 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+System.Management.Automation.RemoteException
+[Stage 1:>                                                          (0 + 2) / 2]
+System.Management.Automation.RemoteException
+Spark read total rows        : 99,626
+                                                                                
+System.Management.Automation.RemoteException
+[Stage 7:>                                                          (0 + 2) / 2]
+System.Management.Automation.RemoteException
+Distinct record_uid          : 99,427
+Distinct order_id            : 99,427
+batch_id | parquet rows | batch-log parquet_rows_written | match
+       0 |        9,899 |                          9,899 | OK
+       1 |        9,998 |                          9,998 | OK
+       2 |        9,998 |                          9,998 | OK
+       3 |        9,998 |                          9,998 | OK
+       4 |        9,998 |                          9,998 | OK
+       5 |        9,998 |                          9,998 | OK
+       6 |        9,999 |                          9,999 | OK
+       7 |        9,998 |                          9,998 | OK
+       8 |        9,999 |                          9,999 | OK
+       9 |        9,542 |                          9,542 | OK
+      10 |          199 |                            199 | OK
+RESULT: every batch folder matches its batch log
+root
+ |-- record_uid: string (nullable = true)
+ |-- business_hash: string (nullable = true)
+ |-- source_category: string (nullable = true)
+ |-- source_file_sha256: string (nullable = true)
+ |-- source_row_number: long (nullable = true)
+ |-- ingest_run_id: string (nullable = true)
+ |-- ingested_at: timestamp (nullable = true)
+ |-- order_id: string (nullable = true)
+ |-- customer_id: string (nullable = true)
+ |-- order_status: string (nullable = true)
+ |-- purchase_ts: timestamp (nullable = true)
+ |-- approved_ts: timestamp (nullable = true)
+ |-- delivered_carrier_ts: timestamp (nullable = true)
+ |-- delivered_customer_ts: timestamp (nullable = true)
+ |-- estimated_delivery_ts: timestamp (nullable = true)
+ |-- customer_unique_id: string (nullable = true)
+ |-- customer_zip_code_prefix: string (nullable = true)
+ |-- customer_city: string (nullable = true)
+ |-- customer_state: string (nullable = true)
+ |-- items_count: long (nullable = true)
+ |-- items_price_total: double (nullable = true)
+ |-- items_freight_total: double (nullable = true)
+ |-- payments_count: long (nullable = true)
+ |-- payments_value_total: double (nullable = true)
+ |-- payment_types: string (nullable = true)
+ |-- fx_rate_brl_usd: double (nullable = true)
+ |-- fx_rate_date: date (nullable = true)
+ |-- fx_match_type: string (nullable = true)
+ |-- payments_value_usd: double (nullable = true)
+ |-- api_source_name: string (nullable = true)
+ |-- api_endpoint: string (nullable = true)
+ |-- api_retrieved_at: timestamp (nullable = true)
+ |-- api_http_status: long (nullable = true)
+ |-- api_cache_key: string (nullable = true)
+ |-- api_enriched: boolean (nullable = true)
+ |-- raw_json: string (nullable = true)
+ |-- kafka_partition: integer (nullable = true)
+ |-- kafka_offset: long (nullable = true)
+ |-- batch_id: integer (nullable = true)
+
+                                                                                
+
+--- exit code: 0 ---

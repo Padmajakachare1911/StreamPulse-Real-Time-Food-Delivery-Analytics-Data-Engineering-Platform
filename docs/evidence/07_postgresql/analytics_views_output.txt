@@ -1,0 +1,103 @@
+﻿Task ID: P6-01
+Date/time (UTC): 2026-10-15T17:41:54.1771898Z
+Date/time (local): 2026-10-15T23:11:54.1771898+05:30
+Command: docker exec streampulse-postgres psql -U streampulse -d streampulse -f /tmp/as.sql
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 236d32d
+--- output ---
+--- revenue_summary (revenue = payments_value_total; USD is an ECB-rate estimate) ---
+ orders | revenue_brl | items_value_brl | freight_brl | avg_order_value_brl | revenue_usd_estimate |   first_purchase    |    last_purchase    
+--------+-------------+-----------------+-------------+---------------------+----------------------+---------------------+---------------------
+  99427 | 16006744.62 |     13589748.34 |  2251677.40 |              160.99 |           4768687.37 | 2016-09-04 21:15:19 | 2018-10-17 17:30:18
+(1 row)
+
+--- order_status_distribution ---
+ order_status | orders | percent_of_orders 
+--------------+--------+-------------------
+ delivered    |  96470 |             97.03
+ shipped      |   1107 |              1.11
+ canceled     |    619 |              0.62
+ unavailable  |    609 |              0.61
+ invoiced     |    314 |              0.32
+ processing   |    301 |              0.30
+ created      |      5 |              0.01
+ approved     |      2 |              0.00
+(8 rows)
+
+--- orders_per_month (first 6 and last 3 months) ---
+ order_month | orders | revenue_brl | revenue_usd_estimate 
+-------------+--------+-------------+----------------------
+ 2016-09-01  |      4 |      252.24 |                77.32
+ 2016-10-01  |    319 |    58385.99 |             18066.72
+ 2016-12-01  |      1 |       19.62 |                 6.00
+ 2017-01-01  |    800 |   138488.04 |             43636.79
+ 2017-02-01  |   1780 |   291908.01 |             93948.65
+ 2017-03-01  |   2682 |   449863.60 |            143811.37
+ 2018-08-01  |   6512 |  1022425.32 |            266002.64
+ 2018-09-01  |     16 |     4439.54 |              1077.34
+ 2018-10-01  |      4 |      589.67 |               154.70
+(9 rows)
+
+--- payment_type_mix (an order can use several types) ---
+ payment_type | orders_using_type 
+--------------+-------------------
+ credit_card  |             76492
+ boleto       |             19784
+ voucher      |              3866
+ debit_card   |              1527
+ not_defined  |                 3
+(5 rows)
+
+--- late_delivery_summary ---
+ delivered_orders | late_orders | late_percent | avg_delivery_days 
+------------------+-------------+--------------+-------------------
+            96470 |        7826 |         8.11 |             12.56
+(1 row)
+
+--- delivery_time_by_month (last 4 months) ---
+ order_month | delivered_orders | avg_delivery_days | median_delivery_days 
+-------------+------------------+-------------------+----------------------
+ 2018-08-01  |             6351 |              7.73 |                 7.01
+ 2018-07-01  |             6156 |              8.96 |                 7.50
+ 2018-06-01  |             6096 |              9.24 |                 7.96
+ 2018-05-01  |             6749 |             11.42 |                 9.15
+(4 rows)
+
+--- orders_by_state (top 5 by orders) ---
+ customer_state | orders | revenue_brl | avg_order_value_brl 
+----------------+--------+-------------+---------------------
+ SP             |  41738 |  5996901.82 |              143.68
+ RJ             |  12849 |  2143968.93 |              166.86
+ MG             |  11634 |  1872213.17 |              160.93
+ RS             |   5465 |   890704.54 |              162.98
+ PR             |   5045 |   811156.38 |              160.78
+(5 rows)
+
+--- top_product_categories (top 5 by items sold) ---
+       category        | items_sold | items_value_brl 
+-----------------------+------------+-----------------
+ bed_bath_table        |      11115 |      1036988.68
+ health_beauty         |       9668 |      1258601.45
+ sports_leisure        |       8639 |       987848.47
+ furniture_decor       |       8334 |       729762.49
+ computers_accessories |       7826 |       911843.33
+(5 rows)
+
+--- review_score_distribution ---
+ review_score | reviews 
+--------------+---------
+            1 |   11419
+            2 |    3151
+            3 |    8178
+            4 |   19142
+            5 |   57320
+(5 rows)
+
+--- api_enrichment_summary ---
+ orders | orders_enriched | match_rate_percent | matched_exact_date | matched_previous_business_day |      last_api_retrieval       | last_http_status 
+--------+-----------------+--------------------+--------------------+-------------------------------+-------------------------------+------------------
+  99427 |           99427 |             100.00 |              75315 |                         24112 | 2026-10-15 16:38:02.037003+00 |              200
+(1 row)
+
+
+--- exit code: 0 ---

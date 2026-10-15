@@ -1,0 +1,15 @@
+﻿Task ID: P6-02
+Date/time (UTC): 2026-10-15T17:38:12.2481582Z
+Date/time (local): 2026-10-15T23:08:12.2570870+05:30
+Command: & '.\.venv\Scripts\python.exe' scripts\explain_rejected_count.py
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 236d32d
+--- output ---
+limited-100 (replay rows 0..99) rejected records : 1
+full-run-01 (whole file)        rejected records : 14
+sum of run-level rejected counts                 : 15
+record_uid rejected by BOTH runs                 : 1  ['92fc65a4424b55837a4389c5239ea75a']
+unique rejected records (union by record_uid)    : 14
+EXPLANATION VERIFIED: 15 = 14 unique rejected records + 1 record rejected again by the overlapping test run
+
+--- exit code: 0 ---

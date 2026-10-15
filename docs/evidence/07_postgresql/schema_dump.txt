@@ -1,0 +1,549 @@
+﻿Task ID: P6-01
+Date/time (UTC): 2026-10-15T17:41:51.1242807Z
+Date/time (local): 2026-10-15T23:11:51.1329788+05:30
+Command: docker exec streampulse-postgres pg_dump -U streampulse -d streampulse --schema-only --no-owner --schema=core --schema=analytics
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: 236d32d
+--- output ---
+--
+-- PostgreSQL database dump
+--
+
+\restrict Hb0RzvKZp4PKFgK94eUZAdeVFX13qJtYkgUtnZAqneeY31JO2901UgtdNGYskYz
+
+-- Dumped from database version 16.15 (Debian 16.15-1.pgdg13+2)
+-- Dumped by pg_dump version 16.15 (Debian 16.15-1.pgdg13+2)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: analytics; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA analytics;
+
+
+--
+-- Name: core; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA core;
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: orders; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.orders (
+    record_uid text NOT NULL,
+    business_hash text NOT NULL,
+    order_id text NOT NULL,
+    customer_id text NOT NULL,
+    order_status text NOT NULL,
+    purchase_ts timestamp without time zone NOT NULL,
+    approved_ts timestamp without time zone,
+    delivered_carrier_ts timestamp without time zone,
+    delivered_customer_ts timestamp without time zone,
+    estimated_delivery_ts timestamp without time zone NOT NULL,
+    customer_unique_id text,
+    customer_zip_code_prefix text,
+    customer_city text,
+    customer_state text,
+    items_count integer NOT NULL,
+    items_price_total numeric(12,2) NOT NULL,
+    items_freight_total numeric(12,2) NOT NULL,
+    payments_count integer NOT NULL,
+    payments_value_total numeric(12,2) NOT NULL,
+    payment_types text,
+    fx_rate_brl_usd numeric(12,6),
+    fx_rate_date date,
+    fx_match_type text,
+    payments_value_usd numeric(12,2),
+    api_source_name text,
+    api_endpoint text,
+    api_retrieved_at timestamp with time zone,
+    api_http_status integer,
+    api_cache_key text,
+    api_enriched boolean DEFAULT false NOT NULL,
+    source_category text NOT NULL,
+    source_file_sha256 text NOT NULL,
+    source_row_number bigint NOT NULL,
+    ingest_run_id text NOT NULL,
+    kafka_partition integer,
+    kafka_offset bigint,
+    raw jsonb,
+    processed_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: api_enrichment_summary; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.api_enrichment_summary AS
+ SELECT count(*) AS orders,
+    count(*) FILTER (WHERE api_enriched) AS orders_enriched,
+    round(((100.0 * (count(*) FILTER (WHERE api_enriched))::numeric) / (NULLIF(count(*), 0))::numeric), 2) AS match_rate_percent,
+    count(*) FILTER (WHERE (fx_match_type = 'exact'::text)) AS matched_exact_date,
+    count(*) FILTER (WHERE (fx_match_type = 'previous_business_day'::text)) AS matched_previous_business_day,
+    max(api_retrieved_at) AS last_api_retrieval,
+    max(api_http_status) AS last_http_status
+   FROM core.orders;
+
+
+--
+-- Name: delivery_time_by_month; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.delivery_time_by_month AS
+ SELECT (date_trunc('month'::text, purchase_ts))::date AS order_month,
+    count(*) AS delivered_orders,
+    round(avg((EXTRACT(epoch FROM (delivered_customer_ts - purchase_ts)) / 86400.0)), 2) AS avg_delivery_days,
+    round((percentile_cont((0.5)::double precision) WITHIN GROUP (ORDER BY (((EXTRACT(epoch FROM (delivered_customer_ts - purchase_ts)) / 86400.0))::double precision)))::numeric, 2) AS median_delivery_days
+   FROM core.orders
+  WHERE (delivered_customer_ts IS NOT NULL)
+  GROUP BY ((date_trunc('month'::text, purchase_ts))::date);
+
+
+--
+-- Name: late_delivery_summary; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.late_delivery_summary AS
+ SELECT count(*) AS delivered_orders,
+    count(*) FILTER (WHERE (delivered_customer_ts > estimated_delivery_ts)) AS late_orders,
+    round(((100.0 * (count(*) FILTER (WHERE (delivered_customer_ts > estimated_delivery_ts)))::numeric) / (NULLIF(count(*), 0))::numeric), 2) AS late_percent,
+    round(avg((EXTRACT(epoch FROM (delivered_customer_ts - purchase_ts)) / 86400.0)), 2) AS avg_delivery_days
+   FROM core.orders
+  WHERE (delivered_customer_ts IS NOT NULL);
+
+
+--
+-- Name: order_status_distribution; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.order_status_distribution AS
+ SELECT order_status,
+    count(*) AS orders,
+    round(((100.0 * (count(*))::numeric) / sum(count(*)) OVER ()), 2) AS percent_of_orders
+   FROM core.orders
+  GROUP BY order_status;
+
+
+--
+-- Name: orders_by_state; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.orders_by_state AS
+ SELECT customer_state,
+    count(*) AS orders,
+    sum(payments_value_total) AS revenue_brl,
+    round(avg(payments_value_total) FILTER (WHERE (payments_count > 0)), 2) AS avg_order_value_brl
+   FROM core.orders
+  GROUP BY customer_state;
+
+
+--
+-- Name: orders_per_day; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.orders_per_day AS
+ SELECT (purchase_ts)::date AS order_date,
+    count(*) AS orders,
+    sum(payments_value_total) AS revenue_brl,
+    sum(payments_value_usd) AS revenue_usd_estimate
+   FROM core.orders
+  GROUP BY ((purchase_ts)::date);
+
+
+--
+-- Name: orders_per_month; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.orders_per_month AS
+ SELECT (date_trunc('month'::text, purchase_ts))::date AS order_month,
+    count(*) AS orders,
+    sum(payments_value_total) AS revenue_brl,
+    sum(payments_value_usd) AS revenue_usd_estimate
+   FROM core.orders
+  GROUP BY ((date_trunc('month'::text, purchase_ts))::date);
+
+
+--
+-- Name: payment_type_mix; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.payment_type_mix AS
+ SELECT t.payment_type,
+    count(*) AS orders_using_type
+   FROM core.orders o,
+    LATERAL unnest(string_to_array(o.payment_types, ','::text)) t(payment_type)
+  WHERE (o.payment_types IS NOT NULL)
+  GROUP BY t.payment_type;
+
+
+--
+-- Name: revenue_summary; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.revenue_summary AS
+ SELECT count(*) AS orders,
+    sum(payments_value_total) AS revenue_brl,
+    sum(items_price_total) AS items_value_brl,
+    sum(items_freight_total) AS freight_brl,
+    round(avg(payments_value_total) FILTER (WHERE (payments_count > 0)), 2) AS avg_order_value_brl,
+    sum(payments_value_usd) AS revenue_usd_estimate,
+    min(purchase_ts) AS first_purchase,
+    max(purchase_ts) AS last_purchase
+   FROM core.orders;
+
+
+--
+-- Name: order_reviews; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.order_reviews (
+    review_id text NOT NULL,
+    order_id text NOT NULL,
+    review_score integer,
+    review_comment_title text,
+    review_comment_message text,
+    review_creation_date timestamp without time zone,
+    review_answer_timestamp timestamp without time zone
+);
+
+
+--
+-- Name: review_score_distribution; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.review_score_distribution AS
+ SELECT r.review_score,
+    count(*) AS reviews
+   FROM (core.order_reviews r
+     JOIN core.orders o ON ((o.order_id = r.order_id)))
+  GROUP BY r.review_score;
+
+
+--
+-- Name: dim_products; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.dim_products (
+    product_id text NOT NULL,
+    product_category_name text,
+    product_category_name_english text,
+    product_name_lenght integer,
+    product_description_lenght integer,
+    product_photos_qty integer,
+    product_weight_g integer,
+    product_length_cm integer,
+    product_height_cm integer,
+    product_width_cm integer
+);
+
+
+--
+-- Name: order_items; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.order_items (
+    order_id text NOT NULL,
+    order_item_id integer NOT NULL,
+    product_id text NOT NULL,
+    seller_id text NOT NULL,
+    shipping_limit_date timestamp without time zone,
+    price numeric(12,2) NOT NULL,
+    freight_value numeric(12,2) NOT NULL
+);
+
+
+--
+-- Name: top_product_categories; Type: VIEW; Schema: analytics; Owner: -
+--
+
+CREATE VIEW analytics.top_product_categories AS
+ SELECT COALESCE(p.product_category_name_english, p.product_category_name, 'unknown'::text) AS category,
+    count(*) AS items_sold,
+    sum(i.price) AS items_value_brl
+   FROM ((core.order_items i
+     JOIN core.orders o ON ((o.order_id = i.order_id)))
+     LEFT JOIN core.dim_products p ON ((p.product_id = i.product_id)))
+  GROUP BY COALESCE(p.product_category_name_english, p.product_category_name, 'unknown'::text);
+
+
+--
+-- Name: api_cache; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.api_cache (
+    cache_key text NOT NULL,
+    api_source_name text,
+    api_endpoint text,
+    response_json jsonb,
+    http_status integer,
+    retrieved_at timestamp with time zone
+);
+
+
+--
+-- Name: dead_letter_records; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.dead_letter_records (
+    dlq_id uuid NOT NULL,
+    stage text,
+    reason_code text,
+    reason_detail text,
+    record_uid text,
+    ingest_run_id text,
+    raw_payload jsonb,
+    rejected_at timestamp with time zone
+);
+
+
+--
+-- Name: dim_sellers; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.dim_sellers (
+    seller_id text NOT NULL,
+    seller_zip_code_prefix text,
+    seller_city text,
+    seller_state text
+);
+
+
+--
+-- Name: duplicate_records; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.duplicate_records (
+    id bigint NOT NULL,
+    record_uid text NOT NULL,
+    kept_record_uid text,
+    business_hash text NOT NULL,
+    duplicate_type text NOT NULL,
+    ingest_run_id text,
+    detected_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: duplicate_records_id_seq; Type: SEQUENCE; Schema: core; Owner: -
+--
+
+CREATE SEQUENCE core.duplicate_records_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: duplicate_records_id_seq; Type: SEQUENCE OWNED BY; Schema: core; Owner: -
+--
+
+ALTER SEQUENCE core.duplicate_records_id_seq OWNED BY core.duplicate_records.id;
+
+
+--
+-- Name: fx_rates; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.fx_rates (
+    rate_date date NOT NULL,
+    base_currency text NOT NULL,
+    quote_currency text NOT NULL,
+    rate numeric(12,6) NOT NULL,
+    api_source_name text NOT NULL,
+    api_cache_key text NOT NULL
+);
+
+
+--
+-- Name: geo_zip; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.geo_zip (
+    zip_code_prefix text NOT NULL,
+    lat double precision,
+    lng double precision,
+    city text,
+    state text,
+    source_rows integer
+);
+
+
+--
+-- Name: ingestion_runs; Type: TABLE; Schema: core; Owner: -
+--
+
+CREATE TABLE core.ingestion_runs (
+    ingest_run_id text NOT NULL,
+    started_at timestamp with time zone,
+    finished_at timestamp with time zone,
+    source_file text,
+    source_file_sha256 text,
+    rows_read bigint,
+    rows_valid bigint,
+    rows_rejected bigint,
+    rows_published bigint,
+    rows_publish_failed bigint,
+    mode text
+);
+
+
+--
+-- Name: duplicate_records id; Type: DEFAULT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.duplicate_records ALTER COLUMN id SET DEFAULT nextval('core.duplicate_records_id_seq'::regclass);
+
+
+--
+-- Name: api_cache api_cache_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.api_cache
+    ADD CONSTRAINT api_cache_pkey PRIMARY KEY (cache_key);
+
+
+--
+-- Name: dead_letter_records dead_letter_records_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.dead_letter_records
+    ADD CONSTRAINT dead_letter_records_pkey PRIMARY KEY (dlq_id);
+
+
+--
+-- Name: dim_products dim_products_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.dim_products
+    ADD CONSTRAINT dim_products_pkey PRIMARY KEY (product_id);
+
+
+--
+-- Name: dim_sellers dim_sellers_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.dim_sellers
+    ADD CONSTRAINT dim_sellers_pkey PRIMARY KEY (seller_id);
+
+
+--
+-- Name: duplicate_records duplicate_records_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.duplicate_records
+    ADD CONSTRAINT duplicate_records_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: fx_rates fx_rates_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.fx_rates
+    ADD CONSTRAINT fx_rates_pkey PRIMARY KEY (rate_date, base_currency, quote_currency);
+
+
+--
+-- Name: geo_zip geo_zip_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.geo_zip
+    ADD CONSTRAINT geo_zip_pkey PRIMARY KEY (zip_code_prefix);
+
+
+--
+-- Name: ingestion_runs ingestion_runs_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.ingestion_runs
+    ADD CONSTRAINT ingestion_runs_pkey PRIMARY KEY (ingest_run_id);
+
+
+--
+-- Name: order_items order_items_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.order_items
+    ADD CONSTRAINT order_items_pkey PRIMARY KEY (order_id, order_item_id);
+
+
+--
+-- Name: order_reviews order_reviews_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.order_reviews
+    ADD CONSTRAINT order_reviews_pkey PRIMARY KEY (review_id, order_id);
+
+
+--
+-- Name: orders orders_order_id_key; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.orders
+    ADD CONSTRAINT orders_order_id_key UNIQUE (order_id);
+
+
+--
+-- Name: orders orders_pkey; Type: CONSTRAINT; Schema: core; Owner: -
+--
+
+ALTER TABLE ONLY core.orders
+    ADD CONSTRAINT orders_pkey PRIMARY KEY (record_uid);
+
+
+--
+-- Name: idx_orders_purchase_ts; Type: INDEX; Schema: core; Owner: -
+--
+
+CREATE INDEX idx_orders_purchase_ts ON core.orders USING btree (purchase_ts);
+
+
+--
+-- Name: idx_orders_state; Type: INDEX; Schema: core; Owner: -
+--
+
+CREATE INDEX idx_orders_state ON core.orders USING btree (customer_state);
+
+
+--
+-- Name: idx_orders_status; Type: INDEX; Schema: core; Owner: -
+--
+
+CREATE INDEX idx_orders_status ON core.orders USING btree (order_status);
+
+
+--
+-- Name: ux_duplicate_records_uid_type; Type: INDEX; Schema: core; Owner: -
+--
+
+CREATE UNIQUE INDEX ux_duplicate_records_uid_type ON core.duplicate_records USING btree (record_uid, duplicate_type);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict Hb0RzvKZp4PKFgK94eUZAdeVFX13qJtYkgUtnZAqneeY31JO2901UgtdNGYskYz
+
+
+--- exit code: 0 ---
