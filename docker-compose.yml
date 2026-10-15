@@ -28,6 +28,23 @@
       retries: 12
       start_period: 20s
 
+  postgres:
+    image: postgres:16
+    container_name: streampulse-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-streampulse}
+      POSTGRES_USER: ${POSTGRES_USER:-streampulse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env (copy .env.example)}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-streampulse} -d ${POSTGRES_DB:-streampulse}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
   # One-shot job: creates the topic explicitly (3 partitions, replication factor 1) once Kafka is healthy.
   kafka-init:
     image: apache/kafka:4.1.0
@@ -41,5 +58,35 @@
       --create --if-not-exists --topic ${KAFKA_TOPIC:-ecommerce_orders}
       --partitions 3 --replication-factor 1
 
+  # Spark job container (profile "spark": not started by a plain `docker compose up`).
+  # Use scripts\run_stream.ps1 instead of starting it by hand.
+  spark:
+    image: streampulse-spark:4.2.0
+    build: ./docker/spark
+    profiles: ["spark"]
+    working_dir: /app
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_TOPIC: ${KAFKA_TOPIC:-ecommerce_orders}
+      SPARK_MAX_OFFSETS_PER_TRIGGER: ${SPARK_MAX_OFFSETS_PER_TRIGGER:-10000}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-streampulse}
+      POSTGRES_USER: ${POSTGRES_USER:-streampulse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./scripts:/app/scripts
+      - ./tests:/app/tests
+      - ./pytest.ini:/app/pytest.ini
+      - ./data:/app/data
+
 volumes:
   kafka_data:
+  postgres_data:

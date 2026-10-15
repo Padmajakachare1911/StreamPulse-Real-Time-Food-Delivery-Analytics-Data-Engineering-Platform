@@ -25,10 +25,11 @@ from src.api.enrich import build_rate_table, enrich_payload
 from src.common.config import (API_BASE_URL, API_USER_AGENT, BATCH_SIZE, DATASET_DIR, DEAD_LETTER_DIR,
                                FIELD_MAPPING_FILE, INGESTION_RUNS_DIR, KAFKA_BOOTSTRAP_SERVERS, KAFKA_TOPIC,
                                PROJECT_ROOT, QUALITY_RULES_FILE, REPLAY_RATE)
-from src.common.mapping import apply_mapping, load_mapping
+from src.common.mapping import load_mapping
 from src.common.orders_source import ORDERS_FILE, build_order_rows, file_sha256
 from src.processing.deadletter import DeadLetterWriter, make_dead_letter
-from src.processing.validators import load_rules, split_by_severity, validate_payload
+from src.processing.classify import classify_record
+from src.processing.validators import load_rules
 
 log = logging.getLogger("dataset_producer")
 SCHEMA_VERSION = "1.0"
@@ -148,12 +149,7 @@ def run(args: argparse.Namespace) -> dict:
             row = clean_row(record)
             row_number = int(row["source_row_number"])
 
-            payload, errors = apply_mapping(row, mapping)
-            problems = [{"reason_code": e["reason_code"], "detail": f"{e['field']}: {e['detail']}"} for e in errors]
-            warnings: list[dict] = []
-            if payload is not None:
-                rejections, warnings = split_by_severity(validate_payload(payload, rules))
-                problems += [{"reason_code": r["reason_code"], "detail": f"{r['rule']}: {r['detail']}"} for r in rejections]
+            payload, problems, warnings = classify_record(row, mapping, rules)
             counts["warned"] += 1 if warnings else 0
 
             if problems:

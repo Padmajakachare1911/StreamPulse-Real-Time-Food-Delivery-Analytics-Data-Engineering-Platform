@@ -58,7 +58,8 @@ POSTGRES_HOST = get_setting("POSTGRES_HOST", "localhost")
 POSTGRES_PORT = int(get_setting("POSTGRES_PORT", "5432"))
 POSTGRES_DB = get_setting("POSTGRES_DB", "streampulse")
 POSTGRES_USER = get_setting("POSTGRES_USER", "streampulse")
-POSTGRES_PASSWORD = get_setting("POSTGRES_PASSWORD", "streampulse_dev_password")
+# No default on purpose: set POSTGRES_PASSWORD in .env (src/warehouse/db.py reports it clearly if missing).
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
 
 # External API (currency rates). API_KEY is optional: the chosen provider needs none.
 API_BASE_URL = get_setting("API_BASE_URL", "https://api.frankfurter.dev/v2")
@@ -67,6 +68,7 @@ API_USER_AGENT = get_setting("API_USER_AGENT", "StreamPulse-student-project/1.0"
 
 # Spark
 SPARK_APP_NAME = get_setting("SPARK_APP_NAME", "StreamPulseOrderStreaming")
+SPARK_MAX_OFFSETS_PER_TRIGGER = int(get_setting("SPARK_MAX_OFFSETS_PER_TRIGGER", "10000"))
 
 
 if __name__ == "__main__":
