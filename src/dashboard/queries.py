@@ -148,9 +148,21 @@ def api_cache_last_success() -> pd.DataFrame:
 # ---- recent records (business columns only: no customer identifiers) ---------------------------
 def recent_orders(limit: int = 20) -> pd.DataFrame:
     return run_query("""
-        SELECT order_id, order_status, purchase_ts, customer_state, items_count, payments_value_total,
-               payments_value_usd, ingest_run_id, processed_at
+        SELECT order_id, source_category AS source, order_status, purchase_ts, customer_state, items_count,
+               payments_value_total, payments_value_usd, ingest_run_id, processed_at
         FROM core.orders ORDER BY processed_at DESC, purchase_ts DESC LIMIT %s""", (limit,))
+
+
+def recent_demo_orders(limit: int = 10) -> pd.DataFrame:
+    """Orders placed from the dashboard form (never historical Olist rows)."""
+    return run_query("""
+        SELECT order_id, order_status, customer_state, items_count, payments_value_total, payments_value_usd,
+               kafka_partition, kafka_offset, purchase_ts, processed_at
+        FROM core.orders WHERE source_category = 'user_demo' ORDER BY processed_at DESC LIMIT %s""", (limit,))
+
+
+def demo_order_count() -> pd.DataFrame:
+    return run_query("SELECT count(*) AS demo_orders FROM core.orders WHERE source_category = 'user_demo'")
 
 
 # ---- Parquet landing layer ---------------------------------------------------------------------

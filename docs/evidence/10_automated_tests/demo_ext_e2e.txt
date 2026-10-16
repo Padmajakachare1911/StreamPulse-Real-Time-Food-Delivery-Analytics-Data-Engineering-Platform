@@ -1,0 +1,11 @@
+﻿Task ID: DEMO-T5
+Date/time (UTC): 2026-10-16T03:00:23.7614268Z
+Date/time (local): 2026-10-16T08:30:23.7624452+05:30
+Command: .\.venv\Scripts\python.exe -m pytest -m e2e -q
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: b38a0bd
+--- output ---
+.....                                                                    [100%]
+5 passed, 1 skipped, 126 deselected in 319.47s (0:05:19)
+
+--- exit code: 0 ---

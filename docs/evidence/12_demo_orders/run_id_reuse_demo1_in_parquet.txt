@@ -1,0 +1,61 @@
+﻿Task ID: DEMO-12
+Date/time (UTC): 2026-10-16T02:58:41.9530491Z
+Date/time (local): 2026-10-16T08:28:41.9566584+05:30
+Command: .\.venv\Scripts\python.exe scripts\parquet_readback.py --sample 1
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: b38a0bd
+--- output ---
+Parquet folder        : parquet
+Parquet files         : 18 in 18 batch folders
+Total size            : 47,723,185 bytes
+Rows (count)          : 100,325
+Distinct record_uid   : 99,431
+Distinct order_id     : 99,431
+Rows with API enrichment: 100,325
+Purchase time range   : 2016-09-04 21:15:19 .. 2026-10-16 08:09:36
+Rows per ingest_run_id: {'full-run-01': 99328, 'demo1': 398, 'airflow-20261015T180550': 295, 'reingest-200': 199, 'limited-100': 99, 'demo-order-20261016T080732-d34a9b': 2, 'demo-order-20261016T080336-605c29': 1, 'demo-order-20261016T080936-c97bff': 1, 'demo-order-20261016T080910-b31869': 1, 'airflow-20261016T023958': 1}
+Schema:
+   record_uid: string
+   business_hash: string
+   source_category: string
+   source_file_sha256: string
+   source_row_number: int64
+   ingest_run_id: string
+   ingested_at: timestamp[ns]
+   order_id: string
+   customer_id: string
+   order_status: string
+   purchase_ts: timestamp[ns]
+   approved_ts: timestamp[ns]
+   delivered_carrier_ts: timestamp[ns]
+   delivered_customer_ts: timestamp[ns]
+   estimated_delivery_ts: timestamp[ns]
+   customer_unique_id: string
+   customer_zip_code_prefix: string
+   customer_city: string
+   customer_state: string
+   items_count: int64
+   items_price_total: double
+   items_freight_total: double
+   payments_count: int64
+   payments_value_total: double
+   payment_types: string
+   fx_rate_brl_usd: double
+   fx_rate_date: date32[day]
+   fx_match_type: string
+   payments_value_usd: double
+   api_source_name: string
+   api_endpoint: string
+   api_retrieved_at: timestamp[ns]
+   api_http_status: int64
+   api_cache_key: string
+   api_enriched: bool
+   raw_json: string
+   kafka_partition: int32
+   kafka_offset: int64
+   batch_id: int32
+First 1 rows (selected columns):
+                      record_uid                         order_id order_status         purchase_ts customer_state  payments_value_total  payments_value_usd  kafka_partition  kafka_offset
+00258fa6ad58c19824cd74f9b43ec8ca 78886227da2df65c57f57d2fec577bce    delivered 2017-04-07 17:05:52             SP                111.21               35.45                0          2042
+
+--- exit code: 0 ---

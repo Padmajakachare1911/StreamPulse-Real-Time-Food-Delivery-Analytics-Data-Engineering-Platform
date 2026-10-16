@@ -1,0 +1,81 @@
+<h1>19. Placing an order in Streamlit and tracing it (the demo-order extension)</h1>
+
+<div class="box warn"><span class="t">Why this chapter exists</span>
+The original requirement was: <i>a user places an order in Streamlit and visibly traces it through Kafka, Spark, Parquet and PostgreSQL, with the status on the dashboard and Airflow demonstrated</i>. An audit of the finished project found that the pipeline, Airflow and the dashboard all worked, but <b>the first mile was missing</b>: there was no order form, no producer for user orders, no way to follow <i>one</i> order, and nothing to tell a new order from a historical Olist record. This chapter explains what was added. Step by step with commands: <code>docs/live_demo_order_guide.md</code>.</div>
+
+<h2>19.1 What a demo order is</h2>
+<table>
+<tr><th style="width:30%"></th><th>Historical Olist order</th><th>Demo order (from the form)</th></tr>
+<tr><td>Created by</td><td>the replay producer, from the CSV files</td><td>the Streamlit page <b>Place a demo order</b></td></tr>
+<tr><td><code>order_id</code></td><td>32 hex characters</td><td>starts with <code>demo-</code></td></tr>
+<tr><td><code>source_category</code></td><td><code>kafka_replayed</code></td><td><code>user_demo</code></td></tr>
+<tr><td>Run id</td><td><code>full-run-01</code>, <code>airflow-...</code></td><td><code>demo-order-...</code></td></tr>
+<tr><td>Same topic, Spark job, Parquet, <code>core.orders</code>?</td><td>yes</td><td><b>yes, nothing is bypassed</b></td></tr>
+<tr><td>In the 11 historical KPI views?</td><td>yes</td><td>no (<code>analytics.historical_orders</code> excludes <code>user_demo</code>)</td></tr>
+</table>
+<p>The Olist data is never changed. No personal data is collected (the customer id is a random <code>demo-customer-...</code>). The Spark job, the Parquet layout and the warehouse schema were <b>not</b> modified.</p>
+
+<h2>19.2 How it works</h2>
+<figure>
+<svg width="730" height="150" viewBox="0 0 730 150" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10">
+ <defs><marker id="a9" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker></defs>
+ <g fill="#e8eff7" stroke="#0b5cad"><rect x="5" y="40" width="120" height="50" rx="6"/><rect x="150" y="40" width="130" height="50" rx="6"/><rect x="305" y="40" width="110" height="50" rx="6" fill="#fff4e5" stroke="#d98200"/><rect x="440" y="40" width="130" height="50" rx="6" fill="#e9f7ef" stroke="#0f8a5f"/><rect x="595" y="15" width="125" height="40" rx="6"/><rect x="595" y="75" width="125" height="40" rx="6"/></g>
+ <g text-anchor="middle" font-weight="bold"><text x="65" y="62">Streamlit form</text><text x="65" y="77" font-weight="normal">Place a demo order</text><text x="215" y="58">demo_order.py</text><text x="215" y="72" font-weight="normal">rules + API + envelope</text><text x="360" y="62">Kafka</text><text x="360" y="77" font-weight="normal">ecommerce_orders</text><text x="505" y="62">Spark (unchanged)</text><text x="505" y="77" font-weight="normal">availableNow / 5 s</text><text x="657" y="38">Parquet</text><text x="657" y="98">PostgreSQL</text></g>
+ <g stroke="#1f2933" fill="none"><path d="M125 65 L148 65" marker-end="url(#a9)"/><path d="M280 65 L303 65" marker-end="url(#a9)"/><path d="M415 65 L438 65" marker-end="url(#a9)"/><path d="M570 58 L593 40" marker-end="url(#a9)"/><path d="M570 72 L593 92" marker-end="url(#a9)"/></g>
+ <text x="365" y="138" text-anchor="middle" fill="#5b6770">The trace page reads each layer again for ONE order id: Kafka (at the recorded offset), Parquet (+ batch_id), PostgreSQL.</text>
+</svg>
+<figcaption>Figure 19.1: The demo-order path. Only the first two boxes are new.</figcaption>
+</figure>
+<ol>
+<li><b>Check the form</b> (state, zip, positive amounts, a non-delivered status; a brand-new order cannot already be delivered).</li>
+<li><b>Build one row</b> in the same shape as the Olist rows and <b>validate it with the real quality rules</b>. Only the purchase-date window (it ends in 2018) uses a demo-only copy that ends today; the historical rules are unchanged and tested.</li>
+<li><b>Ask the real Frankfurter API</b> for the BRL&#8594;USD rate (weekends use the previous business day).</li>
+<li><b>Publish</b> with the same producer settings (<code>acks=all</code>, idempotence, key = <code>order_id</code>) and wait for the broker to confirm; <b>log</b> partition and offset.</li>
+<li>Spark and the warehouse process it exactly like any other message.</li>
+</ol>
+
+<h2>19.3 The trace: four real checks</h2>
+<table>
+<tr><th style="width:22%">Stage</th><th>How it is checked</th></tr>
+<tr><td>1 Submitted</td><td>the submission log (partition and offset)</td></tr>
+<tr><td>2 Kafka</td><td>a consumer seeks to that partition and offset, reads the message and compares <code>order_id</code> and <code>record_uid</code></td></tr>
+<tr><td>3 Spark and Parquet</td><td>a Parquet filter on <code>order_id</code> gives the row and its <code>batch_id</code>; the matching <code>BATCH_SUMMARY</code> line shows how many messages that batch handled</td></tr>
+<tr><td>4 PostgreSQL</td><td><code>SELECT ... FROM core.orders WHERE order_id = ...</code> (with the same Kafka position)</td></tr>
+</table>
+<p>A stage is ticked <b>only when the order was found there</b>. If Spark is not running, stages 3 and 4 stay "waiting" with the hint to start the stream; if a service cannot be read, the stage says "unavailable", never "done".</p>
+
+<figure><div class="crop" style="aspect-ratio: 1500 / 1500; overflow:hidden; border:1px solid #d5dbe3; max-height:560px"><img class="shot" src="../evidence/12_demo_orders/ui_run1_03_trace_complete.png" alt="Place a demo order page with a completed trace"></div>
+<figcaption>Figure 19.2: A real order placed on the real page by a headless browser. All four stages are ticked; submit to PostgreSQL took 6.5 s.</figcaption></figure>
+
+<h2>19.4 Real results</h2>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/12_demo_orders/trace_cli_order_placed_in_streamlit.txt (python scripts/trace_order.py &lt;order_id&gt;)</span>
+[DONE]    1 Submitted: published to topic 'ecommerce_orders' at partition 2, offset 33364; sent again 1 time(s)
+[DONE]    2 Kafka: message read back from partition 2, offset 33364 (key demo-dd14ee722..., source_category user_demo)
+[DONE]    3 Spark and Parquet: 2 Parquet row(s), batch_id 15, 16; Spark batch 15 read 1 message(s), wrote 1 row(s) in 4.68 s
+[DONE]    4 PostgreSQL: stored: status approved, source_category user_demo, 1 row for this order
+STATE: complete   submit -> PostgreSQL: 6.5 s</pre>
+<ul>
+<li><b>Verified without the trace code:</b> Kafka's own console consumer, pyarrow and <code>psql</code> all show the same order at the same offset.</li>
+<li><b>Duplicate test:</b> sending the identical message again gave Spark batch 16 with <code>inserted 0, retry_duplicates 1</code>; PostgreSQL still has 1 row; Parquet has 2 rows (the landing layer is append-only).</li>
+<li><b>Airflow:</b> two orders placed while Spark was stopped showed "waiting". The real DAG run <code>manual__20261016T023952</code> (success, 9 of 9 tasks) processed them: batch 17 read 3 messages (2 demo orders + 1 historical repeat), inserted 2, retry duplicates 1.</li>
+<li><b>Historical KPIs unchanged:</b> still 99,427 orders and 16,006,745 BRL. Reconciliation lists demo messages as <i>explained</i> differences and still ends with <code>all differences are zero or explained</code>.</li>
+<li><b>Tests:</b> unit 102, integration 19, Spark 5, Airflow 8, e2e 5 (a new isolated end-to-end experiment with 19 checks), all passed.</li>
+</ul>
+<figure><div class="crop" style="aspect-ratio: 1500 / 560; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/12_demo_orders/airflow_streampulse_batch_grid.png" alt="Airflow grid, third run green"></div>
+<figcaption>Figure 19.3: Airflow after the run: the third bar (green) is the run that processed the waiting demo orders; the first (red) is the earlier Permission-denied failure.</figcaption></figure>
+
+<h2>19.5 Problems found while doing it (kept as evidence)</h2>
+<table>
+<tr><th style="width:30%">Finding</th><th>What was done</th></tr>
+<tr><td>Reconciliation showed <b>+199 unexplained messages</b> that were not demo orders</td><td>The Demo 1 command (<code>--run-id demo1</code>) had been executed twice; the second run overwrote the first run summary. The producer now never overwrites (it adds a suffix such as <code>demo1-2</code>), and <code>reconcile.py</code> detects run-id reuse from Parquet. The expected numbers were not adjusted.</td></tr>
+<tr><td>A DAG run stayed <b>queued for 10 minutes</b></td><td>The Airflow scheduler had stopped silently (no error in its log). The container was restarted; <code>airflow_run_dag.ps1</code> now stops with exit code 3 when the scheduler is not healthy. Root cause unknown.</td></tr>
+<tr><td>The "demo orders stored" table lagged behind the trace</td><td>It was cached for 30 s; it is now read live.</td></tr>
+</table>
+
+<h2>19.6 Honest limits</h2>
+<ul>
+<li>These are <b>demo orders</b>: no login, cart or payment; item count and totals only (the schema has no product lines).</li>
+<li>They share <code>core.orders</code> with the historical data; only the KPI views exclude them.</li>
+<li>The dashboard does not start Spark; it reports honestly whether the order has been processed. Latency of 5 to 10 s is mostly Spark's trigger and batch start-up.</li>
+</ul>
+<p><b>Viva answer:</b> "A user places a marked demo order in Streamlit. It is validated with the real rules, enriched by the real API and published to the same Kafka topic. The unchanged Spark job writes it to Parquet and PostgreSQL, and the trace page re-reads each layer for that one order id, so a stage is ticked only when the order is really there. Airflow's availableNow Spark task processes waiting demo orders too."</p>

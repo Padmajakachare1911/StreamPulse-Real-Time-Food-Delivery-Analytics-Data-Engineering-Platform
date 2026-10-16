@@ -105,3 +105,21 @@ def test_numeric_view_columns_are_floats_not_decimals(dash_db):
     delivery = queries.delivery_time_by_month()
     assert not delivery.empty and delivery["avg_delivery_days"].dtype == float
     assert queries.revenue_summary()["revenue_brl"].dtype == float
+
+
+# ---- user-submitted demo orders (kept last: they add rows to the shared throwaway database) ----------------------
+def test_demo_orders_are_listed_separately_and_excluded_from_historical_kpis(dash_db):
+    before = int(queries.revenue_summary().iloc[0]["orders"])
+    revenue_before = float(queries.revenue_summary().iloc[0]["revenue_brl"])
+    demo = order("u-demo", "demo-abc", status="approved", delivered=None, value=500.0)
+    demo.update(source_category="user_demo", ingest_run_id="demo-order-x", customer_id="demo-customer-1")
+    insert([demo])
+    assert int(queries.revenue_summary().iloc[0]["orders"]) == before                 # historical KPIs unchanged
+    assert float(queries.revenue_summary().iloc[0]["revenue_brl"]) == pytest.approx(revenue_before)   # the 500 BRL demo order is not counted
+    assert int(queries.overview().iloc[0]["orders"]) == before + 1                      # pipeline accounting still sees every row
+    assert list(queries.recent_demo_orders()["order_id"]) == ["demo-abc"]
+    assert int(queries.demo_order_count().iloc[0]["demo_orders"]) == 1
+    recent = queries.recent_orders(50).set_index("order_id")["source"]
+    assert recent["demo-abc"] == "user_demo" and recent["o1"] == "kafka_replayed"
+    states = queries.status_distribution().set_index("order_status")["orders"]
+    assert "approved" not in states.index                                              # the demo order's status is not counted

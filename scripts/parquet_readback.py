@@ -3,6 +3,7 @@
 Reads with pyarrow, so it works on the Windows host without Spark.
   python scripts/parquet_readback.py
   python scripts/parquet_readback.py --sample 5
+  python scripts/parquet_readback.py --order-id demo-0123abc...     # every Parquet row of one order, with its batch_id
 """
 import argparse
 import sys
@@ -19,6 +20,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dir", default=str(PARQUET_OUTPUT_DIR))
     parser.add_argument("--sample", type=int, default=3, help="number of sample rows to print")
+    parser.add_argument("--order-id", default=None, help="print only the Parquet rows of this order")
     args = parser.parse_args()
 
     root = Path(args.dir)
@@ -28,6 +30,15 @@ def main() -> int:
         return 1
 
     dataset = ds.dataset(str(root), format="parquet", partitioning="hive")
+    if args.order_id:
+        found = dataset.to_table(filter=ds.field("order_id") == args.order_id).to_pandas()
+        cols = ["batch_id", "record_uid", "order_id", "source_category", "order_status", "customer_state", "payments_value_total",
+                "payments_value_usd", "kafka_partition", "kafka_offset", "ingest_run_id"]
+        print(f"Parquet rows for order {args.order_id}: {len(found)}")
+        if found.empty:
+            return 1
+        print(found[cols].to_string(index=False))
+        return 0
     table = dataset.to_table()
     frame = table.to_pandas()
 

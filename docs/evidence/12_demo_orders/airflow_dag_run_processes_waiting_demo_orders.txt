@@ -1,0 +1,90 @@
+Task ID: DEMO-11
+Date/time (UTC): 2026-10-16T02:58:29Z
+Command: .\scripts\airflow_run_dag.ps1 -Dag streampulse_batch -Conf '{"limit": 1}'  (2 demo orders were waiting in Kafka, Spark stopped)
+Working directory: repository root
+Git commit: b38a0bd (working tree contained the uncommitted demo-order extension)
+Note: output captured live from the terminal and saved unchanged
+--- output ---
+No paused DAGs were found
+[2026-10-16T02:39:57.810+0000] {__init__.py:43} INFO - Loaded API auth backend: airflow.api.auth.backend.session
+             |                   |                    | data_interval_star |                    |          |                  | last_scheduling_de |                    |          |            |       
+conf         | dag_id            | dag_run_id         | t                  | data_interval_end  | end_date | external_trigger | cision             | logical_date       | run_type | start_date | state 
+=============+===================+====================+====================+====================+==========+==================+====================+====================+==========+============+=======
+{'limit': 1} | streampulse_batch | manual__20261016T0 | 2026-10-16         | 2026-10-16         | None     | True             | None               | 2026-10-16         | manual   | None       | queued
+             |                   | 23952              | 02:39:58+00:00     | 02:39:58+00:00     |          |                  |                    | 02:39:58+00:00     |          |            |       
+                                                                                                                                                                                                        
+Triggered streampulse_batch run_id=manual__20261016T023952 conf={"limit": 1}
+08:10:11  run state: queued
+08:10:23  run state: queued
+08:10:36  run state: queued
+08:10:48  run state: queued
+08:11:00  run state: queued
+08:11:12  run state: queued
+08:11:24  run state: queued
+08:11:36  run state: queued
+08:11:48  run state: queued
+08:12:01  run state: queued
+08:12:13  run state: queued
+08:12:25  run state: queued
+08:12:37  run state: queued
+08:12:49  run state: queued
+08:13:01  run state: queued
+08:13:14  run state: queued
+08:13:26  run state: queued
+08:13:38  run state: queued
+08:13:50  run state: queued
+08:14:02  run state: queued
+08:14:14  run state: queued
+08:14:26  run state: queued
+08:14:38  run state: queued
+08:14:51  run state: queued
+08:15:03  run state: queued
+08:15:15  run state: queued
+08:15:28  run state: queued
+08:15:40  run state: queued
+08:15:52  run state: queued
+08:16:04  run state: queued
+08:16:16  run state: queued
+08:16:28  run state: queued
+08:16:40  run state: queued
+08:16:52  run state: queued
+08:17:04  run state: queued
+08:17:16  run state: queued
+08:17:29  run state: queued
+08:17:41  run state: queued
+08:17:53  run state: queued
+08:18:05  run state: queued
+08:18:17  run state: queued
+08:18:29  run state: queued
+08:18:41  run state: queued
+08:18:53  run state: queued
+08:19:05  run state: queued
+08:19:18  run state: queued
+08:19:30  run state: queued
+08:19:42  run state: queued
+08:19:54  run state: queued
+08:20:07  run state: queued
+08:20:19  run state: queued
+08:20:35  run state: queued
+08:20:48  run state: running
+08:21:01  run state: running
+08:21:14  run state: running
+08:21:33  run state: running
+08:21:46  run state: running
+08:21:59  run state: running
+08:22:11  run state: success
+
+--- task states ---
+dag_id            | execution_date            | task_id                    | state   | start_date                       | end_date                        
+==================+===========================+============================+=========+==================================+=================================
+streampulse_batch | 2026-10-16T02:39:58+00:00 | reconcile_counts           | success | 2026-10-16T02:51:53.018638+00:00 | 2026-10-16T02:52:05.338021+00:00
+streampulse_batch | 2026-10-16T02:39:58+00:00 | refresh_analytics          | success | 2026-10-16T02:52:06.373181+00:00 | 2026-10-16T02:52:06.809878+00:00
+streampulse_batch | 2026-10-16T02:39:58+00:00 | check_dataset_present      | success | 2026-10-16T02:50:45.201326+00:00 | 2026-10-16T02:50:48.510285+00:00
+streampulse_batch | 2026-10-16T02:39:58+00:00 | run_spark_available_now    | success | 2026-10-16T02:50:59.521274+00:00 | 2026-10-16T02:51:45.443171+00:00
+streampulse_batch | 2026-10-16T02:39:58+00:00 | api_health_check           | success | 2026-10-16T02:50:49.077816+00:00 | 2026-10-16T02:50:50.302158+00:00
+streampulse_batch | 2026-10-16T02:39:58+00:00 | validate_dataset_profile   | success | 2026-10-16T02:50:49.078283+00:00 | 2026-10-16T02:50:51.338533+00:00
+streampulse_batch | 2026-10-16T02:39:58+00:00 | ingest_batch_to_kafka      | success | 2026-10-16T02:50:52.418301+00:00 | 2026-10-16T02:50:59.148426+00:00
+streampulse_batch | 2026-10-16T02:39:58+00:00 | run_quality_checks_sql     | success | 2026-10-16T02:51:47.646442+00:00 | 2026-10-16T02:51:48.605951+00:00
+streampulse_batch | 2026-10-16T02:39:58+00:00 | load_runs_dead_letters_api | success | 2026-10-16T02:51:49.724863+00:00 | 2026-10-16T02:51:52.592969+00:00
+                                                                                                                                                          
+FINAL STATE: success   (dag=streampulse_batch run_id=manual__20261016T023952)

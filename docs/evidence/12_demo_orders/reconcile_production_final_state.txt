@@ -1,0 +1,72 @@
+﻿Task ID: DEMO-13
+Date/time (UTC): 2026-10-16T03:09:09.7356023Z
+Date/time (local): 2026-10-16T08:39:09.7436078+05:30
+Command: .\.venv\Scripts\python.exe scripts\reconcile.py
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: b38a0bd
+--- output ---
+Topic: ecommerce_orders   Database: streampulse   Runs: limited-100, full-run-01, reingest-200, airflow-20261015T180550, airflow-20261015T181427, demo1, airflow-20261016T023958
+
+== RUN LEVEL (each run vs the source slice it covered; runs may overlap) ==
+Stage                                          Expected     Actual  Difference  Explanation
+-----------------------------------------------------------------------------------------------------------------------------
+[limited-100] rows read                             100        100          +0  [OK] slice 0..99 (count taken from the run summary)
+[limited-100] valid                                  99         99          +0  [OK] re-derived from that slice with the same rules
+[limited-100] rejected                                1          1          +0  [OK] read - valid
+[limited-100] published = valid                      99         99          +0  [OK] failed publishes: 0
+[limited-100] dead-letter lines = rejected            1          1          +0  [OK] every rejected row is stored with its reason
+[full-run-01] rows read                          99,441     99,441          +0  [OK] whole orders file
+[full-run-01] valid                              99,427     99,427          +0  [OK] re-derived from that slice with the same rules
+[full-run-01] rejected                               14         14          +0  [OK] read - valid
+[full-run-01] published = valid                  99,427     99,427          +0  [OK] failed publishes: 0
+[full-run-01] dead-letter lines = rejected           14         14          +0  [OK] every rejected row is stored with its reason
+[reingest-200] rows read                            200        200          +0  [OK] slice 0..199 (count taken from the run summary)
+[reingest-200] valid                                199        199          +0  [OK] re-derived from that slice with the same rules
+[reingest-200] rejected                               1          1          +0  [OK] read - valid
+[reingest-200] published = valid                    199        199          +0  [OK] failed publishes: 0
+[reingest-200] dead-letter lines = rejected           1          1          +0  [OK] every rejected row is stored with its reason
+[airflow-20261015T180550] rows read                 300        300          +0  [OK] slice 0..299 (count taken from the run summary)
+[airflow-20261015T180550] valid                     295        295          +0  [OK] re-derived from that slice with the same rules
+[airflow-20261015T180550] rejected                    5          5          +0  [OK] read - valid
+[airflow-20261015T180550] published = valid         295        295          +0  [OK] failed publishes: 0
+[airflow-20261015T180550] dead-letter lines = rejected          5          5          +0  [OK] every rejected row is stored with its reason
+[airflow-20261015T181427] rows read                 300        300          +0  [OK] slice 0..299 (count taken from the run summary)
+[airflow-20261015T181427] valid                     295        295          +0  [OK] re-derived from that slice with the same rules
+[airflow-20261015T181427] rejected                    5          5          +0  [OK] read - valid
+[airflow-20261015T181427] published = valid         295        295          +0  [OK] failed publishes: 0
+[airflow-20261015T181427] dead-letter lines = rejected          5          5          +0  [OK] every rejected row is stored with its reason
+[demo1] rows read                                   200        200          +0  [OK] slice 0..199 (count taken from the run summary)
+[demo1] valid                                       199        199          +0  [OK] re-derived from that slice with the same rules
+[demo1] rejected                                      1          1          +0  [OK] read - valid
+[demo1] published = valid                           199        199          +0  [OK] failed publishes: 0
+[demo1] dead-letter lines = rejected                  1          1          +0  [OK] every rejected row is stored with its reason
+[airflow-20261016T023958] rows read                   1          1          +0  [OK] slice 0..0 (count taken from the run summary)
+[airflow-20261016T023958] valid                       1          1          +0  [OK] re-derived from that slice with the same rules
+[airflow-20261016T023958] rejected                    0          0          +0  [OK] read - valid
+[airflow-20261016T023958] published = valid           1          1          +0  [OK] failed publishes: 0
+[airflow-20261016T023958] dead-letter lines = rejected          0          0          +0  [OK] every rejected row is stored with its reason
+
+== SOURCE LEVEL (unique records over the union of covered rows) ==
+Stage                                          Expected     Actual  Difference  Explanation
+-----------------------------------------------------------------------------------------------------------------------------
+unique source rows covered                       99,441     99,441          +0  [OK] union of run slices; the runs read 100,542 rows in total, so 1,101 rows were replayed more than once
+unique rejected records (distinct record_uid in DLQ)         14         14          +0  [OK] 27 dead-letter LINES exist because overlapping runs rejected the same record again; unique records are counted by record_uid
+
+== PIPELINE STAGES (Kafka -> Spark -> Parquet -> PostgreSQL) ==
+Stage                                          Expected     Actual  Difference  Explanation
+-----------------------------------------------------------------------------------------------------------------------------
+4 messages in Kafka topic                       100,515    100,720        +205  [EXPLAINED] sum of run publishes; 1,088 of them are repeats of an already published record_uid; +6 user-submitted demo message(s); +199 message(s) of run id 'demo1', executed again after its summary was written (Parquet holds more rows with this run id than the summary published)
+5 consumed by Spark                             100,720    100,720          +0  [OK] sum of input_rows over 19 micro-batches
+5b malformed/invalid in Spark                         0          0          +0  [OK] stage=stream dead letters
+6 rows in Parquet (landing layer)               100,326    100,326          +0  [OK] consumed - invalid - in-batch duplicates (394); repeats from later batches are kept here
+6b distinct record_uid in Parquet                99,427     99,432          +5  [EXPLAINED] = unique valid source records; +5 distinct user-submitted demo record(s)
+7 rows in PostgreSQL core.orders                 99,432     99,432          +0  [OK] distinct record_uid in Parquet minus discarded source duplicates
+7b retry duplicates ignored by PostgreSQL           894        894          +0  [OK] Parquet rows - distinct record_uid = repeats that reached a later batch
+8 distinct order_id in PostgreSQL                99,427     99,432          +5  [EXPLAINED] unique valid order_ids computed from the source; +5 user-submitted demo order(s)
+8c demo orders in PostgreSQL (user_demo)              5          5          +0  [OK] distinct order_ids in the demo submission log vs rows with source_category = 'user_demo'
+8b rows = distinct business_hash                 99,432     99,432          +0  [OK] one row per natural key
+
+-----------------------------------------------------------------------------------------------------------------------------
+RESULT: all differences are zero or explained
+
+--- exit code: 0 ---

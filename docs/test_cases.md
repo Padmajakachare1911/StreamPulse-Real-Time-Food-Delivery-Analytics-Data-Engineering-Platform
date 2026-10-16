@@ -58,3 +58,14 @@ Automated suites are in `tests/` (markers: `unit`, `integration`, `e2e`, `spark`
 | MD-2 | Demo 2 real API | HTTP 2xx live, row stored with provenance, no secrets visible | PENDING_HUMAN |
 | MD-3 | Demo 3 data quality | rejection with reason; unique count stable after re-run | PENDING_HUMAN |
 | MD-4 | Demo 4 recovery + Airflow | restart resumes from the stored offset without duplicates; DAG success; clean reconciliation | PENDING_HUMAN |
+
+## E. Demo-order extension (2026-10-16; `docs/evidence/10_automated_tests/demo_ext_*.txt`)
+| Suite | Result | What is new |
+|---|---|---|
+| Unit | **102 passed, 1 skipped** (was 73) | `test_demo_order.py` (25): marking, identity, validation (9 bad inputs), enrichment and previous-business-day, historical rules unchanged, publish and resend with a fake producer, trace decisions (complete, waiting, unavailable, not found, resend), reconcile accounting; `test_run_id_reuse.py` (4) |
+| Integration | **19 passed** (was 18) | demo orders listed separately and excluded from the historical KPI views, `source` column |
+| Spark in Docker | **5 passed** | unchanged |
+| Airflow DAG in container | **8 passed** | unchanged |
+| End-to-end | **5 passed** (was 4, 5.3 min) | `test_user_submitted_demo_orders_flow_...`: real Kafka + Spark + Parquet + PostgreSQL + API, 19 checks |
+
+Live functional test (not a pytest): `docs/live_demo_order_guide.md` with evidence in `docs/evidence/12_demo_orders/`.

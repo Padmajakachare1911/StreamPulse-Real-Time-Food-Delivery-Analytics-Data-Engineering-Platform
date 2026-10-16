@@ -7,6 +7,7 @@ When a source is unavailable the page says so; nothing is shown as healthy unles
 """
 import json
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -17,6 +18,7 @@ import streamlit as st  # noqa: E402
 
 from src.common.config import EVIDENCE_DIR, KAFKA_TOPIC  # noqa: E402
 from src.dashboard import queries, status  # noqa: E402
+from src.demo import demo_order, order_trace  # noqa: E402
 
 st.set_page_config(page_title="StreamPulse", page_icon="📦", layout="wide")
 
@@ -72,6 +74,67 @@ def page_overview() -> None:
     if st.button("Run a live check of the exchange-rate API (1 request)"):
         result = status.check_api_now()
         st.write(f"{ICON[result.state]} **{result.name}**: {result.detail}")
+
+
+def page_demo_order() -> None:
+    st.header("Place a demo order and trace it")
+    st.warning("**Demo orders are new, user-submitted test orders.** They are marked `source_category = user_demo` and an "
+               "`order_id` starting with `demo-`, and they are kept out of the historical Olist KPIs. "
+               "Historical Olist records are replayed from the dataset and are never created here.")
+    st.caption("Path: this form -> Kafka topic -> Spark Structured Streaming (Docker) -> Parquet + PostgreSQL. "
+               "Start the stream first with `.\\scripts\\run_stream.ps1` (or run the Airflow DAG, which processes what is waiting).")
+    with st.form("demo_order_form"):
+        left, right = st.columns(2)
+        state = left.selectbox("Customer state", demo_order.BRAZIL_STATES, index=demo_order.BRAZIL_STATES.index("SP"))
+        city = left.text_input("Customer city", "sao paulo")
+        zip_prefix = left.text_input("Zip code prefix (5 digits)", "01310")
+        payment = left.selectbox("Payment type", demo_order.PAYMENT_TYPES)
+        items = right.number_input("Number of items", min_value=1, max_value=20, value=2, step=1)
+        price = right.number_input("Items price total (BRL)", min_value=0.01, max_value=100000.0, value=150.0, step=10.0)
+        freight = right.number_input("Freight total (BRL)", min_value=0.0, max_value=10000.0, value=20.0, step=5.0)
+        order_status = right.selectbox("Order status", demo_order.DEMO_STATUSES)
+        submitted = st.form_submit_button("Place demo order")
+    if submitted:
+        try:
+            record = demo_order.submit_demo_order(demo_order.DemoOrderInput(
+                customer_state=state, customer_city=city, customer_zip_code_prefix=zip_prefix, items_count=int(items),
+                items_price_total=float(price), items_freight_total=float(freight), payment_type=payment, order_status=order_status))
+            st.session_state["demo_order_id"] = record["order_id"]
+            st.success(f"Published to Kafka: partition {record['partition']}, offset {record['offset']}. Order id: {record['order_id']}")
+        except demo_order.DemoOrderError as exc:
+            st.error(f"The order was not published: {exc}")
+
+    st.subheader("Trace an order")
+    order_id = st.text_input("Order id to trace", st.session_state.get("demo_order_id", ""))
+    auto = st.checkbox("Refresh automatically every 3 seconds until the order is stored", value=True)
+    st.button("Refresh now")
+    if order_id.strip():
+        result = order_trace.trace_order(order_id.strip())
+        marks = {"done": "✅", "waiting": "⏳", "unavailable": "⚠️"}
+        for stage in result["stages"]:
+            st.write(f"{marks[stage.state]} **{stage.name}**: {stage.detail}")
+        if result["state"] == "complete":
+            seconds = result["latency_seconds"]
+            st.success("Complete: the same order was found in Kafka, Spark/Parquet and PostgreSQL." +
+                       (f" Submit to PostgreSQL took {seconds} s." if seconds is not None else ""))
+        with st.expander("Technical details of each stage"):
+            st.json({stage.name: stage.facts for stage in result["stages"]}, expanded=False)
+        if st.button("Send the identical message again (duplicate test)"):
+            try:
+                again = demo_order.resend_demo_order(order_id.strip())
+                st.info(f"Sent again to partition {again['partition']}, offset {again['offset']}. Spark counts it as a retry duplicate; "
+                        "PostgreSQL keeps one row for this order.")
+            except demo_order.DemoOrderError as exc:
+                st.error(str(exc))
+        if auto and result["state"] == "in_progress":
+            time.sleep(3)
+            st.rerun()
+
+    st.subheader("Demo orders stored in PostgreSQL")
+    try:                                    # not cached: this table must follow the live trace above
+        show_table(queries.recent_demo_orders(10), "No demo order has reached PostgreSQL yet.")
+    except queries.QueryError as exc:
+        st.error(f"Unavailable: {exc}")
 
 
 def page_dataset() -> None:
@@ -137,6 +200,9 @@ def page_pipeline() -> None:
         st.write(f"- Parquet distinct minus PostgreSQL = **{gap:,}**; discarded source duplicates logged = **{discarded:,}** ({verdict})")
         if pg_rows != pg_distinct:
             st.error("PostgreSQL has repeated record_uid values: investigate.")
+    demo_count = load("demo_order_count")
+    if demo_count is not None and not demo_count.empty and int(demo_count.iloc[0]["demo_orders"]) > 0:
+        st.write(f"- Of the PostgreSQL orders, **{int(demo_count.iloc[0]['demo_orders']):,}** are user-submitted demo orders (the rest are historical Olist orders).")
     st.caption("Full stage-by-stage reconciliation with expected values computed from the source: `python scripts/reconcile.py`")
 
 
@@ -224,7 +290,7 @@ def page_api() -> None:
 
 def page_records() -> None:
     st.header("Most recently processed orders")
-    st.caption("Business columns only. Customer identifiers are not displayed.")
+    st.caption("Business columns only. Customer identifiers are not displayed. source = kafka_replayed (historical Olist) or user_demo (placed from the dashboard).")
     limit = st.slider("Rows", 5, 100, 20)
     recent = load("recent_orders", limit)
     if recent is not None:
@@ -237,7 +303,7 @@ def page_records() -> None:
         st.write(f"Last ingestion run started: **{str(runs['started_at'].max())[:19]}**")
 
 
-PAGES = {"Overview and status": page_overview, "Dataset and provenance": page_dataset, "Ingestion and reconciliation": page_pipeline,
+PAGES = {"Overview and status": page_overview, "Place a demo order": page_demo_order, "Dataset and provenance": page_dataset, "Ingestion and reconciliation": page_pipeline,
          "Data quality": page_quality, "Business KPIs": page_kpis, "External API": page_api, "Recent records": page_records}
 
 choice = st.sidebar.radio("Page", list(PAGES))

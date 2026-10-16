@@ -12,11 +12,12 @@ SCHEMA_FILE = PROJECT_ROOT / "sql" / "schema.sql"
 ANALYTICS_FILE = PROJECT_ROOT / "sql" / "analytics.sql"
 
 
-def get_connection(connect_timeout: int = 5):
-    """Open a new connection. Raises a clear error when the password is not configured."""
+def get_connection(connect_timeout: int = 5, dbname: str | None = None):
+    """Open a new connection (to POSTGRES_DB unless `dbname` is given, e.g. an isolated test database).
+    Raises a clear error when the password is not configured."""
     if not POSTGRES_PASSWORD:
         raise RuntimeError("POSTGRES_PASSWORD is not set. Copy .env.example to .env and set it.")
-    return psycopg2.connect(host=POSTGRES_HOST, port=POSTGRES_PORT, dbname=POSTGRES_DB, user=POSTGRES_USER,
+    return psycopg2.connect(host=POSTGRES_HOST, port=POSTGRES_PORT, dbname=dbname or POSTGRES_DB, user=POSTGRES_USER,
                             password=POSTGRES_PASSWORD, connect_timeout=connect_timeout)
 
 

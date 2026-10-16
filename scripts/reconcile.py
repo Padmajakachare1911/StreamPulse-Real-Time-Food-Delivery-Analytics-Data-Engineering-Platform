@@ -33,6 +33,7 @@ from src.common.config import (DATASET_DIR, DEAD_LETTER_DIR, FIELD_MAPPING_FILE,
                                POSTGRES_PASSWORD, POSTGRES_PORT, POSTGRES_USER, PROJECT_ROOT, QUALITY_RULES_FILE)
 from src.common.mapping import load_mapping  # noqa: E402
 from src.common.orders_source import ORDERS_FILE, build_order_rows  # noqa: E402
+from src.demo.submissions import demo_message_counts  # noqa: E402
 from src.processing.classify import classify_record  # noqa: E402
 from src.processing.validators import load_rules  # noqa: E402
 
@@ -147,9 +148,26 @@ def postgres_counts(database) -> dict | None:
         rows, uids, orders, hashes = cur.fetchone()
         cur.execute("SELECT count(*) FROM core.duplicate_records WHERE duplicate_type = 'source_duplicate'")
         source_dups = cur.fetchone()[0]
+        cur.execute("SELECT count(DISTINCT order_id) FROM core.orders WHERE source_category = 'user_demo'")
+        demo_orders = cur.fetchone()[0]
     conn.close()
     return {"rows": rows, "distinct_record_uid": uids, "distinct_order_id": orders, "distinct_business_hash": hashes,
-            "source_duplicates_logged": source_dups}
+            "source_duplicates_logged": source_dups, "demo_orders": demo_orders}
+
+
+def run_id_reuse_excess(runs: list[dict], parquet_dir: Path) -> dict[str, int]:
+    """{run_id: n} when MORE rows carry a run id in Parquet than that run's summary says it published.
+    That happens only when the same run id was executed twice and the second execution overwrote the first summary
+    (the producer now prevents this). Rows removed as in-batch duplicates make the count smaller, never larger,
+    so a positive value is real evidence of unaccounted messages, not a guess."""
+    if not list(parquet_dir.rglob("*.parquet")):
+        return {}
+    ids = ds.dataset(str(parquet_dir), format="parquet", partitioning="hive").to_table(columns=["ingest_run_id"]).column("ingest_run_id").to_pylist()
+    counts: dict[str, int] = {}
+    for value in ids:
+        counts[value] = counts.get(value, 0) + 1
+    return {r["ingest_run_id"]: counts[r["ingest_run_id"]] - r["rows_published"] for r in runs
+            if counts.get(r["ingest_run_id"], 0) > r["rows_published"]}
 
 
 def dead_letter_records(runs: list[dict], dlq_dir: Path) -> list[dict]:
@@ -162,7 +180,7 @@ def dead_letter_records(runs: list[dict], dlq_dir: Path) -> list[dict]:
 
 
 # ------------------------------------------------------------------ build the report
-def build_sections(runs, stream, topic, parquet_dir, database, dlq_dir) -> list[tuple[str, list[dict]]]:
+def build_sections(runs, stream, topic, parquet_dir, database, dlq_dir, demo_log=None) -> list[tuple[str, list[dict]]]:
     source = classify_source()
     accepted, order_ids = source["accepted"], source["order_ids"]
     sections = []
@@ -203,12 +221,21 @@ def build_sections(runs, stream, topic, parquet_dir, database, dlq_dir) -> list[
 
     # ---- pipeline stages
     pipe = []
+    # User-submitted demo orders (dashboard form) travel through the same pipeline but are NOT part of the Olist source:
+    # they are listed as explained differences, taken from their own submission log, never folded into the expected values.
+    demo = demo_message_counts(topic, demo_log) if demo_log else demo_message_counts(topic)
+    reused = run_id_reuse_excess(runs, parquet_dir)
     topic_total = kafka_topic_messages(topic)
     published_sum = sum(r["rows_published"] for r in runs)
     repeats = sum_valid - unique_valid
     if topic_total is not None:
         pipe.append({"stage": "4 messages in Kafka topic", "expected": published_sum, "actual": topic_total,
-                     "note": f"sum of run publishes; {repeats:,} of them are repeats of an already published record_uid"})
+                     "explained": {**({"demo order messages (incl. resends)": demo["messages"]} if demo["messages"] else {}),
+                                   **{f"run id {k} executed more than once": v for k, v in reused.items()}},
+                     "note": f"sum of run publishes; {repeats:,} of them are repeats of an already published record_uid"
+                             + (f"; +{demo['messages']} user-submitted demo message(s)" if demo["messages"] else "")
+                             + "".join(f"; +{v} message(s) of run id '{k}', executed again after its summary was written (Parquet holds more rows "
+                                       f"with this run id than the summary published)" for k, v in reused.items())})
     batches = spark_batch_totals(stream)
     parquet = parquet_counts(parquet_dir)
     if batches:
@@ -218,7 +245,9 @@ def build_sections(runs, stream, topic, parquet_dir, database, dlq_dir) -> list[
     if batches and parquet:
         pipe.append({"stage": "6 rows in Parquet (landing layer)", "expected": batches["input_rows"] - batches["invalid_rows"] - batches["in_batch_duplicates"],
                      "actual": parquet[0], "note": f"consumed - invalid - in-batch duplicates ({batches['in_batch_duplicates']}); repeats from later batches are kept here"})
-        pipe.append({"stage": "6b distinct record_uid in Parquet", "expected": unique_valid, "actual": parquet[1], "note": "= unique valid source records"})
+        pipe.append({"stage": "6b distinct record_uid in Parquet", "expected": unique_valid, "actual": parquet[1],
+                     "explained": {"distinct demo record_uids": demo["record_uids"]} if demo["record_uids"] else {},
+                     "note": "= unique valid source records" + (f"; +{demo['record_uids']} distinct user-submitted demo record(s)" if demo["record_uids"] else "")})
         pg = postgres_counts(database)
         if pg:
             pipe.append({"stage": "7 rows in PostgreSQL core.orders", "expected": parquet[1], "actual": pg["rows"],
@@ -227,7 +256,11 @@ def build_sections(runs, stream, topic, parquet_dir, database, dlq_dir) -> list[
             pipe.append({"stage": "7b retry duplicates ignored by PostgreSQL", "expected": parquet[0] - parquet[1], "actual": batches.get("pg_retry_duplicates", 0),
                          "note": "Parquet rows - distinct record_uid = repeats that reached a later batch"})
             pipe.append({"stage": "8 distinct order_id in PostgreSQL", "expected": len(valid_order_ids), "actual": pg["distinct_order_id"],
-                         "note": "unique valid order_ids computed from the source"})
+                         "explained": {"demo orders": demo["orders"]} if demo["orders"] else {},
+                         "note": "unique valid order_ids computed from the source" + (f"; +{demo['orders']} user-submitted demo order(s)" if demo["orders"] else "")})
+            if demo["messages"] or pg["demo_orders"]:
+                pipe.append({"stage": "8c demo orders in PostgreSQL (user_demo)", "expected": demo["orders"], "actual": pg["demo_orders"],
+                             "note": "distinct order_ids in the demo submission log vs rows with source_category = 'user_demo'"})
             pipe.append({"stage": "8b rows = distinct business_hash", "expected": pg["rows"], "actual": pg["distinct_business_hash"], "note": "one row per natural key"})
     sections.append(("PIPELINE STAGES (Kafka -> Spark -> Parquet -> PostgreSQL)", pipe))
     return sections
@@ -241,13 +274,14 @@ def main() -> int:
     parser.add_argument("--parquet-dir", default=str(PARQUET_OUTPUT_DIR))
     parser.add_argument("--database", default=POSTGRES_DB)
     parser.add_argument("--dead-letter-dir", default=str(DEAD_LETTER_DIR))
+    parser.add_argument("--demo-log", default=None, help="submission log of user-submitted demo orders (default: the dashboard's log)")
     args = parser.parse_args()
     runs = load_runs(args.runs, args.topic)
     if not runs:
         print("No matching ingestion runs found in", INGESTION_RUNS_DIR)
         return 1
     print(f"Topic: {args.topic}   Database: {args.database}   Runs: {', '.join(r['ingest_run_id'] for r in runs)}")
-    text, ok = render(build_sections(runs, args.stream, args.topic, Path(args.parquet_dir), args.database, Path(args.dead_letter_dir)))
+    text, ok = render(build_sections(runs, args.stream, args.topic, Path(args.parquet_dir), args.database, Path(args.dead_letter_dir), Path(args.demo_log) if args.demo_log else None))
     print(text)
     return 0 if ok else 1
 

@@ -1,4 +1,4 @@
-<h1>19. The four demonstrations</h1>
+<h1>20. The four demonstrations</h1>
 <p>The professor expects you to perform four short demos live. They were <b>prepared and dry-run by the assistant</b> (real outputs in <code>docs/evidence/11_manual_demos/dry_runs/</code>), but the live run and its screenshots are <span class="tag">PENDING_HUMAN</span>: you must do them. Exact commands: <code>docs/demo_cheatsheet.md</code> and <code>docs/manual_demo_guide.md</code>. Demos 3 and 4 use an isolated demo database and checkpoint (<code>scripts\demo_setup.ps1</code>), so the production data is not touched.</p>
 <table>
 <tr><th style="width:20%">Demo</th><th style="width:36%">What you do</th><th>What you should see and say</th></tr>
@@ -10,7 +10,7 @@
 <div class="box warn"><span class="t">Be honest during the demo</span>
 If something fails (for example no internet during Demo 2), show the real failure and explain it. Never edit an output. Fill in the "ACTUAL observed output" fields in the demo READMEs yourself.</div>
 
-<h1>20. Viva questions and answers</h1>
+<h1>21. Viva questions and answers</h1>
 <p>Format: <b>short answer</b> first, then the detail. Numbers are the measured ones.</p>
 <div class="qa"><p class="q">Q1. What does StreamPulse do?</p><p>It replays the real Olist e-commerce orders (99,441 rows) into Kafka, processes them with Spark Structured Streaming into a Parquet landing layer and a deduplicated PostgreSQL warehouse, adds a BRL&#8594;USD value from the Frankfurter (ECB) API, orchestrates finite steps with Airflow and shows the results on a Streamlit dashboard.</p></div>
 <div class="qa"><p class="q">Q2. Is this real-time?</p><p>The <i>processing</i> is stream-style (micro-batches every 5 seconds), but the <i>data</i> is historical, replayed. I call it "historical dataset replay", not live orders.</p></div>
@@ -30,9 +30,10 @@ If something fails (for example no internet during Demo 2), show the real failur
 <div class="qa"><p class="q">Q16. Explain lineage and provenance.</p><p>Every message carries the source file's SHA-256, row number, run id and API retrieval time. The dashboard shows that all 99,427 warehouse rows come from one file fingerprint (<code>8df58ef3...</code>).</p></div>
 <div class="qa"><p class="q">Q17. How do you know the numbers are right?</p><p><code>reconcile.py</code> recomputes expected counts from the source and compares each layer; it exits 1 on an unexplained difference (tested on a deliberate mismatch). Result: all differences zero or explained.</p></div>
 <div class="qa"><p class="q">Q18. What went wrong during the project?</p><p>Chapter 16.7: winutils, missing JDK, malformed JSON mislabelled, numpy float, Airflow permission, three dashboard bugs, a stop race, a path-length issue and the 14-vs-15 count. Each was diagnosed, fixed and kept as evidence.</p></div>
-<div class="qa"><p class="q">Q19. What are the limitations?</p><p>Chapter 18: replay not live, estimated USD, single broker, at-least-once, Parquet repeats, Airflow as root, manual demos pending.</p></div>
+<div class="qa"><p class="q">Q19. What are the limitations?</p><p>Chapter 18 (and 19.6): replay not live, estimated USD, single broker, at-least-once, Parquet repeats, Airflow as root, manual demos pending.</p></div>
 <div class="qa"><p class="q">Q20. How would you scale it?</p><p>More partitions and brokers (replication factor 3), Spark on a cluster, a schema registry, monitoring and alerting, a managed warehouse, Airflow on Kubernetes.</p></div>
-<div class="qa"><p class="q">Q21. What are the key numbers?</p><p>See Appendix B. Memorise: 99,441 read; 99,427 valid; 14 rejected; 3 partitions; 100,514 Kafka messages; 99,427 in PostgreSQL; 8.11 % late; 100 % enriched.</p></div>
+<div class="qa"><p class="q">Q21. Can a user place an order and see it flow through the pipeline?</p><p>Yes (chapter 19). The Streamlit page <b>Place a demo order</b> publishes a marked order (<code>source_category = user_demo</code>, id starting <code>demo-</code>) to the same Kafka topic; the unchanged Spark job writes it to Parquet and PostgreSQL; the trace page re-reads each layer for that order id and ticks a stage only when the order is really there. Airflow's <code>availableNow</code> Spark task processes waiting demo orders. Limits: demo orders only, and the dashboard cannot start Spark.</p></div>
+<div class="qa"><p class="q">Q22. What are the key numbers?</p><p>See Appendix B. Memorise: 99,441 read; 99,427 valid; 14 rejected; 3 partitions; 100,514 Kafka messages; 99,427 in PostgreSQL; 8.11 % late; 100 % enriched.</p></div>
 
 <h1>Appendix A: Glossary</h1>
 <table>
@@ -80,7 +81,7 @@ If something fails (for example no internet during Demo 2), show the real failur
 <tr><td>Average delivery time</td><td>12.56 days</td></tr>
 <tr><td>Enrichment match rate / previous-business-day matches</td><td>100 % / 24,112</td></tr>
 <tr><td>Orders without items / payments</td><td>775 / 1</td></tr>
-<tr><td>Tests</td><td>unit 73, integration 18, Spark 5, Airflow 8, e2e 4 (all passed)</td></tr>
+<tr><td>Tests</td><td>unit 102, integration 19, Spark 5, Airflow 8, e2e 5 (all passed)</td></tr>
 <tr><td>Airflow DAG</td><td>9 tasks, 2 retries, 30 s delay; real run success</td></tr>
 </table>
 
@@ -99,5 +100,6 @@ If something fails (for example no internet during Demo 2), show the real failur
 <tr><td>09_dashboard</td><td>Seven page screenshots and the outage screenshots</td></tr>
 <tr><td>10_automated_tests</td><td>Every test run, passed and failed, plus the final summary</td></tr>
 <tr><td>11_manual_demos</td><td>Dry runs and the four demo READMEs (<code>PENDING_HUMAN</code>)</td></tr>
+<tr><td>12_demo_orders</td><td>The demo-order extension: Streamlit order placed and traced, independent checks, Airflow run, reconciliation, isolated end-to-end run</td></tr>
 </table>
 <p>The master index is <code>docs/evidence_register.md</code>; the final audit is <code>docs/final_report.md</code>.</p>

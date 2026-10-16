@@ -87,6 +87,13 @@ All numbers below were measured in this project (see `docs/evidence_register.md`
 - The graceful stop has a tiny race (safe because of idempotency).
 - Future: a real live source, Avro + Schema Registry, Kubernetes, Prometheus/Grafana, Delta/Iceberg tables.
 
+### 19. Can a user place an order and see it flow through the pipeline?
+**Short:** Yes. The Streamlit page **Place a demo order** publishes a new order to the same Kafka topic with the same producer settings; Spark (unchanged) writes it to Parquet and PostgreSQL; the page then **traces** that one order: submission log, Kafka read-back at the recorded offset, the Parquet row with its `batch_id` and Spark batch summary, and the PostgreSQL row. A stage is ticked only when the order is really found there.
+**Distinguishing:** demo orders have `source_category = user_demo`, an `order_id` starting with `demo-` and a `demo-order-` run id; the historical KPI views exclude them.
+**Airflow:** the DAG's Spark task (`availableNow`) processes waiting demo orders too; in the real run it handled 2 demo orders and 1 historical repeat.
+**Honest limit:** they are demo orders (no cart, login or payment), and the dashboard cannot start Spark.
+Evidence: `docs/live_demo_order_guide.md`, `docs/evidence/12_demo_orders/`.
+
 ### Model answers
 - **"Is this real-time?"** "It is a streaming architecture processing a historical dataset replayed at a controlled rate. The API provides real external reference data. We do not claim live customer orders."
 - **"Is it exactly-once?"** "No. It is at-least-once delivery with idempotent database writes, so repeated records do not create duplicates in the warehouse."

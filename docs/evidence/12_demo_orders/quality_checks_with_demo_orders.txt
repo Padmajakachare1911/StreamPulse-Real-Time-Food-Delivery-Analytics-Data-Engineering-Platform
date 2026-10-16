@@ -1,0 +1,18 @@
+﻿Task ID: DEMO-08
+Date/time (UTC): 2026-10-16T02:58:20.7578579Z
+Date/time (local): 2026-10-16T08:28:20.7578579+05:30
+Command: .\.venv\Scripts\python.exe scripts\run_quality_checks.py
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: b38a0bd
+--- output ---
+core.orders rows=99,431 distinct record_uid=99,431
+OK      duplicate order_id: 0
+OK      duplicate record_uid: 0
+OK      delivered without delivery date: 0
+OK      delivery date but status not delivered: 0
+OK      delivered before purchase: 0
+OK      negative amounts: 0
+OK      status outside the allowed set: 0
+RESULT: all quality checks passed
+
+--- exit code: 0 ---

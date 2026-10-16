@@ -1,0 +1,53 @@
+Task ID: DEMO-09
+Date/time (UTC): 2026-10-16T02:58:29Z
+Command: python scripts/demo_order_experiment.py --tag d1
+Working directory: repository root
+Git commit: b38a0bd (working tree contained the uncommitted demo-order extension)
+Note: output captured live from the terminal and saved unchanged
+--- output ---
+DEMO-ORDER END-TO-END EXPERIMENT tag=d1 topic=demoorder_test_d1 database=streampulse_demoorder_d1
+
+Step 1: place two demo orders (real producer settings, real exchange-rate API) while Spark is NOT running
+[PASS] both demo orders are in Kafka (topic end offset 2): end offset=2 offsets=[0, 1]
+[PASS] demo orders are marked: order_id prefix, user_demo, run id prefix: order ids=demo-0d32ee0..., demo-6a178e5...
+[PASS] the exchange-rate API enriched the orders (real API call): api_enriched=[True, True] (False means the API was unreachable)
+[PASS] before Spark runs, the trace says: submitted + Kafka done; Parquet and PostgreSQL waiting (not faked): stage states=['done', 'done', 'waiting', 'waiting']
+
+Step 2: an invalid form input publishes nothing
+[PASS] negative price is refused with a clear reason; Kafka offset and log unchanged: end offset=2
+
+Step 3: mix in real historical Olist orders (replay rows 0..49) in the same topic, then run Spark once
+  published run=demoorder-hist-d1 skip=0 limit=50: read=50 valid=49 rejected=1 published=49 failed=0
+[PASS] Spark consumed demo + historical messages: consumed=51 expected=51
+
+Step 4: the same order is visible at every stage
+[PASS] first demo order: all four stages done: 1 Submitted=done | 2 Kafka=done | 3 Spark and Parquet=done | 4 PostgreSQL=done
+[PASS] second demo order: all four stages done: 1 Submitted=done | 2 Kafka=done | 3 Spark and Parquet=done | 4 PostgreSQL=done
+[PASS] Kafka position == Parquet position == PostgreSQL position for the same order: kafka=0/0 parquet=0/0 postgres=0/0
+[PASS] the Parquet batch_id matches a real Spark BATCH_SUMMARY line: batch_id=0 summary={'batch_id': 0, 'input_rows': 51, 'valid_rows': 51, 'invalid_rows': 0, 'in_batch_duplicates': 0, 'parquet_rows_written': 51, 'postgres': {'attempted': 51, 'inserted': 51, 'retry_duplicates': 0, 'source_duplicates': 0, 'batch_id': 0}, 'offsets': [{'partition': 0, 'first_offset': 0, 'last_offset': 50}], 'seconds': 12.04}
+
+Step 5: demo orders are distinguishable from historical records
+[PASS] PostgreSQL holds 2 user_demo rows and the historical rows as kafka_replayed: source_category counts={'user_demo': 2, 'kafka_replayed': 49}
+[PASS] no historical row carries a demo- id, no demo row lacks it: mismarked rows=0
+[PASS] historical KPI view excludes the demo orders: analytics.revenue_summary.orders=49 (core.orders has 51)
+
+Step 6: send the identical message again (a retry) and run Spark again
+[PASS] the resend is a retry duplicate: nothing inserted: batch postgres result={'attempted': 1, 'inserted': 0, 'retry_duplicates': 1, 'source_duplicates': 0, 'batch_id': 1}; resend offset=51
+[PASS] PostgreSQL still has ONE row for the order and the same total: total, this order=(51, 1)
+[PASS] Parquet (append-only landing layer) now has TWO rows for the order: batch_ids=[0, 1]
+[PASS] Parquet distinct record_uid equals the PostgreSQL row count: parquet rows=52 distinct=51
+
+Step 7: the real reconciliation accounts for the demo messages
+[PASS] reconcile.py exits 0: all differences zero or explained: exit code 0
+[PASS] the demo messages are listed as explained, not hidden: see reconcile_output.txt
+
+4 messages in Kafka topic                            49         52          +3  [EXPLAINED] sum of run publishes; 0 of them are repeats of an already published record_uid; +3 user-submitted demo message(s)
+6b distinct record_uid in Parquet                    49         51          +2  [EXPLAINED] = unique valid source records; +2 distinct user-submitted demo record(s)
+7 rows in PostgreSQL core.orders                     51         51          +0  [OK] distinct record_uid in Parquet minus discarded source duplicates
+8 distinct order_id in PostgreSQL                    49         51          +2  [EXPLAINED] unique valid order_ids computed from the source; +2 user-submitted demo order(s)
+8c demo orders in PostgreSQL (user_demo)              2          2          +0  [OK] distinct order_ids in the demo submission log vs rows with source_category = 'user_demo'
+8b rows = distinct business_hash                     51         51          +0  [OK] one row per natural key
+RESULT: all differences are zero or explained
+
+SUMMARY: 19 passed, 0 failed
+RESULT: EXPERIMENT PASSED

@@ -73,11 +73,11 @@ If you are not sure the parcel arrived, you send it again. The receiver checks t
 <p>The quick tests run in seconds with no services; the slow ones start the real system. Markers (<code>pytest -m ...</code>) choose which to run.</p>
 <table>
 <tr><th style="width:15%">Suite</th><th style="width:30%">Needs / how it runs</th><th style="width:30%">What it covers</th><th>Final result</th></tr>
-<tr><td>unit</td><td>Nothing external</td><td>Mapping, validators, producer ids and hashes, API client retry/cache, reconcile logic, stop classification, dashboard helpers, DAG structure, source checks</td><td><b>73 passed, 1 skipped</b></td></tr>
-<tr><td>integration</td><td>PostgreSQL, Kafka, internet (real API)</td><td>Warehouse upsert and duplicate rules, dashboard queries, stored API results, one real API call</td><td><b>18 passed, 1 skipped</b></td></tr>
+<tr><td>unit</td><td>Nothing external</td><td>Mapping, validators, producer ids and hashes, API client retry/cache, reconcile logic, stop classification, dashboard helpers, DAG structure, source checks</td><td><b>102 passed, 1 skipped</b></td></tr>
+<tr><td>integration</td><td>PostgreSQL, Kafka, internet (real API)</td><td>Warehouse upsert and duplicate rules, dashboard queries, stored API results, one real API call</td><td><b>19 passed, 1 skipped</b></td></tr>
 <tr><td>spark</td><td>Inside the Spark container</td><td>The Spark transforms: parse, validate, flatten, dedup</td><td><b>5 passed</b></td></tr>
 <tr><td>airflow</td><td>Inside the Airflow container</td><td>DAG imports; 9 tasks; retries; no cycles; parameters</td><td><b>8 passed</b></td></tr>
-<tr><td>e2e</td><td>Everything real, isolated checkpoint (3.5 min)</td><td>Full flow, malformed message, recovery after stop, idempotent reload</td><td><b>4 passed, 1 skipped</b></td></tr>
+<tr><td>e2e</td><td>Everything real, isolated checkpoint (5 min)</td><td>Full flow, malformed message, recovery after stop, idempotent reload, user-submitted demo orders</td><td><b>5 passed, 1 skipped</b></td></tr>
 <tr><td>manual</td><td>A human</td><td>The four live demos</td><td><code>PENDING_HUMAN</code></td></tr>
 </table>
 <p>Every run saved a timestamped log under <code>docs/evidence/10_automated_tests/</code>, with the git commit. Failed runs are kept (e.g. <code>pytest_e2e_20261016_FAILED_stop_race.txt</code>). The final summary: <code>final_verification_summary.txt</code>, which also shows: secret scan <code>clean</code>, every cited evidence path exists, production reconciliation <code>all differences are zero or explained</code>.</p>

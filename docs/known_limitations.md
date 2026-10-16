@@ -36,3 +36,13 @@ Written for the final audit. Nothing here is hidden elsewhere; each item says wh
 | 4 | Re-confirm the dataset license on the Kaggle page (CC BY-NC-SA 4.0 was read from a search-result excerpt, not a screenshot) | needs a browser check | `docs/evidence/01_dataset/license_check.txt` |
 | 5 | Ask the professor whether a specific API was expected | none was named | `docs/api_integration.md` |
 | 6 | Place the Kaggle files in `data/raw/` and create `.env` on any new machine | files and passwords are never committed | `docs/setup_guide.md` |
+
+## 5. Added with the demo-order extension (2026-10-16)
+| Item | Status |
+|---|---|
+| Demo orders are new, user-submitted test orders (no login, cart or payment; item count and totals only, no product lines). They share `core.orders` with the Olist data and are excluded only from the historical KPI views | **Accepted by design** (`docs/live_demo_order_guide.md` section 10) |
+| The date rule `purchase_date_in_range` ends in 2018. Demo orders are validated with a demo-only copy of the rules whose window ends today; the historical rules are unchanged (unit test `test_historical_rules_are_unchanged...`) | **Accepted, tested** |
+| The dashboard cannot start Spark; the trace reports "waiting" until the stream or the Airflow DAG has processed the order | **Accepted** (honest status) |
+| **Run-id reuse hid 199 published messages.** `demo1` (Demo 1 command) was executed twice; the second execution overwrote the first run summary, so `reconcile.py` showed +199 unexplained messages (found when the demo order was reconciled). The producer now adds a suffix (`demo1-2`) instead of overwriting, and `reconcile.py` detects and explains run-id reuse from Parquet (`docs/evidence/12_demo_orders/reconcile_production_with_demo_orders.txt`). The lost first summary was not recreated | **Resolved for the future; past execution explained, not erased** |
+| **The Airflow scheduler had stopped silently** (last heartbeat 2026-10-15 18:23 UTC, no error in its log); a DAG run stayed `queued`. Restarted with `docker compose --profile airflow restart airflow`. `airflow_run_dag.ps1` now fails fast (exit code 3) when the scheduler is not healthy. Root cause of the stop is unknown | **Mitigated, cause open** |
+| Stopping the production stream for the Airflow demonstration was done with the project's safe stop and the stream was restarted afterwards | **Done, documented** |

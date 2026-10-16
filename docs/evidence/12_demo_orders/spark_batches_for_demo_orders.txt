@@ -1,0 +1,13 @@
+﻿Task ID: DEMO-06
+Date/time (UTC): 2026-10-16T02:58:06.3811596Z
+Date/time (local): 2026-10-16T08:28:06.3811596+05:30
+Command: Get-Content data\processed\spark_batches\orders.jsonl | Select-Object -Last 4
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: b38a0bd
+--- output ---
+{"batch_id": 14, "input_rows": 1, "valid_rows": 1, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 1, "postgres": {"attempted": 1, "inserted": 1, "retry_duplicates": 0, "source_duplicates": 0, "batch_id": 14}, "offsets": [{"partition": 0, "first_offset": 33591, "last_offset": 33591}], "seconds": 6.56}
+{"batch_id": 15, "input_rows": 1, "valid_rows": 1, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 1, "postgres": {"attempted": 1, "inserted": 1, "retry_duplicates": 0, "source_duplicates": 0, "batch_id": 15}, "offsets": [{"partition": 2, "first_offset": 33364, "last_offset": 33364}], "seconds": 4.68}
+{"batch_id": 16, "input_rows": 1, "valid_rows": 1, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 1, "postgres": {"attempted": 1, "inserted": 0, "retry_duplicates": 1, "source_duplicates": 0, "batch_id": 16}, "offsets": [{"partition": 2, "first_offset": 33365, "last_offset": 33365}], "seconds": 2.45}
+{"batch_id": 17, "input_rows": 3, "valid_rows": 3, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 3, "postgres": {"attempted": 3, "inserted": 2, "retry_duplicates": 1, "source_duplicates": 0, "batch_id": 17}, "offsets": [{"partition": 0, "first_offset": 33592, "last_offset": 33594}], "seconds": 19.66}
+
+--- exit code: 0 ---

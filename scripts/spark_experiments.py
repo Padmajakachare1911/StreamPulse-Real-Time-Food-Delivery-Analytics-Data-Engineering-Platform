@@ -228,7 +228,7 @@ def pg_connect(dbname: str):
 def create_database(dbname: str) -> None:
     # Safety: this function DROPS the database first, so it only accepts the experiments' own naming pattern
     # (never "streampulse", never "airflow", never anything built from an odd --tag).
-    if not re.fullmatch(r"streampulse_(recovery|quality)_[a-z0-9]+", dbname):
+    if not re.fullmatch(r"streampulse_(recovery|quality|demoorder)_[a-z0-9]+", dbname):
         fail_now(f"refusing to (re)create database '{dbname}': name does not match the experiment pattern")
     admin = pg_connect("postgres")
     admin.autocommit = True

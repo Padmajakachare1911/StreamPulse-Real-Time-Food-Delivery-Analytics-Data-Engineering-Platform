@@ -91,10 +91,10 @@
 <tr><td><code>.\scripts\airflow_up.ps1</code></td><td>Start Airflow.</td><td><code>Airflow is healthy</code>; UI at port 8080.</td></tr>
 <tr><td><code>.\scripts\airflow_run_dag.ps1 -Dag streampulse_batch -Conf '{"limit": 300}'</code></td><td>Run the workflow once.</td><td>Task states, then <code>FINAL STATE: success</code> in about 2 minutes.</td></tr>
 <tr><td><code>.\scripts\run_dashboard.ps1</code></td><td>Start Streamlit.</td><td><code>You can now view your Streamlit app</code>; open port 8501.</td></tr>
-<tr><td><code>$py -m pytest -m unit</code></td><td>Fast tests, no services.</td><td><code>73 passed, 1 skipped</code> (the skipped one needs Airflow's Python).</td></tr>
-<tr><td><code>$py -m pytest -m integration</code></td><td>Tests against real PostgreSQL/Kafka/API.</td><td><code>18 passed, 1 skipped</code>.</td></tr>
+<tr><td><code>$py -m pytest -m unit</code></td><td>Fast tests, no services.</td><td><code>102 passed, 1 skipped</code> (the skipped one needs Airflow's Python).</td></tr>
+<tr><td><code>$py -m pytest -m integration</code></td><td>Tests against real PostgreSQL/Kafka/API.</td><td><code>19 passed, 1 skipped</code>.</td></tr>
 <tr><td><code>.\scripts\run_tests_docker.ps1</code> / <code>.\scripts\run_tests_airflow.ps1</code></td><td>Tests that need Spark / Airflow.</td><td><code>5 passed</code> / <code>8 passed</code>.</td></tr>
-<tr><td><code>$py -m pytest -m e2e</code></td><td>Whole pipeline, real services (about 3.5 minutes).</td><td><code>4 passed, 1 skipped</code>.</td></tr>
+<tr><td><code>$py -m pytest -m e2e</code></td><td>Whole pipeline, real services (about 5 minutes).</td><td><code>5 passed, 1 skipped</code>.</td></tr>
 <tr><td><code>$py scripts\secret_scan.py</code></td><td>Make sure no secret is committed.</td><td><code>RESULT: clean</code>.</td></tr>
 </table>
 <div class="box warn"><span class="t">Shutting down safely</span>

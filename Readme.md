@@ -49,6 +49,8 @@ Delivery guarantee: **at-least-once delivery with an idempotent sink** (not exac
    ```
 5. Orchestration and tests: `.\scripts\airflow_up.ps1` (UI at http://localhost:8080), `.\.venv\Scripts\python.exe -m pytest -m unit`.
 
+**Place an order and trace it live:** the dashboard page *Place a demo order* publishes a new, clearly marked demo order (`source_category = user_demo`) to Kafka and traces it through Spark, Parquet and PostgreSQL (`python scripts/trace_order.py <order_id>` does the same from the terminal). Step-by-step: `docs/live_demo_order_guide.md`.
+
 Full instructions, troubleshooting and shutdown: `docs/setup_guide.md`. Demonstration steps: `docs/manual_demo_guide.md` and `docs/demo_cheatsheet.md`.
 
 ## Why Spark runs in Docker

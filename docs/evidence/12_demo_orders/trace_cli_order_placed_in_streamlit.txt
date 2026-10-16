@@ -1,0 +1,18 @@
+﻿Task ID: DEMO-01
+Date/time (UTC): 2026-10-16T02:57:54.4275466Z
+Date/time (local): 2026-10-16T08:27:54.4360982+05:30
+Command: .\.venv\Scripts\python.exe scripts\trace_order.py demo-dd14ee722ecf446ea4c3473fcc189671 --verbose
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: b38a0bd
+--- output ---
+[DONE]    1 Submitted: published to topic 'ecommerce_orders' at partition 2, offset 33364; sent again 1 time(s)
+          {"messages_sent": 2, "record_uid": "f8814c717c07b731ac46c95bad05ef1a", "api_enriched": true}
+[DONE]    2 Kafka: message read back from partition 2, offset 33364 (key demo-dd14ee722..., source_category user_demo)
+          {"partition": 2, "offset": 33364, "key": "demo-dd14ee722ecf446ea4c3473fcc189671", "order_id": "demo-dd14ee722ecf446ea4c3473fcc189671", "record_uid": "f8814c717c07b731ac46c95bad05ef1a", "source_category": "user_demo"}
+[DONE]    3 Spark and Parquet: 2 Parquet row(s), batch_id 15, 16; Spark batch 15 read 1 message(s), wrote 1 row(s) in 4.68 s
+          {"parquet_rows": 2, "batch_ids": ["15", "16"], "spark_batch": {"batch_id": 15, "input_rows": 1, "valid_rows": 1, "invalid_rows": 0, "in_batch_duplicates": 0, "parquet_rows_written": 1, "seconds": 4.68}}
+[DONE]    4 PostgreSQL: stored: status approved, source_category user_demo, 1 row for this order
+          {"order_id": "demo-dd14ee722ecf446ea4c3473fcc189671", "record_uid": "f8814c717c07b731ac46c95bad05ef1a", "order_status": "approved", "source_category": "user_demo", "ingest_run_id": "demo-order-20261016T080732-d34a9b", "purchase_ts": "2026-10-16 08:07:32", "customer_state": "PR", "items_count": 2, "payments_value_total": 269.9, "payments_value_usd": 53.37, "fx_rate_brl_usd": 0.19775, "fx_match_type
+STATE: complete   submit -> PostgreSQL: 6.5 s
+
+--- exit code: 0 ---

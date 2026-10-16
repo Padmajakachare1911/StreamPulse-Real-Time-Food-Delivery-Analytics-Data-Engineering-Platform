@@ -103,6 +103,9 @@ FINAL STATE: failed</pre>
 <div class="box why"><span class="t">Rule: no fake green lights</span>
 A status light is green <b>only if a real check just succeeded</b>. If a service is down it is red; if the check cannot be made it is grey ("unknown"). This was verified by really stopping Kafka and PostgreSQL (section 12.9).</div>
 
+<div class="box why"><span class="t">Update: an eighth page</span>
+The seven pages below were verified first. Later, a page <b>Place a demo order</b> was added so that a user can place an order and trace it through Kafka, Spark, Parquet and PostgreSQL; it is explained in chapter 19. The Recent records page now also shows a <code>source</code> column (<code>kafka_replayed</code> or <code>user_demo</code>).</div>
+
 <h2>12.2 Page 1: Overview and status</h2>
 <figure><div class="crop" style="aspect-ratio: 1500 / 930; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_01_overview_and_status.png" alt="Overview page"></div>
 <figcaption>Figure 12.1: Overview and status (real screenshot).</figcaption></figure>

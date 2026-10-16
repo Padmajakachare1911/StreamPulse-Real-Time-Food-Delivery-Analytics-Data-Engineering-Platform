@@ -4,7 +4,7 @@
 <h2>1. Data flow</h2>
 <pre>Olist CSV (9 files) -> Python producer -> Kafka topic ecommerce_orders (3 partitions)
    -> Spark Structured Streaming (Docker) -> Parquet landing layer + PostgreSQL warehouse
-   -> Streamlit dashboard (7 pages)        Frankfurter/ECB API adds BRL->USD to each order
+   -> Streamlit dashboard (8 pages)        Frankfurter/ECB API adds BRL->USD to each order
    Airflow runs the finite steps (9 tasks, 2 retries); reconcile.py checks every layer</pre>
 
 <h2>2. What each part does</h2>
@@ -21,6 +21,9 @@
 <tr><td>Dashboard</td><td>Overview and status lights, dataset, reconciliation, quality, KPIs, API, recent records. Lights are real checks.</td></tr>
 </table>
 
+<h2>2b. Place an order and trace it</h2>
+<p>The dashboard page <b>Place a demo order</b> publishes a new, marked order (<code>source_category = user_demo</code>, id <code>demo-...</code>) to the same Kafka topic. The unchanged Spark job writes it to Parquet and PostgreSQL, and a trace re-reads each layer for that order id (a stage is ticked only when found). Real run: stored in PostgreSQL in 6.5 s; a resend was a retry duplicate; Airflow's DAG processed orders that waited while Spark was stopped. Historical KPIs are unchanged (99,427 orders).</p>
+
 <h2>3. Reliability ideas</h2>
 <ul>
 <li><b>Dead-letter queue:</b> rejected records kept with a reason code (14 real orders: 8 delivered without a date, 6 canceled with a delivery date).</li>
@@ -34,7 +37,7 @@
 <tr><td style="width:55%">Kafka messages / Parquet rows / distinct / PostgreSQL</td><td>100,514 / 100,120 / 99,427 / 99,427</td></tr>
 <tr><td>Revenue BRL / USD estimate / average order</td><td>16,006,745 / 4,768,687 / 160.99</td></tr>
 <tr><td>Late deliveries / average delivery time</td><td>7,826 of 96,470 (8.11 %) / 12.56 days</td></tr>
-<tr><td>Tests (all passed)</td><td>unit 73, integration 18, Spark 5, Airflow 8, e2e 4</td></tr>
+<tr><td>Tests (all passed)</td><td>unit 102, integration 19, Spark 5, Airflow 8, e2e 5</td></tr>
 </table>
 
 <h2>5. Honest limitations</h2>

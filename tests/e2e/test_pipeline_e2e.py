@@ -61,6 +61,12 @@ def test_stop_mid_backlog_and_restart_recovers_without_duplicates_end_to_end():
     assert "EXPERIMENT PASSED" in result.stdout and "[FAIL]" not in result.stdout
 
 
+def test_user_submitted_demo_orders_flow_through_kafka_spark_parquet_and_postgresql_end_to_end():
+    result = run_script(["scripts/demo_order_experiment.py", "--tag", tag()], timeout=1200)
+    assert result.returncode == 0, result.stdout[-3000:]
+    assert "EXPERIMENT PASSED" in result.stdout and "[FAIL]" not in result.stdout
+
+
 def test_production_reconciliation_has_no_unexplained_differences():
     result = run_script(["scripts/reconcile.py"], timeout=600)
     assert result.returncode == 0, result.stdout[-3000:]

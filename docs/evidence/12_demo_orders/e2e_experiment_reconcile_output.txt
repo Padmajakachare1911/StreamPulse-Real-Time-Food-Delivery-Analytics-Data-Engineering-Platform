@@ -1,0 +1,40 @@
+Task ID: DEMO-10
+Date/time (UTC): 2026-10-16T02:58:29Z
+Command: python scripts/reconcile.py --runs demoorder-hist-d1 --topic demoorder_test_d1 ... --demo-log (written by the experiment)
+Working directory: repository root
+Git commit: b38a0bd (working tree contained the uncommitted demo-order extension)
+Note: output captured live from the terminal and saved unchanged
+--- output ---
+Topic: demoorder_test_d1   Database: streampulse_demoorder_d1   Runs: demoorder-hist-d1
+
+== RUN LEVEL (each run vs the source slice it covered; runs may overlap) ==
+Stage                                          Expected     Actual  Difference  Explanation
+-----------------------------------------------------------------------------------------------------------------------------
+[demoorder-hist-d1] rows read                        50         50          +0  [OK] slice 0..49 (count taken from the run summary)
+[demoorder-hist-d1] valid                            49         49          +0  [OK] re-derived from that slice with the same rules
+[demoorder-hist-d1] rejected                          1          1          +0  [OK] read - valid
+[demoorder-hist-d1] published = valid                49         49          +0  [OK] failed publishes: 0
+[demoorder-hist-d1] dead-letter lines = rejected          1          1          +0  [OK] every rejected row is stored with its reason
+
+== SOURCE LEVEL (unique records over the union of covered rows) ==
+Stage                                          Expected     Actual  Difference  Explanation
+-----------------------------------------------------------------------------------------------------------------------------
+unique source rows covered                           50         50          +0  [OK] union of run slices; the runs read 50 rows in total, so 0 rows were replayed more than once
+unique rejected records (distinct record_uid in DLQ)          1          1          +0  [OK] 1 dead-letter LINES exist because overlapping runs rejected the same record again; unique records are counted by record_uid
+
+== PIPELINE STAGES (Kafka -> Spark -> Parquet -> PostgreSQL) ==
+Stage                                          Expected     Actual  Difference  Explanation
+-----------------------------------------------------------------------------------------------------------------------------
+4 messages in Kafka topic                            49         52          +3  [EXPLAINED] sum of run publishes; 0 of them are repeats of an already published record_uid; +3 user-submitted demo message(s)
+5 consumed by Spark                                  52         52          +0  [OK] sum of input_rows over 2 micro-batches
+5b malformed/invalid in Spark                         0          0          +0  [OK] stage=stream dead letters
+6 rows in Parquet (landing layer)                    52         52          +0  [OK] consumed - invalid - in-batch duplicates (0); repeats from later batches are kept here
+6b distinct record_uid in Parquet                    49         51          +2  [EXPLAINED] = unique valid source records; +2 distinct user-submitted demo record(s)
+7 rows in PostgreSQL core.orders                     51         51          +0  [OK] distinct record_uid in Parquet minus discarded source duplicates
+7b retry duplicates ignored by PostgreSQL             1          1          +0  [OK] Parquet rows - distinct record_uid = repeats that reached a later batch
+8 distinct order_id in PostgreSQL                    49         51          +2  [EXPLAINED] unique valid order_ids computed from the source; +2 user-submitted demo order(s)
+8c demo orders in PostgreSQL (user_demo)              2          2          +0  [OK] distinct order_ids in the demo submission log vs rows with source_category = 'user_demo'
+8b rows = distinct business_hash                     51         51          +0  [OK] one row per natural key
+
+-----------------------------------------------------------------------------------------------------------------------------
+RESULT: all differences are zero or explained

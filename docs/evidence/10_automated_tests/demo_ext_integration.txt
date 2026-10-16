@@ -1,0 +1,21 @@
+﻿Task ID: DEMO-T2
+Date/time (UTC): 2026-10-16T02:59:52.3036565Z
+Date/time (local): 2026-10-16T08:29:52.3041689+05:30
+Command: .\.venv\Scripts\python.exe -m pytest -m integration -q
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: b38a0bd
+--- output ---
+...................                                                      [100%]
+============================== warnings summary ===============================
+tests/integration/test_dashboard_queries.py: 109 warnings
+  C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform\.venv\Lib\site-packages\kafka\protocol\schemas\load_json.py:14: DeprecationWarning: read_text is deprecated. Use files() instead. Refer to https://importlib-resources.readthedocs.io/en/latest/using.html#migrating-from-legacy for migration advice.
+    msg_json = importlib.resources.read_text(package, msg_type + '.json')
+
+tests/integration/test_dashboard_queries.py: 109 warnings
+  C:\Users\Padmaja Kachare\AppData\Local\Programs\Python\Python311\Lib\importlib\resources\_legacy.py:80: DeprecationWarning: open_text is deprecated. Use files() instead. Refer to https://importlib-resources.readthedocs.io/en/latest/using.html#migrating-from-legacy for migration advice.
+    with open_text(package, resource, encoding, errors) as fp:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+19 passed, 1 skipped, 112 deselected, 218 warnings in 5.75s
+
+--- exit code: 0 ---

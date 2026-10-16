@@ -60,13 +60,13 @@ def clean_row(row: dict) -> dict:
 
 
 def build_envelope(payload: dict, raw: dict, *, source_file: str, file_sha: str, row_number: int,
-                   run_id: str, api_enrichment: dict | None) -> dict:
+                   run_id: str, api_enrichment: dict | None, source_category: str = "kafka_replayed") -> dict:
     """The Kafka message value (contract in docs/04 section 1)."""
     return {
         "schema_version": SCHEMA_VERSION,
         "record_uid": make_record_uid(file_sha, row_number),
         "business_hash": make_business_hash(payload["order_id"]),
-        "source_category": "kafka_replayed",
+        "source_category": source_category,
         "source_file": source_file,
         "source_file_sha256": file_sha,
         "source_row_number": row_number,
@@ -109,10 +109,23 @@ def create_producer(bootstrap: str):
     )
 
 
+def unique_run_id(run_id: str, runs_dir: Path | None = None) -> str:
+    """A run id names ONE execution. If its summary already exists, a numeric suffix is added (demo1 -> demo1-2) so the
+    earlier summary and dead-letter file are never overwritten (an overwrite once hid 199 published messages)."""
+    runs_dir = runs_dir or INGESTION_RUNS_DIR
+    candidate, number = run_id, 1
+    while (runs_dir / f"{candidate}.json").exists():
+        number += 1
+        candidate = f"{run_id}-{number}"
+    if candidate != run_id:
+        log.warning("Run id %s was already used; this execution is recorded as %s", run_id, candidate)
+    return candidate
+
+
 def run(args: argparse.Namespace) -> dict:
     """Process the input file and return the run summary."""
     started = datetime.now(timezone.utc)
-    run_id = args.run_id or f"run-{started.strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:6]}"
+    run_id = unique_run_id(args.run_id or f"run-{started.strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:6]}")
     input_path = Path(args.input)
     mapping = load_mapping(FIELD_MAPPING_FILE)
     rules = load_rules(QUALITY_RULES_FILE)

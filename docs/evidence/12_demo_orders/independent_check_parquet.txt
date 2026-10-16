@@ -1,0 +1,13 @@
+﻿Task ID: DEMO-05
+Date/time (UTC): 2026-10-16T02:58:04.1933376Z
+Date/time (local): 2026-10-16T08:28:04.1933376+05:30
+Command: .\.venv\Scripts\python.exe scripts\parquet_readback.py --order-id demo-dd14ee722ecf446ea4c3473fcc189671
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: b38a0bd
+--- output ---
+Parquet rows for order demo-dd14ee722ecf446ea4c3473fcc189671: 2
+ batch_id                       record_uid                              order_id source_category order_status customer_state  payments_value_total  payments_value_usd  kafka_partition  kafka_offset                     ingest_run_id
+       15 f8814c717c07b731ac46c95bad05ef1a demo-dd14ee722ecf446ea4c3473fcc189671       user_demo     approved             PR                 269.9               53.37                2         33364 demo-order-20261016T080732-d34a9b
+       16 f8814c717c07b731ac46c95bad05ef1a demo-dd14ee722ecf446ea4c3473fcc189671       user_demo     approved             PR                 269.9               53.37                2         33365 demo-order-20261016T080732-d34a9b
+
+--- exit code: 0 ---

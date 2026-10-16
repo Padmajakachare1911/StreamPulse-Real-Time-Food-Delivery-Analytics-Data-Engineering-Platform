@@ -15,6 +15,20 @@ param(
 $ErrorActionPreference = "Continue"
 $runId = "manual__" + (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmss")
 
+# Pre-flight: a DAG run is only started by the scheduler. If the scheduler is not healthy the run would stay "queued"
+# for the whole timeout (this happened once: the scheduler had stopped without an error), so fail fast instead.
+try {
+    $health = Invoke-RestMethod -Uri "http://localhost:8080/health" -TimeoutSec 5
+    if ($health.scheduler.status -ne "healthy") {
+        Write-Output "AIRFLOW SCHEDULER NOT HEALTHY (status: $($health.scheduler.status), last heartbeat: $($health.scheduler.latest_scheduler_heartbeat)). No run was started."
+        Write-Output "Fix: docker compose --profile airflow restart airflow   (then .\scripts\airflow_up.ps1 waits until it is healthy)"
+        exit 3
+    }
+} catch {
+    Write-Output "AIRFLOW IS NOT REACHABLE on http://localhost:8080. Start it with .\scripts\airflow_up.ps1. No run was started."
+    exit 3
+}
+
 docker exec streampulse-airflow airflow dags unpause $Dag 2>&1 | Out-Host
 # PowerShell 5.1 removes the inner double quotes of an argument passed to a native program, so escape them.
 $confArg = $Conf -replace '"', '\"'

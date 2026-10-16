@@ -76,3 +76,14 @@ Mocks are never counted as proof: the API client's mocked tests check logic only
 
 ## 9. Honest limitations
 Single-node Kafka/PostgreSQL/Spark; historical replay, not live data; the API supplies reference data, not orders; USD values are estimates; the Airflow container runs as root (trade-off documented); timestamps have no time zone. Full list: `docs/known_limitations.md`.
+
+## 10. Addendum (2026-10-16): the "place an order and trace it" requirement
+**Gap found by auditing the finished project against the original requirement:** the pipeline, Airflow and the dashboard worked, but there was no way for a user to place an order in Streamlit, no producer for user orders, no way to follow one order through the layers, and nothing marked a new order as different from a historical Olist record. (Details: `docs/live_demo_order_guide.md`.)
+
+**Added (smallest safe extension; Spark job, Parquet layout and warehouse schema unchanged):** `src/demo/` (demo order, trace, submission log), the dashboard page *Place a demo order*, `scripts/trace_order.py`, the view `analytics.historical_orders`, demo-aware reconciliation, `scripts/demo_order_ui_check.py` and `scripts/demo_order_experiment.py`.
+
+**Verified by running it:** a real order placed on the real Streamlit page reached PostgreSQL in 6.5 s and was confirmed independently by Kafka's own consumer, pyarrow and psql; a resend was counted as a retry duplicate; two orders placed while Spark was stopped showed "waiting" and were then processed by a real Airflow DAG run; the isolated end-to-end experiment passed 19 checks; suites: unit 102, integration 19, Spark 5, Airflow 8, e2e 5, all passed. Evidence: `docs/evidence/12_demo_orders/`.
+
+**Found and fixed on the way (kept as history):** (1) a reused run id (`demo1`) had overwritten a run summary and hidden 199 published messages (+199 unexplained in the reconciliation): the producer now never overwrites, and reconcile explains reuse from Parquet; (2) the Airflow scheduler had stopped silently, leaving a DAG run `queued` for 10 minutes: container restarted, `airflow_run_dag.ps1` now fails fast; (3) a stale 30 s cache made the "demo orders stored" table lag behind the live trace: that table is now uncached.
+
+**Operational notes:** the production Spark stream was stopped with the project's safe stop for the Airflow demonstration and restarted afterwards; the demo orders (6 messages, 5 distinct orders) remain in the production topic, Parquet and `core.orders`, marked `user_demo`. Still `PENDING_HUMAN`: the four manual demos and their screenshots.

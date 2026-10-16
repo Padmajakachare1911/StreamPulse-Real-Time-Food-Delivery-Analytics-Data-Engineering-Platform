@@ -1,0 +1,35 @@
+﻿Task ID: DEMO-03
+Date/time (UTC): 2026-10-16T02:57:58.4493723Z
+Date/time (local): 2026-10-16T08:27:58.4493723+05:30
+Command: docker exec streampulse-postgres psql -U streampulse -d streampulse -x -c "select order_id, source_category, ingest_run_id, order_status, customer_state, customer_city, items_count, payments_value_total, fx_rate_brl_usd, fx_match_type, payments_value_usd, kafka_partition, kafka_offset, processed_at from core.orders where order_id='demo-dd14ee722ecf446ea4c3473fcc189671'" -c "select source_category, count(*) from core.orders group by 1" -c "select orders from analytics.revenue_summary"
+Working directory: C:\Users\Padmaja Kachare\Documents\StreamPulse-Real-Time-Food-Delivery-Analytics-Data-Engineering-Platform
+Git commit: b38a0bd
+--- output ---
+-[ RECORD 1 ]--------+--------------------------------------
+order_id             | demo-dd14ee722ecf446ea4c3473fcc189671
+source_category      | user_demo
+ingest_run_id        | demo-order-20261016T080732-d34a9b
+order_status         | approved
+customer_state       | PR
+customer_city        | curitiba
+items_count          | 2
+payments_value_total | 269.90
+fx_rate_brl_usd      | 0.197750
+fx_match_type        | previous_business_day
+payments_value_usd   | 53.37
+kafka_partition      | 2
+kafka_offset         | 33364
+processed_at         | 2026-10-16 02:37:39.288021+00
+
+-[ RECORD 1 ]---+---------------
+source_category | user_demo
+count           | 4
+-[ RECORD 2 ]---+---------------
+source_category | kafka_replayed
+count           | 99427
+
+-[ RECORD 1 ]-
+orders | 99427
+
+
+--- exit code: 0 ---

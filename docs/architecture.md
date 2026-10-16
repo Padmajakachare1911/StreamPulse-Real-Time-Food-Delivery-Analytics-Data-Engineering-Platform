@@ -26,6 +26,22 @@ This page describes only what is **implemented and was run**. Evidence for each 
  Airflow (airflow/dags): finite steps only; Spark runs with trigger availableNow
 ```
 
+## User-submitted demo orders (added 2026-10-16)
+```
+ Streamlit page "Place a demo order"  ──►  src/demo/demo_order.py   same mapping + quality rules (date window ends today),
+      │                                         same API enrichment, same producer settings, key = order_id
+      │                                         source_category = user_demo, order_id = demo-..., run id = demo-order-...
+      ▼
+ Kafka topic ecommerce_orders (the SAME topic) ──► Spark job (unchanged) ──► Parquet + core.orders (unchanged)
+      │
+      └── data/processed/demo_orders/submissions.jsonl   partition/offset of every demo message (used by the trace and by reconcile.py)
+ Trace (src/demo/order_trace.py): submission log -> Kafka read-back at that offset -> Parquet row + batch_id (+ BATCH_SUMMARY)
+                                  -> PostgreSQL row.  Shown on the dashboard page and by scripts/trace_order.py.
+ analytics.historical_orders (view) = core.orders without user_demo; the 11 KPI views read it, so KPIs stay historical.
+```
+Nothing in the Spark job, the Parquet layout or the warehouse schema was changed for this; demo orders are distinguished only by data
+(`source_category`, id prefixes). Step-by-step demonstration: `docs/live_demo_order_guide.md`.
+
 ## Components
 | Component | Technology | Where |
 |---|---|---|
