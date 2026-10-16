@@ -1,0 +1,107 @@
+<h1>16. Errors, retries, checkpoints and recovery</h1>
+<p>A data pipeline is judged by what happens when something goes wrong. This chapter collects every protection in one place, then the real failures that were found and fixed.</p>
+
+<h2>16.1 The protections, layer by layer</h2>
+<table>
+<tr><th style="width:18%">Where</th><th style="width:34%">What can go wrong</th><th>Protection</th></tr>
+<tr><td>Dataset</td><td>A file is missing or altered</td><td>SHA-256 fingerprint check (<code>check_dataset_fingerprint.py</code>; first Airflow tasks).</td></tr>
+<tr><td>API</td><td>Network error, slow answer, HTTP 5xx</td><td>3 attempts with waits of 1 s then 2 s; cache of stored responses; the pipeline still works if the API fails (the order is kept, marked "not enriched"), and the failure is real, never faked.</td></tr>
+<tr><td>Producer</td><td>A bad row</td><td>Eight rules; bad rows go to the dead-letter file with a reason code, good rows continue.</td></tr>
+<tr><td>Producer &#8594; Kafka</td><td>Lost or doubled message on a retry</td><td><code>acks=all</code>, idempotent producer, gzip; every failed publish is counted (<code>rows_publish_failed</code>).</td></tr>
+<tr><td>Kafka &#8594; Spark</td><td>Spark stops or crashes</td><td>The <b>checkpoint</b> remembers the next offsets to read.</td></tr>
+<tr><td>Spark batch</td><td>Malformed JSON, missing fields</td><td>Split valid/invalid inside every batch; invalid go to the stream dead-letter with code <code>MALFORMED_JSON</code> or <code>SCHEMA_MISMATCH</code>.</td></tr>
+<tr><td>Spark &#8594; PostgreSQL</td><td>Same order arrives again</td><td>One transaction; <code>record_uid</code> is unique; an existing uid is counted as a retry duplicate and skipped.</td></tr>
+<tr><td>Airflow</td><td>A task fails for a temporary reason</td><td>2 retries, 30 s apart; a failed task stops its followers.</td></tr>
+<tr><td>Dashboard</td><td>A service is down</td><td>Real status lights; a short safe error message; no fake green.</td></tr>
+</table>
+
+<h2>16.2 Retry, at-least-once and the idempotent sink</h2>
+<div class="box analogy"><span class="t">Analogy: posting a parcel with tracking</span>
+If you are not sure the parcel arrived, you send it again. The receiver checks the tracking number: "I already have this one" and throws the duplicate away. Resending is safe because the receiver recognises repeats.</div>
+<ul>
+<li><b>At-least-once delivery</b>: after a crash a message may be delivered <i>more than once</i>, never zero times.</li>
+<li><b>Idempotent sink</b>: writing the same message again changes nothing. Here, the sink is PostgreSQL with a unique <code>record_uid</code>.</li>
+<li>Together this gives the <i>effect</i> of "each order counted once" in the warehouse. We never claim "exactly-once".</li>
+</ul>
+
+<h2>16.3 Checkpoint recovery: what exactly happens</h2>
+<p>For each micro-batch Spark writes <code>offsets/N</code> (the plan: "I will read from here to there") <b>before</b> processing and <code>commits/N</code> after it has finished. On restart:</p>
+<ul>
+<li><code>offsets/N</code> and <code>commits/N</code> both exist: batch N is finished; the next batch starts after it.</li>
+<li><code>offsets/N</code> exists but <code>commits/N</code> does not: batch N was interrupted; it is <b>run again</b> with the same offsets. Its rows may already have reached PostgreSQL, but that is harmless: they are retry duplicates.</li>
+</ul>
+<pre class="real"><span class="tag real">real file &middot; data/checkpoints/orders/offsets/0</span>
+{"ecommerce_orders":{"0":3338,"1":3345,"2":3315}}</pre>
+<p>Meaning: the first batch consumed 3,338 + 3,345 + 3,315 = 9,998 messages (partitions 0, 1, 2). Offsets are positions; the numbers are "up to, not including".</p>
+
+<h2>16.4 The recovery experiment (isolated checkpoint)</h2>
+<p>To prove recovery without risking the production checkpoint, an <b>isolated</b> experiment used its own checkpoint, Parquet folder and database tables (<code>04_spark/recovery_test.txt</code>, <code>07_postgresql/reconciliation_recovery_experiment_r2.txt</code>).</p>
+<ol>
+<li>Start Spark on a backlog; let it commit batches 0 and 1; request a safe stop. <b>4,995 messages stay unread</b>.</li>
+<li>While Spark is down, publish <b>2,000 new</b> orders and <b>99 repeats</b> of old ones.</li>
+<li>Restart. The first batch starts at the committed offset (partition 0 at 1000), not at zero.</li>
+<li>Result: Spark consumed 8,094 messages in total; Parquet 8,094 rows, <b>7,995 distinct</b>; PostgreSQL <b>7,995</b>; retry duplicates counted <b>99</b>; <b>18 of 18 checks passed</b>.</li>
+</ol>
+<p>Meaning: nothing was lost (the unread backlog and the new orders were all processed), nothing was doubled in the warehouse (the 99 repeats were recognised), and no old data was reprocessed from scratch.</p>
+<p>The failed first attempt (stopping <i>during</i> a batch) is kept as history: <code>04_spark/recovery_test_attempt1_stop_during_batch.txt</code>.</p>
+
+<h2>16.5 Proof that re-ingestion is harmless</h2>
+<p>On the real production data (99,427 orders) I published the first 200 orders again. Spark consumed <b>199</b> messages, inserted <b>0</b>, counted <b>199 retry duplicates</b>, and the count stayed <b>99,427</b> (<code>07_postgresql/reingestion_production.txt</code>). The two Airflow runs repeated the same proof with 295 messages each.</p>
+
+<h2>16.6 Dead-letter queue (DLQ) recap</h2>
+<p>A DLQ keeps the records you could not accept, <b>with the reason</b>, so they can be inspected and fixed instead of silently disappearing. Two places: <code>data/dead_letter/ingest/</code> (rejected by the producer: the 14 real orders) and <code>data/dead_letter/stream/</code> (rejected inside Spark: a malformed message). The real Spark path was exercised by publishing a deliberately broken message (<code>04_spark/malformed_message_test.txt</code>).</p>
+
+<h2>16.7 The honest failures list</h2>
+<p>These happened for real, were diagnosed, fixed and are kept as evidence. Telling them is a strength: it shows testing found real problems.</p>
+<table>
+<tr><th style="width:26%">Failure</th><th style="width:30%">Cause</th><th>Fix</th></tr>
+<tr><td>Spark would not start on Windows</td><td>Host Spark needs <code>winutils.exe</code></td><td>Run Spark in Docker.</td></tr>
+<tr><td>Spark image failed to build</td><td>Base image no longer had OpenJDK 17</td><td>Pin the <code>slim-bookworm</code> base.</td></tr>
+<tr><td>Malformed JSON labelled <code>SCHEMA_MISMATCH</code></td><td><code>from_json</code> returns a row of nulls, not an error</td><td>Test JSON validity separately with <code>get_json_object</code>; the test was not changed.</td></tr>
+<tr><td>Reference-table load crashed</td><td>numpy float not accepted by the database driver</td><td>Cast to plain <code>float</code>/<code>int</code>. Failed attempt kept.</td></tr>
+<tr><td>First Airflow run failed</td><td>Permission denied on the root-owned checkpoint</td><td>Run the Airflow container as root (documented).</td></tr>
+<tr><td>Dashboard: Kafka red while healthy</td><td>Unsupported client option</td><td>Removed it; added a test against the real broker.</td></tr>
+<tr><td>Dashboard: money charted as text</td><td>Exact decimals not numeric to the chart library</td><td>Convert before charting.</td></tr>
+<tr><td>Dashboard: internal docs printed</td><td>Streamlit prints bare expressions</td><td>Plain if/else + automatic source check.</td></tr>
+<tr><td>Intermittent e2e failure</td><td>Stop request raced with a starting batch</td><td>New stop protocol (<code>StopRequested</code>); 3 stress runs and a final e2e run passed.</td></tr>
+<tr><td>Fresh-environment test failed twice</td><td>"Filename too long" (very deep scratch folder)</td><td>Passed from a short path.</td></tr>
+<tr><td>14 vs 15 rejected</td><td>Run overlap</td><td>Separated run-level and source-level counting.</td></tr>
+</table>
+
+<h1>17. Testing</h1>
+<h2>17.1 Why several suites</h2>
+<p>The quick tests run in seconds with no services; the slow ones start the real system. Markers (<code>pytest -m ...</code>) choose which to run.</p>
+<table>
+<tr><th style="width:15%">Suite</th><th style="width:30%">Needs / how it runs</th><th style="width:30%">What it covers</th><th>Final result</th></tr>
+<tr><td>unit</td><td>Nothing external</td><td>Mapping, validators, producer ids and hashes, API client retry/cache, reconcile logic, stop classification, dashboard helpers, DAG structure, source checks</td><td><b>73 passed, 1 skipped</b></td></tr>
+<tr><td>integration</td><td>PostgreSQL, Kafka, internet (real API)</td><td>Warehouse upsert and duplicate rules, dashboard queries, stored API results, one real API call</td><td><b>18 passed, 1 skipped</b></td></tr>
+<tr><td>spark</td><td>Inside the Spark container</td><td>The Spark transforms: parse, validate, flatten, dedup</td><td><b>5 passed</b></td></tr>
+<tr><td>airflow</td><td>Inside the Airflow container</td><td>DAG imports; 9 tasks; retries; no cycles; parameters</td><td><b>8 passed</b></td></tr>
+<tr><td>e2e</td><td>Everything real, isolated checkpoint (3.5 min)</td><td>Full flow, malformed message, recovery after stop, idempotent reload</td><td><b>4 passed, 1 skipped</b></td></tr>
+<tr><td>manual</td><td>A human</td><td>The four live demos</td><td><code>PENDING_HUMAN</code></td></tr>
+</table>
+<p>Every run saved a timestamped log under <code>docs/evidence/10_automated_tests/</code>, with the git commit. Failed runs are kept (e.g. <code>pytest_e2e_20261016_FAILED_stop_race.txt</code>). The final summary: <code>final_verification_summary.txt</code>, which also shows: secret scan <code>clean</code>, every cited evidence path exists, production reconciliation <code>all differences are zero or explained</code>.</p>
+<h2>17.2 What is mocked and what is real</h2>
+<ul>
+<li><b>Unit tests</b> may use fake HTTP responses to check the retry <i>logic</i> (that is their purpose; they are labelled as such).</li>
+<li><b>Integration and e2e tests use the real services</b>, including the real Frankfurter API. No test pretends to be Kafka or PostgreSQL.</li>
+<li>One test deliberately checks that the reconciliation tool <b>fails</b> on a real mismatch.</li>
+<li>A passing test is never presented as more than it is: unit tests are "tested", only saved real outputs are "verified with evidence".</li>
+</ul>
+<h2>17.3 Status vocabulary</h2>
+<p><code>NOT_STARTED</code> &#8594; <code>IN_PROGRESS</code> / <code>BLOCKED</code> &#8594; <code>IMPLEMENTED_NOT_TESTED</code> &#8594; <code>TESTED</code> &#8594; <code>VERIFIED_WITH_EVIDENCE</code>. The last one is allowed only when an evidence file exists. See <code>docs/task_tracker.md</code> and <code>docs/evidence_register.md</code>.</p>
+
+<h1>18. Limitations (say them before you are asked)</h1>
+<ul>
+<li><b>Replay, not live.</b> The dataset is history (2016-2018). We replay it into Kafka; we never call these "live orders".</li>
+<li><b>The API is not the order source.</b> It supplies the exchange rate. USD values are <b>estimates</b> (weekends use the previous business day: 24,112 orders).</li>
+<li><b>At-least-once, not exactly-once</b>; deduplication happens in PostgreSQL.</li>
+<li><b>Small infrastructure:</b> one Kafka broker (replication factor 1), one PostgreSQL, Spark in local mode in one container. No monitoring or alerting stack, no schema registry.</li>
+<li><b>Parquet is append-only</b>, so it contains repeats; the warehouse is the deduplicated truth.</li>
+<li><b>Dataset facts:</b> 775 orders have no items and 1 has no payment (kept and counted); timestamps have no time zone; the licence (CC BY-NC-SA 4.0) was read from a search excerpt and should be re-checked on the Kaggle page.</li>
+<li><b>Airflow runs as root</b> in the container (demo trade-off). It orchestrates finite tasks only.</li>
+<li><b>Retention:</b> Kafka forgets messages after 7 days; replaying again is safe.</li>
+<li><b>Not done by the agent (human actions):</b> the four live demos and their screenshots, confirming the project title with the professor (dataset is e-commerce, not food delivery), asking whether a specific API was expected.</li>
+<li><b>Future work:</b> more brokers, a schema registry, alerting, a live source, a cloud warehouse, row-level dashboard drill-down.</li>
+</ul>
+<p>Full list: <code>docs/known_limitations.md</code>.</p>

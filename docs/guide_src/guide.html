@@ -1,0 +1,1456 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><title>StreamPulse: Complete Project Guide</title><style>@page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+:root { --ink:#1f2933; --muted:#5b6770; --accent:#0b5cad; --accent2:#0f8a5f; --warn:#b45309; --bad:#b42318;
+        --code-bg:#f3f5f8; --line:#d5dbe3; }
+* { box-sizing: border-box; }
+html { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 10.4pt; color: var(--ink); line-height: 1.5; }
+body { margin: 0; }
+h1 { font-size: 21pt; color: var(--accent); border-bottom: 3px solid var(--accent); padding-bottom: 4pt; margin: 0 0 12pt 0;
+     page-break-before: always; break-before: page; }
+h1.first { page-break-before: avoid; break-before: avoid; }
+h2 { font-size: 14.5pt; color: #123a63; margin: 18pt 0 6pt 0; break-after: avoid; }
+h3 { font-size: 11.5pt; color: #1d4f7c; margin: 12pt 0 4pt 0; break-after: avoid; }
+h4 { font-size: 10.5pt; margin: 8pt 0 2pt 0; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; break-after: avoid; }
+p { margin: 0 0 7pt 0; }
+ul, ol { margin: 0 0 8pt 0; padding-left: 18pt; }
+li { margin-bottom: 2.5pt; }
+code { font-family: Consolas, "Cascadia Mono", "Courier New", monospace; font-size: 9pt; background: var(--code-bg); padding: 0 2pt; border-radius: 2pt; }
+pre { font-family: Consolas, "Cascadia Mono", "Courier New", monospace; font-size: 8.3pt; line-height: 1.38; background: var(--code-bg);
+      border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 3pt; padding: 6pt 8pt; margin: 4pt 0 9pt 0;
+      white-space: pre-wrap; word-break: break-word; break-inside: avoid-page; }
+pre.real { border-left-color: var(--accent2); background: #f1f8f4; }
+pre.cmd { border-left-color: #6b4fbb; background: #f6f3fc; }
+pre code { background: none; padding: 0; font-size: inherit; }
+.tag { display: inline-block; font-size: 7.5pt; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 1pt 5pt; border-radius: 8pt; color: #fff;
+       margin-bottom: 2pt; }
+.tag.real { background: var(--accent2); } .tag.cmd { background: #6b4fbb; } .tag.code { background: var(--accent); }
+table { border-collapse: collapse; width: 100%; margin: 4pt 0 10pt 0; font-size: 9pt; }
+th { background: #e8eff7; text-align: left; border: 1px solid var(--line); padding: 3pt 5pt; }
+td { border: 1px solid var(--line); padding: 3pt 5pt; vertical-align: top; }
+tr { break-inside: avoid; }
+.box { border: 1px solid var(--line); border-left: 5px solid var(--accent); background: #f5f9fe; padding: 6pt 9pt; margin: 6pt 0 10pt 0; border-radius: 3pt; break-inside: avoid; }
+.box.analogy { border-left-color: #7c3aed; background: #f8f5ff; }
+.box.why { border-left-color: var(--accent2); background: #f3faf6; }
+.box.warn { border-left-color: var(--warn); background: #fff8ee; }
+.box.bad { border-left-color: var(--bad); background: #fff3f2; }
+.box .t { font-weight: 700; display: block; margin-bottom: 2pt; }
+.cover { height: 250mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+.cover h1 { border: none; font-size: 34pt; margin-bottom: 4pt; page-break-before: avoid; }
+.cover .sub { font-size: 14pt; color: var(--muted); margin-bottom: 26pt; }
+.cover .line { font-size: 11pt; margin: 3pt 0; }
+figure { margin: 8pt 0 12pt 0; text-align: center; break-inside: avoid; }
+figcaption { font-size: 8.8pt; color: var(--muted); margin-top: 3pt; }
+figure svg { max-width: 100%; height: auto; }
+.shot { border: 1px solid var(--line); box-shadow: 0 1px 4px rgba(0,0,0,.15); width: 100%; object-fit: cover; object-position: top; display: block; margin: 0 auto; }
+.toc { font-size: 10pt; } .toc ol { list-style: none; padding-left: 0; } .toc li { margin: 1pt 0; } .toc ol ol { padding-left: 16pt; font-size: 9.4pt; color: var(--muted); }
+.toc a { color: var(--ink); text-decoration: none; }
+.qa { break-inside: avoid; margin-bottom: 8pt; }
+.qa .q { font-weight: 700; color: #123a63; }
+.small { font-size: 8.8pt; color: var(--muted); }
+.k { white-space: nowrap; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; }
+</style></head><body><div class="cover">
+  <h1 id="s1-streampulse">StreamPulse</h1>
+  <div class="sub">Real-Time Order Delivery Analytics &amp; Data Engineering Platform<br>(Olist e-commerce dataset)</div>
+  <div class="line"><b>The Complete Project Guide</b></div>
+  <div class="line">From absolute zero to a confident viva defence</div>
+  <div class="line" style="margin-top:24pt;color:#5b6770">Kafka &middot; Spark Structured Streaming &middot; Parquet &middot; PostgreSQL &middot; Frankfurter API &middot; Airflow &middot; Streamlit</div>
+  <div class="line" style="margin-top:34pt;font-size:10pt;color:#5b6770">Every number in this guide comes from a real run of this project.<br>The evidence files are listed in the appendix and in <code>docs/evidence_register.md</code>.</div>
+  <div class="line" style="margin-top:20pt;font-size:10pt;color:#b45309"><b>Honest framing:</b> this is a <i>historical dataset replayed through a streaming pipeline</i>, not live orders.</div>
+</div>
+
+<h1 id="s2-contents">Contents</h1>
+<div class='toc'><ol><li><b><a href='#s3-how-to-use-this-guide'>How to use this guide</a></b><ol><li><a href='#s4-colour-code-used-in-the-guide'>Colour code used in the guide</a></li><li><a href='#s5-suggested-reading-order'>Suggested reading order</a></li></ol></li><li><b><a href='#s6-1-what-is-streampulse-in-plain-words'>1. What is StreamPulse, in plain words?</a></b><ol><li><a href='#s7-1-1-the-honest-framing-what-is-real-and-what-is-not'>1.1 The honest framing: what is real and what is not</a></li><li><a href='#s8-1-2-the-one-line-journey'>1.2 The one-line journey</a></li><li><a href='#s9-1-3-what-we-actually-achieved-measured'>1.3 What we actually achieved (measured)</a></li></ol></li><li><b><a href='#s10-2-the-vocabulary-read-this-before-anything-else'>2. The vocabulary (read this before anything else)</a></b><ol><li><a href='#s11-2-1-about-data-and-pipelines'>2.1 About data and pipelines</a></li><li><a href='#s12-2-2-about-kafka'>2.2 About Kafka</a></li><li><a href='#s13-2-3-about-spark-and-storage'>2.3 About Spark and storage</a></li><li><a href='#s14-2-4-about-safety-and-correctness'>2.4 About safety and correctness</a></li></ol></li><li><b><a href='#s15-3-the-data-where-it-comes-from-and-what-it-looks-like'>3. The data: where it comes from and what it looks like</a></b><ol><li><a href='#s16-3-1-the-source'>3.1 The source</a></li><li><a href='#s17-3-2-the-nine-files-a-small-relational-database-in-csv-form'>3.2 The nine files (a small relational database in CSV form)</a></li><li><a href='#s18-3-3-what-we-learned-by-profiling-the-data-before-writing-any'>3.3 What we learned by profiling the data (before writing any code)</a></li><li><a href='#s19-3-4-from-many-tables-to-one-order-event'>3.4 From many tables to one "order event"</a></li></ol></li><li><b><a href='#s20-4-the-architecture-how-everything-fits-together'>4. The architecture: how everything fits together</a></b><ol><li><a href='#s21-4-1-which-technology-does-what-and-why-we-chose-it'>4.1 Which technology does what, and why we chose it</a></li><li><a href='#s22-4-2-the-services-and-ports'>4.2 The services and ports</a></li></ol></li><li><b><a href='#s23-5-stage-1-the-python-producer-from-csv-rows-to-kafka-message'>5. Stage 1: The Python producer (from CSV rows to Kafka messages)</a></b><ol><li><a href='#s24-5-1-our-example-order'>5.1 Our example order</a></li><li><a href='#s25-5-2-the-eight-steps'>5.2 The eight steps</a></li><li><a href='#s26-5-3-the-command-line-switches'>5.3 The command-line switches</a></li></ol></li><li><b><a href='#s27-6-stage-2-the-real-external-api-frankfurter'>6. Stage 2: The real external API (Frankfurter)</a></b><ol><li><a href='#s28-6-1-what-and-why'>6.1 What and why</a></li><li><a href='#s29-6-2-the-request'>6.2 The request</a></li><li><a href='#s30-6-3-how-the-client-protects-us-src-api-client-py'>6.3 How the client protects us (src/api/client.py)</a></li><li><a href='#s31-6-4-how-a-usd-value-is-attached-src-api-enrich-py'>6.4 How a USD value is attached (src/api/enrich.py)</a></li></ol></li><li><b><a href='#s32-7-stage-3-kafka-the-conveyor-belt'>7. Stage 3: Kafka (the conveyor belt)</a></b><ol><li><a href='#s33-7-1-what-kafka-does-for-us'>7.1 What Kafka does for us</a></li><li><a href='#s34-7-2-how-the-topic-is-created-and-kept-healthy'>7.2 How the topic is created and kept healthy</a></li><li><a href='#s35-7-2b-why-the-key-is-order-id-a-decision-measured-not-guessed'>7.2b Why the key is order_id (a decision measured, not guessed)</a></li><li><a href='#s36-7-3-commands-to-look-at-kafka'>7.3 Commands to look at Kafka</a></li></ol></li><li><b><a href='#s37-8-stage-4-spark-structured-streaming-the-processing-engine'>8. Stage 4: Spark Structured Streaming (the processing engine)</a></b><ol><li><a href='#s38-8-1-why-it-runs-in-docker'>8.1 Why it runs in Docker</a></li><li><a href='#s39-8-2-the-big-idea-process-the-stream-as-many-small-batches'>8.2 The big idea: process the stream as many small batches</a></li><li><a href='#s40-8-3-the-files'>8.3 The files</a></li><li><a href='#s41-8-4-what-happens-inside-one-batch-step-by-step'>8.4 What happens inside one batch, step by step</a></li><li><a href='#s42-8-5-the-checkpoint-spark-s-progress-notebook'>8.5 The checkpoint (Spark's progress notebook)</a></li><li><a href='#s43-8-6-triggers-and-limits'>8.6 Triggers and limits</a></li><li><a href='#s44-8-7-stopping-safely-a-real-engineering-story'>8.7 Stopping safely (a real engineering story)</a></li><li><a href='#s45-8-8-commands-for-spark'>8.8 Commands for Spark</a></li></ol></li><li><b><a href='#s46-9-stage-5-data-quality-duplicates-and-the-dead-letter-queue'>9. Stage 5: Data quality, duplicates and the dead-letter queue</a></b><ol><li><a href='#s47-9-1-three-promises'>9.1 Three promises</a></li><li><a href='#s48-9-2-the-rules-config-quality-rules-yaml-src-processing-valid'>9.2 The rules (config/quality_rules.yaml, src/processing/validators.py)</a></li><li><a href='#s49-9-3-what-a-dead-letter-record-looks-like'>9.3 What a dead-letter record looks like</a></li><li><a href='#s50-9-4-the-three-kinds-of-same-record-the-most-asked-question'>9.4 The three kinds of "same record" (the most asked question)</a></li><li><a href='#s51-9-5-a-worked-example-the-demo-3-test-file'>9.5 A worked example: the Demo 3 test file</a></li><li><a href='#s52-9-6-parquet-and-postgresql-behave-differently-on-purpose'>9.6 Parquet and PostgreSQL behave differently on purpose</a></li></ol></li><li><b><a href='#s53-10-stage-6-postgresql-the-warehouse'>10. Stage 6: PostgreSQL (the warehouse)</a></b><ol><li><a href='#s54-10-1-the-structure'>10.1 The structure</a></li><li><a href='#s55-10-2-the-key-table-core-orders'>10.2 The key table: core.orders</a></li><li><a href='#s56-10-3-the-safe-write-src-warehouse-load-py'>10.3 The safe write (src/warehouse/load.py)</a></li><li><a href='#s57-10-4-reference-loaders-and-run-summaries'>10.4 Reference loaders and run summaries</a></li><li><a href='#s58-10-5-the-analytics-views-sql-analytics-sql'>10.5 The analytics views (sql/analytics.sql)</a></li><li><a href='#s59-10-6-the-quality-checks-on-the-stored-data'>10.6 The quality checks on the stored data</a></li></ol></li><li><b><a href='#s60-11-stage-7-airflow-running-the-steps-as-a-workflow'>11. Stage 7: Airflow (running the steps as a workflow)</a></b><ol><li><a href='#s61-11-1-what-airflow-is-and-why-it-is-here'>11.1 What Airflow is, and why it is here</a></li><li><a href='#s62-11-2-how-it-is-deployed'>11.2 How it is deployed</a></li><li><a href='#s63-11-3-the-dag-streampulse-batch-nine-finite-tasks'>11.3 The DAG streampulse_batch: nine finite tasks</a></li><li><a href='#s64-11-4-the-real-run'>11.4 The real run</a></li><li><a href='#s65-11-5-the-retry-and-failure-demonstration-streampulse-failure'>11.5 The retry and failure demonstration (streampulse_failure_demo)</a></li><li><a href='#s66-11-6-commands'>11.6 Commands</a></li></ol></li><li><b><a href='#s67-12-stage-8-the-streamlit-dashboard-every-page-explained'>12. Stage 8: The Streamlit dashboard (every page explained)</a></b><ol><li><a href='#s68-12-1-how-the-dashboard-works'>12.1 How the dashboard works</a></li><li><a href='#s69-12-2-page-1-overview-and-status'>12.2 Page 1: Overview and status</a></li><li><a href='#s70-12-3-page-2-dataset-and-provenance'>12.3 Page 2: Dataset and provenance</a></li><li><a href='#s71-12-4-page-3-ingestion-and-reconciliation'>12.4 Page 3: Ingestion and reconciliation</a></li><li><a href='#s72-12-5-page-4-data-quality'>12.5 Page 4: Data quality</a></li><li><a href='#s73-12-6-page-5-business-kpis'>12.6 Page 5: Business KPIs</a></li><li><a href='#s74-12-7-page-6-external-api'>12.7 Page 6: External API</a></li><li><a href='#s75-12-8-page-7-recent-records'>12.8 Page 7: Recent records</a></li><li><a href='#s76-12-9-when-services-are-really-down'>12.9 When services are really down</a></li></ol></li><li><b><a href='#s77-13-the-folder-and-file-map'>13. The folder and file map</a></b></li><li><b><a href='#s78-14-the-commands-cookbook'>14. The commands cookbook</a></b><ol><li><a href='#s79-14-1-first-time-setup'>14.1 First-time setup</a></li><li><a href='#s80-14-2-infrastructure'>14.2 Infrastructure</a></li><li><a href='#s81-14-3-ingestion'>14.3 Ingestion</a></li><li><a href='#s82-14-4-spark-parquet-postgresql'>14.4 Spark, Parquet, PostgreSQL</a></li><li><a href='#s83-14-5-airflow-dashboard-tests'>14.5 Airflow, dashboard, tests</a></li></ol></li><li><b><a href='#s84-15-reconciliation-proving-the-numbers-add-up'>15. Reconciliation: proving the numbers add up</a></b><ol><li><a href='#s85-15-1-the-idea'>15.1 The idea</a></li><li><a href='#s86-15-2-three-sections'>15.2 Three sections</a></li><li><a href='#s87-15-3-real-output-shortened'>15.3 Real output (shortened)</a></li><li><a href='#s88-15-4-the-14-versus-15-story'>15.4 The "14 versus 15" story</a></li></ol></li><li><b><a href='#s89-16-errors-retries-checkpoints-and-recovery'>16. Errors, retries, checkpoints and recovery</a></b><ol><li><a href='#s90-16-1-the-protections-layer-by-layer'>16.1 The protections, layer by layer</a></li><li><a href='#s91-16-2-retry-at-least-once-and-the-idempotent-sink'>16.2 Retry, at-least-once and the idempotent sink</a></li><li><a href='#s92-16-3-checkpoint-recovery-what-exactly-happens'>16.3 Checkpoint recovery: what exactly happens</a></li><li><a href='#s93-16-4-the-recovery-experiment-isolated-checkpoint'>16.4 The recovery experiment (isolated checkpoint)</a></li><li><a href='#s94-16-5-proof-that-re-ingestion-is-harmless'>16.5 Proof that re-ingestion is harmless</a></li><li><a href='#s95-16-6-dead-letter-queue-dlq-recap'>16.6 Dead-letter queue (DLQ) recap</a></li><li><a href='#s96-16-7-the-honest-failures-list'>16.7 The honest failures list</a></li></ol></li><li><b><a href='#s97-17-testing'>17. Testing</a></b><ol><li><a href='#s98-17-1-why-several-suites'>17.1 Why several suites</a></li><li><a href='#s99-17-2-what-is-mocked-and-what-is-real'>17.2 What is mocked and what is real</a></li><li><a href='#s100-17-3-status-vocabulary'>17.3 Status vocabulary</a></li></ol></li><li><b><a href='#s101-18-limitations-say-them-before-you-are-asked'>18. Limitations (say them before you are asked)</a></b></li><li><b><a href='#s102-19-the-four-demonstrations'>19. The four demonstrations</a></b></li><li><b><a href='#s103-20-viva-questions-and-answers'>20. Viva questions and answers</a></b></li><li><b><a href='#s104-appendix-a-glossary'>Appendix A: Glossary</a></b></li><li><b><a href='#s105-appendix-b-key-numbers-all-measured'>Appendix B: Key numbers (all measured)</a></b></li><li><b><a href='#s106-appendix-c-where-to-find-the-evidence'>Appendix C: Where to find the evidence</a></b></li></ol></div>
+
+<h1 id="s3-how-to-use-this-guide">How to use this guide</h1>
+<p>This guide assumes you know <b>nothing</b> about data engineering. Read it once from the start. By the end you should be able to (1) run the project, (2) explain every part in your own words, and (3) answer a professor's questions honestly.</p>
+
+<h2 id="s4-colour-code-used-in-the-guide">Colour code used in the guide</h2>
+<table>
+<tr><th style="width:26%">Box</th><th>Meaning</th></tr>
+<tr><td><span class="tag real">real output</span> green block</td><td>Text copied from a real run of this project (the source file is named).</td></tr>
+<tr><td><span class="tag cmd">command</span> purple block</td><td>A PowerShell command you can type. Always run from the repository root.</td></tr>
+<tr><td><span class="tag code">code</span> blue block</td><td>An excerpt from the project's source code.</td></tr>
+<tr><td>Violet box</td><td>An <b>analogy</b>: a real-life comparison to make an idea easy.</td></tr>
+<tr><td>Green box</td><td><b>Why?</b> The reason a design choice was made.</td></tr>
+<tr><td>Orange / red box</td><td>A warning or a real problem we met and fixed.</td></tr>
+</table>
+
+<h2 id="s5-suggested-reading-order">Suggested reading order</h2>
+<ol>
+<li><b>Part 1</b> (chapters 1-4): the big picture, the vocabulary, the data, the architecture. Read this first, slowly.</li>
+<li><b>Part 2</b> (chapters 5-12): the journey of one order through every stage, then the dashboard.</li>
+<li><b>Part 3</b> (chapters 13-15): the folder map, every command and what its output means, reconciliation.</li>
+<li><b>Part 4</b> (chapters 16-20): errors and recovery, testing, limitations, the four demos, viva questions.</li>
+<li><b>Appendices</b>: full glossary, key numbers, evidence index.</li>
+</ol>
+
+<div class="box why"><span class="t">If you only have one hour</span>
+Read chapter 1, chapter 2 (the words), the architecture picture in chapter 4, then chapters 9, 15, 16 (quality, reconciliation, recovery) and chapter 20 (viva). These are the parts a professor is most likely to ask about.</div>
+
+<h1 id="s6-1-what-is-streampulse-in-plain-words">1. What is StreamPulse, in plain words?</h1>
+<p>An online shop (marketplace) receives orders all day. Each order has a customer, a status (<i>delivered</i>, <i>shipped</i>, <i>canceled</i>...), dates, money paid, and so on. A company wants to answer questions such as <i>How many orders per month? How much money did we make? How many deliveries were late?</i></p>
+<p>The raw order data is spread over several files and is messy. <b>StreamPulse is the machinery that takes the messy files, cleans and checks them, moves them step by step through a chain of tools, stores them safely, and finally shows the answers on a web dashboard.</b> Building that kind of machinery is called <b>data engineering</b>.</p>
+
+<div class="box analogy"><span class="t">Analogy: a parcel factory</span>
+Imagine a factory that receives boxes (orders) from a warehouse. A worker opens each box and checks it (validation). Broken boxes go to a "problems" shelf with a note saying what is wrong (dead-letter queue). Good boxes are labelled and put on a conveyor belt (Kafka). Machines at the end of the belt (Spark) sort them into a big archive (Parquet) and into a neat catalogue where each box appears exactly once (PostgreSQL). A manager's screen (the dashboard) shows how many boxes there are. Auditors (reconciliation) count the boxes at every stage to be sure none got lost or counted twice.</div>
+
+<h2 id="s7-1-1-the-honest-framing-what-is-real-and-what-is-not">1.1 The honest framing: what is real and what is not</h2>
+<table>
+<tr><th style="width:30%">Question</th><th>Honest answer</th></tr>
+<tr><td>Is the data real?</td><td><b>Yes.</b> It is the public <i>Brazilian E-Commerce Public Dataset by Olist</i> (about 100,000 real, anonymised orders from 2016-2018).</td></tr>
+<tr><td>Is it food delivery?</td><td><b>No.</b> It is e-commerce (many product types). The original project title said "Food Delivery"; we changed the subtitle because the dataset is not food. <i>You should confirm this with your professor.</i></td></tr>
+<tr><td>Are the orders live?</td><td><b>No.</b> They are historical. We <b>replay</b> them through a streaming pipeline at a speed we control. Always say: <i>"historical dataset replay through a streaming pipeline"</i>.</td></tr>
+<tr><td>Is the API real?</td><td><b>Yes.</b> The Frankfurter API (European Central Bank exchange rates) is a real public service. It does <b>not</b> contain orders; it gives currency rates.</td></tr>
+<tr><td>Is it "exactly-once"?</td><td><b>No.</b> It is <i>at-least-once delivery with an idempotent (safe-to-repeat) database write</i>. Chapter 16 explains the difference.</td></tr>
+</table>
+
+<h2 id="s8-1-2-the-one-line-journey">1.2 The one-line journey</h2>
+<pre class="code">Olist CSV files  ->  Python producer  ->  Kafka  ->  Spark  ->  Parquet files + PostgreSQL  ->  Streamlit dashboard
+                      (check, join)     (conveyor)  (process)   (archive)   (clean catalogue)      (see the answers)
+                                  + Frankfurter API adds a USD value to every order
+                                  + Airflow runs the repeatable steps as a scheduled workflow</pre>
+
+<h2 id="s9-1-3-what-we-actually-achieved-measured">1.3 What we actually achieved (measured)</h2>
+<table>
+<tr><th>Result</th><th>Value</th><th>Where it is proved</th></tr>
+<tr><td>Orders in the real file</td><td>99,441</td><td><code>docs/evidence/01_dataset/dataset_profile.txt</code></td></tr>
+<tr><td>Orders accepted (valid)</td><td>99,427</td><td><code>03_kafka/producer_full_run.txt</code></td></tr>
+<tr><td>Orders rejected (contradict themselves)</td><td>14 (kept in the dead-letter queue)</td><td><code>05_data_quality/</code>, <code>07_postgresql/rejected_14_vs_15_explained.txt</code></td></tr>
+<tr><td>Rows in the warehouse</td><td>99,427 (each order exactly once)</td><td><code>07_postgresql/quality_checks_output.txt</code></td></tr>
+<tr><td>Total revenue in the data</td><td>16,006,744.62 BRL (about 4.77 million USD, estimated)</td><td><code>07_postgresql/analytics_views_output.txt</code></td></tr>
+<tr><td>Late deliveries</td><td>8.11 %</td><td>same file</td></tr>
+<tr><td>Automated tests</td><td>73 unit + 18 integration + 5 Spark + 8 Airflow + 4 end-to-end, all passing</td><td><code>10_automated_tests/final_*.txt</code></td></tr>
+</table>
+
+<h1 id="s10-2-the-vocabulary-read-this-before-anything-else">2. The vocabulary (read this before anything else)</h1>
+<p>Most confusion in data engineering comes from unfamiliar words. Here are the essential ones, each with a plain explanation. A longer glossary is at the end of the guide.</p>
+
+<h2 id="s11-2-1-about-data-and-pipelines">2.1 About data and pipelines</h2>
+<table>
+<tr><th style="width:22%">Word</th><th>Plain meaning</th><th>Example in this project</th></tr>
+<tr><td><b>Data pipeline</b></td><td>A chain of steps that moves data from where it starts to where it is useful.</td><td>CSV &rarr; Python &rarr; Kafka &rarr; Spark &rarr; PostgreSQL &rarr; dashboard</td></tr>
+<tr><td><b>Batch</b> vs <b>stream</b></td><td>Batch = process a big pile at once, then stop. Stream = process small pieces continuously as they arrive.</td><td>Reading the 100,000-order file is a pile; Kafka + Spark treat it as a flow of messages.</td></tr>
+<tr><td><b>Event / message</b></td><td>One small piece of information that something happened.</td><td>"Order X was placed at 21:15 for 136.23 BRL" is one message.</td></tr>
+<tr><td><b>Replay</b></td><td>Sending old recorded data through a system as if it were new.</td><td>We replay 2016-2018 orders in a few minutes.</td></tr>
+<tr><td><b>ETL / ELT</b></td><td>Extract-Transform-Load (clean first, then store) vs Extract-Load-Transform (store first, clean later).</td><td>Mostly ETL: we check and transform before loading; SQL views do the final analytics.</td></tr>
+<tr><td><b>Validation</b></td><td>Checking that data follows the rules.</td><td>"A delivered order must have a delivery date."</td></tr>
+<tr><td><b>Enrichment</b></td><td>Adding extra information from another source.</td><td>Adding the USD value from the exchange-rate API.</td></tr>
+<tr><td><b>Provenance / lineage</b></td><td>Knowing where every piece of data came from.</td><td>Each row remembers its source file hash, row number, run id, Kafka position.</td></tr>
+</table>
+
+<h2 id="s12-2-2-about-kafka">2.2 About Kafka</h2>
+<table>
+<tr><th style="width:22%">Word</th><th>Plain meaning</th></tr>
+<tr><td><b>Kafka</b></td><td>A system that stores and delivers messages in order, like a very reliable conveyor belt that remembers everything for a few days.</td></tr>
+<tr><td><b>Broker</b></td><td>The Kafka server (ours runs in a Docker container).</td></tr>
+<tr><td><b>Topic</b></td><td>A named channel of messages. Ours is <code>ecommerce_orders</code>.</td></tr>
+<tr><td><b>Partition</b></td><td>A topic is split into several lanes (ours: 3) so work can be shared. Order is guaranteed only <i>inside</i> one lane.</td></tr>
+<tr><td><b>Offset</b></td><td>The position number of a message inside a lane (0, 1, 2, ...). Like a page number.</td></tr>
+<tr><td><b>Key</b></td><td>A label on a message that decides which lane it goes to. Same key &rarr; same lane. Ours: the <code>order_id</code>.</td></tr>
+<tr><td><b>Producer</b></td><td>A program that <i>puts</i> messages into Kafka (our Python replay script).</td></tr>
+<tr><td><b>Consumer</b></td><td>A program that <i>reads</i> messages from Kafka (Spark).</td></tr>
+</table>
+
+<h2 id="s13-2-3-about-spark-and-storage">2.3 About Spark and storage</h2>
+<table>
+<tr><th style="width:22%">Word</th><th>Plain meaning</th></tr>
+<tr><td><b>Spark Structured Streaming</b></td><td>A tool that reads a flow of data in small groups and processes each group like a mini batch.</td></tr>
+<tr><td><b>Micro-batch</b></td><td>One small group of messages processed together (ours: up to 10,000 messages).</td></tr>
+<tr><td><b>Trigger</b></td><td>The rule for <i>when</i> to run the next micro-batch: every 5 seconds, or <code>availableNow</code> = "process everything waiting, then finish".</td></tr>
+<tr><td><b>Checkpoint</b></td><td>Spark's progress notebook: which Kafka offsets have been processed. After a stop, Spark continues from there.</td></tr>
+<tr><td><b>Parquet</b></td><td>A compact file format for tables, good for analytics. Think "a very efficient Excel file".</td></tr>
+<tr><td><b>Landing layer</b></td><td>The first place data is stored after processing, kept as-is for audit. Ours: Parquet files.</td></tr>
+<tr><td><b>Data warehouse</b></td><td>A clean database prepared for questions and reports. Ours: PostgreSQL.</td></tr>
+<tr><td><b>View</b></td><td>A saved SQL question that looks like a table (e.g. "orders per month").</td></tr>
+<tr><td><b>KPI</b></td><td>Key performance indicator: an important number such as revenue or late-delivery rate.</td></tr>
+</table>
+
+<h2 id="s14-2-4-about-safety-and-correctness">2.4 About safety and correctness</h2>
+<table>
+<tr><th style="width:22%">Word</th><th>Plain meaning</th></tr>
+<tr><td><b>Idempotent</b></td><td>Doing it twice has the same result as doing it once. Pressing a lift button twice does not call two lifts.</td></tr>
+<tr><td><b>Upsert</b></td><td>"Update or insert": add the row if it is new, skip (or update) it if it already exists.</td></tr>
+<tr><td><b>Duplicate</b></td><td>The same thing appearing more than once. We distinguish <i>retry duplicates</i> and <i>source duplicates</i> (chapter 9).</td></tr>
+<tr><td><b>Dead-letter queue (DLQ)</b></td><td>A "problems shelf": rejected records are stored with the reason instead of being thrown away.</td></tr>
+<tr><td><b>At-least-once</b></td><td>Every message is delivered one <i>or more</i> times; none is lost, but repeats are possible.</td></tr>
+<tr><td><b>Exactly-once</b></td><td>Every message is processed exactly one time. Hard to guarantee across many systems; <b>we do not claim it</b>.</td></tr>
+<tr><td><b>Reconciliation</b></td><td>Counting records at every stage and checking that the numbers agree (or are explained).</td></tr>
+<tr><td><b>Orchestrator / DAG</b></td><td>A tool (Airflow) that runs steps in the right order with retries. A DAG is the "recipe": tasks and arrows, no loops.</td></tr>
+<tr><td><b>Container / Docker</b></td><td>A sealed, ready-to-run package of a program and everything it needs. Our Kafka, PostgreSQL, Spark and Airflow run in containers.</td></tr>
+</table>
+
+<h1 id="s15-3-the-data-where-it-comes-from-and-what-it-looks-like">3. The data: where it comes from and what it looks like</h1>
+
+<h2 id="s16-3-1-the-source">3.1 The source</h2>
+<table>
+<tr><th style="width:24%">Item</th><th>Value</th></tr>
+<tr><td>Name</td><td><b>Brazilian E-Commerce Public Dataset by Olist</b></td></tr>
+<tr><td>Where</td><td>Kaggle: <code>https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce</code></td></tr>
+<tr><td>Owner</td><td>Olist (a Brazilian marketplace). The data is real but <b>anonymised</b>.</td></tr>
+<tr><td>Period</td><td>September 2016 - October 2018 (first order 2016-09-04 21:15:19, last 2018-10-17 17:30:18)</td></tr>
+<tr><td>License</td><td>CC BY-NC-SA 4.0: you must credit Olist, use it non-commercially, and share alike. Fine for coursework. <i>(Read from the Kaggle page via a search excerpt: re-confirm in a browser.)</i></td></tr>
+<tr><td>Where it lives in the repo</td><td><code>data/raw/</code> (git-ignored: the files are never committed; see <code>data/raw/README.md</code>)</td></tr>
+<tr><td>Rule</td><td>The raw files are <b>never edited</b>. The project only reads them. A script (<code>scripts/check_dataset_fingerprint.py</code>) proves they are unchanged using SHA-256 fingerprints.</td></tr>
+</table>
+
+<div class="box analogy"><span class="t">Analogy: a fingerprint</span>
+A SHA-256 hash is a fingerprint of a file. If even one character changes, the fingerprint changes completely. We recorded the fingerprints on day one, so we can prove later that the data was not modified.</div>
+
+<h2 id="s17-3-2-the-nine-files-a-small-relational-database-in-csv-form">3.2 The nine files (a small relational database in CSV form)</h2>
+<p>Real shops do not keep everything in one table. The data is split into tables that point to each other with <b>keys</b> (ID columns), like a set of index cards that refer to each other.</p>
+<table>
+<tr><th>File</th><th>Rows</th><th>Cols</th><th>What one row is</th><th>Role in StreamPulse</th></tr>
+<tr><td><code>olist_orders_dataset.csv</code></td><td>99,441</td><td>8</td><td>one order</td><td><b>the main thing we stream</b></td></tr>
+<tr><td><code>olist_order_items_dataset.csv</code></td><td>112,650</td><td>7</td><td>one item inside an order</td><td>summed per order; also loaded as reference table</td></tr>
+<tr><td><code>olist_order_payments_dataset.csv</code></td><td>103,886</td><td>5</td><td>one payment of an order</td><td>summed per order (revenue)</td></tr>
+<tr><td><code>olist_customers_dataset.csv</code></td><td>99,441</td><td>5</td><td>one customer record (per order)</td><td>city and state of the order</td></tr>
+<tr><td><code>olist_order_reviews_dataset.csv</code></td><td>99,224</td><td>7</td><td>one review</td><td>reference table (review scores)</td></tr>
+<tr><td><code>olist_products_dataset.csv</code></td><td>32,951</td><td>9</td><td>one product</td><td>reference table (categories)</td></tr>
+<tr><td><code>olist_sellers_dataset.csv</code></td><td>3,095</td><td>4</td><td>one seller</td><td>reference table</td></tr>
+<tr><td><code>product_category_name_translation.csv</code></td><td>71</td><td>2</td><td>Portuguese to English category name</td><td>translates product categories</td></tr>
+<tr><td><code>olist_geolocation_dataset.csv</code></td><td>1,000,163</td><td>5</td><td>one latitude/longitude sample</td><td>reduced to one point per zip prefix (19,010)</td></tr>
+</table>
+
+<h3>The orders file, column by column</h3>
+<table>
+<tr><th>Column</th><th>Meaning</th><th>Empty values</th></tr>
+<tr><td><code>order_id</code></td><td>unique ID of the order (a long hex text). <b>No duplicates in the file</b> (verified).</td><td>0</td></tr>
+<tr><td><code>customer_id</code></td><td>key that points into the customers file</td><td>0</td></tr>
+<tr><td><code>order_status</code></td><td>one of 8 values (below)</td><td>0</td></tr>
+<tr><td><code>order_purchase_timestamp</code></td><td>when the order was placed</td><td>0</td></tr>
+<tr><td><code>order_approved_at</code></td><td>when payment was approved</td><td>160</td></tr>
+<tr><td><code>order_delivered_carrier_date</code></td><td>when it was handed to the courier</td><td>1,783</td></tr>
+<tr><td><code>order_delivered_customer_date</code></td><td>when the customer received it</td><td>2,965</td></tr>
+<tr><td><code>order_estimated_delivery_date</code></td><td>the delivery date promised to the customer</td><td>0</td></tr>
+</table>
+<p><b>Important idea:</b> an <i>empty</i> delivery date is <b>not an error</b>. A canceled or still-shipping order simply has no delivery date yet. Our rules never reject an order only because a date is empty (they reject only <i>contradictions</i>, chapter 9).</p>
+
+<h3>The eight order statuses (real counts)</h3>
+<table>
+<tr><th>delivered</th><th>shipped</th><th>canceled</th><th>unavailable</th><th>invoiced</th><th>processing</th><th>created</th><th>approved</th></tr>
+<tr><td>96,478</td><td>1,107</td><td>625</td><td>609</td><td>314</td><td>301</td><td>5</td><td>2</td></tr>
+</table>
+
+<h2 id="s18-3-3-what-we-learned-by-profiling-the-data-before-writing-any">3.3 What we learned by profiling the data (before writing any code)</h2>
+<p><b>Profiling</b> means measuring the data to learn its real shape. We did this with <code>scripts/profile_dataset.py</code> and saved the report. We never assumed column names or counts.</p>
+<table>
+<tr><th>Finding</th><th>Number</th><th>What we decided</th></tr>
+<tr><td>Duplicate <code>order_id</code> in the orders file</td><td>0</td><td><code>order_id</code> is a safe <i>natural key</i> (a real-world unique ID).</td></tr>
+<tr><td>Orders with no item rows</td><td>775 (603 unavailable, 164 canceled, ...)</td><td>Keep them with <code>items_count = 0</code>; never silently drop.</td></tr>
+<tr><td>Orders with no payment row</td><td>1</td><td>Keep with <code>payments_count = 0</code>.</td></tr>
+<tr><td>Delivered orders without a delivery date</td><td>8</td><td>Contradiction &rarr; reject to the dead-letter queue.</td></tr>
+<tr><td>Orders with a delivery date but status not "delivered"</td><td>6 (all canceled)</td><td>Contradiction &rarr; reject.</td></tr>
+<tr><td>Delivered before purchase</td><td>0</td><td>Rule kept anyway (used in Demo 3).</td></tr>
+<tr><td>Delivered after the promised date (late)</td><td>7,827</td><td>Not invalid! This is the <i>late-delivery KPI</i>.</td></tr>
+<tr><td><code>customer_unique_id</code> repeating across <code>customer_id</code></td><td>3,345</td><td>Normal: one real person can place several orders.</td></tr>
+<tr><td>Reviews with a repeated <code>review_id</code></td><td>814 rows</td><td>Reference table key is (review_id, order_id).</td></tr>
+<tr><td>Geolocation exact duplicate rows</td><td>261,831 of 1,000,163</td><td>Reduce to one centroid per zip prefix.</td></tr>
+<tr><td>Geolocation points outside Brazil</td><td>42</td><td>Ignored for centroids and reported.</td></tr>
+<tr><td>Products without a category / category names without translation</td><td>610 / 2 names</td><td>Show the Portuguese name when no translation exists.</td></tr>
+</table>
+
+<h2 id="s19-3-4-from-many-tables-to-one-order-event">3.4 From many tables to one "order event"</h2>
+<p>A message in Kafka should describe <b>one order completely</b>. So before sending, Python <b>joins</b> (combines) the tables. This is implemented in <code>src/common/orders_source.py</code>:</p>
+<figure>
+<svg width="720" height="215" viewBox="0 0 720 215" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="11">
+ <defs><marker id="a1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0b5cad"/></marker></defs>
+ <rect x="10" y="10" width="170" height="40" rx="5" fill="#e8eff7" stroke="#0b5cad"/><text x="95" y="28" text-anchor="middle" font-weight="bold">orders (99,441)</text><text x="95" y="43" text-anchor="middle" font-size="9.5">1 row per order_id</text>
+ <rect x="10" y="80" width="170" height="40" rx="5" fill="#f3f5f8" stroke="#8795a6"/><text x="95" y="98" text-anchor="middle" font-weight="bold">customers</text><text x="95" y="113" text-anchor="middle" font-size="9.5">join on customer_id &#8594; city, state</text>
+ <rect x="10" y="125" width="170" height="40" rx="5" fill="#f3f5f8" stroke="#8795a6"/><text x="95" y="143" text-anchor="middle" font-weight="bold">order_items (112,650)</text><text x="95" y="158" text-anchor="middle" font-size="9.5">SUM per order: count, price, freight</text>
+ <rect x="10" y="170" width="170" height="40" rx="5" fill="#f3f5f8" stroke="#8795a6"/><text x="95" y="188" text-anchor="middle" font-weight="bold">order_payments (103,886)</text><text x="95" y="203" text-anchor="middle" font-size="9.5">SUM per order: value, payment types</text>
+ <line x1="182" y1="30" x2="300" y2="105" stroke="#0b5cad" marker-end="url(#a1)"/><line x1="182" y1="100" x2="300" y2="108" stroke="#0b5cad" marker-end="url(#a1)"/>
+ <line x1="182" y1="145" x2="300" y2="112" stroke="#0b5cad" marker-end="url(#a1)"/><line x1="182" y1="190" x2="300" y2="118" stroke="#0b5cad" marker-end="url(#a1)"/>
+ <rect x="302" y="70" width="150" height="80" rx="6" fill="#0b5cad"/><text x="377" y="102" text-anchor="middle" fill="#fff" font-weight="bold">LEFT JOIN</text><text x="377" y="118" text-anchor="middle" fill="#fff" font-size="10">99,441 in, 99,441 out</text><text x="377" y="132" text-anchor="middle" fill="#fff" font-size="10">nothing lost or doubled</text>
+ <line x1="454" y1="110" x2="520" y2="110" stroke="#0b5cad" marker-end="url(#a1)"/>
+ <rect x="522" y="30" width="190" height="160" rx="6" fill="#f1f8f4" stroke="#0f8a5f"/><text x="617" y="50" text-anchor="middle" font-weight="bold">one order event</text>
+ <text x="532" y="70" font-size="10">order_id, status, 4 timestamps</text><text x="532" y="85" font-size="10">customer city + state</text><text x="532" y="100" font-size="10">items_count, items_price_total,</text><text x="532" y="113" font-size="10">items_freight_total</text><text x="532" y="128" font-size="10">payments_count, payments_value_total,</text><text x="532" y="141" font-size="10">payment_types</text><text x="532" y="160" font-size="10" fill="#0f8a5f">+ later: USD value from the API</text>
+</svg>
+<figcaption>Figure 3.1: Four tables become one self-contained order event. LEFT JOIN keeps orders even if a child table has no rows for them.</figcaption>
+</figure>
+<div class="box why"><span class="t">Why LEFT JOIN?</span>
+A normal join would drop the 775 orders that have no item rows. A <b>LEFT JOIN</b> keeps every order and fills missing parts with 0. Rule 8 of our project: <i>never silently drop rows</i>. A check script proves the result: <code>99,441 orders in, 99,441 order rows out</code> (<code>docs/evidence/01_dataset/join_and_mapping_check.txt</code>).</div>
+
+<p><b>Replay order.</b> The rows are sorted by <code>order_purchase_timestamp</code>, so the replay follows real history from September 2016 to October 2018.</p>
+
+<h1 id="s20-4-the-architecture-how-everything-fits-together">4. The architecture: how everything fits together</h1>
+
+<figure>
+<svg width="740" height="470" viewBox="0 0 740 470" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="11">
+ <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2933"/></marker>
+ <marker id="a3" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#b42318"/></marker></defs>
+ <rect x="5" y="5" width="730" height="30" rx="4" fill="#f8f5ff" stroke="#7c3aed" stroke-dasharray="5 3"/><text x="370" y="25" text-anchor="middle" fill="#5b21b6" font-weight="bold">AIRFLOW orchestrates the finite steps (replay, Spark availableNow, checks, reconcile): not the endless stream</text>
+ <rect x="10" y="70" width="120" height="60" rx="6" fill="#fff" stroke="#1f2933"/><text x="70" y="95" text-anchor="middle" font-weight="bold">Olist CSV</text><text x="70" y="110" text-anchor="middle" font-size="9.5">9 files, read-only</text><text x="70" y="122" text-anchor="middle" font-size="9.5">data/raw/</text>
+ <rect x="170" y="62" width="140" height="76" rx="6" fill="#e8eff7" stroke="#0b5cad" stroke-width="2"/><text x="240" y="82" text-anchor="middle" font-weight="bold">Python producer</text><text x="240" y="97" text-anchor="middle" font-size="9.5">join, map types,</text><text x="240" y="109" text-anchor="middle" font-size="9.5">validate, enrich,</text><text x="240" y="121" text-anchor="middle" font-size="9.5">wrap in an envelope</text>
+ <rect x="350" y="62" width="150" height="76" rx="6" fill="#fff4e0" stroke="#b45309" stroke-width="2"/><text x="425" y="82" text-anchor="middle" font-weight="bold">KAFKA</text><text x="425" y="97" text-anchor="middle" font-size="9.5">topic ecommerce_orders</text><text x="425" y="109" text-anchor="middle" font-size="9.5">3 partitions, key=order_id</text><text x="425" y="121" text-anchor="middle" font-size="9.5">(Docker, port 9092)</text>
+ <rect x="540" y="62" width="190" height="76" rx="6" fill="#e8f5ee" stroke="#0f8a5f" stroke-width="2"/><text x="635" y="82" text-anchor="middle" font-weight="bold">SPARK Structured Streaming</text><text x="635" y="97" text-anchor="middle" font-size="9.5">micro-batches, checkpoint</text><text x="635" y="109" text-anchor="middle" font-size="9.5">parse + validate + dedup</text><text x="635" y="121" text-anchor="middle" font-size="9.5">(runs in a Linux container)</text>
+ <line x1="130" y1="100" x2="168" y2="100" stroke="#1f2933" marker-end="url(#a2)"/><line x1="310" y1="100" x2="348" y2="100" stroke="#1f2933" marker-end="url(#a2)"/><line x1="500" y1="100" x2="538" y2="100" stroke="#1f2933" marker-end="url(#a2)"/>
+ <rect x="170" y="190" width="140" height="56" rx="6" fill="#eef6ff" stroke="#0b5cad"/><text x="240" y="212" text-anchor="middle" font-weight="bold">Frankfurter API</text><text x="240" y="227" text-anchor="middle" font-size="9.5">ECB rates BRL&#8594;USD (real)</text>
+ <line x1="240" y1="190" x2="240" y2="140" stroke="#1f2933" marker-end="url(#a2)"/><text x="248" y="168" font-size="9.5">USD rate per date</text>
+ <rect x="10" y="190" width="130" height="56" rx="6" fill="#fff3f2" stroke="#b42318"/><text x="75" y="212" text-anchor="middle" font-weight="bold" fill="#b42318">Dead letters (ingest)</text><text x="75" y="227" text-anchor="middle" font-size="9.5">rejected orders + reason</text>
+ <path d="M200 138 L110 190" stroke="#b42318" fill="none" marker-end="url(#a3)"/>
+ <rect x="540" y="190" width="190" height="56" rx="6" fill="#fff3f2" stroke="#b42318"/><text x="635" y="212" text-anchor="middle" font-weight="bold" fill="#b42318">Dead letters (stream)</text><text x="635" y="227" text-anchor="middle" font-size="9.5">malformed / schema-invalid messages</text>
+ <line x1="635" y1="138" x2="635" y2="188" stroke="#b42318" marker-end="url(#a3)"/>
+ <rect x="410" y="300" width="150" height="60" rx="6" fill="#f3f5f8" stroke="#1f2933"/><text x="485" y="322" text-anchor="middle" font-weight="bold">Parquet files</text><text x="485" y="337" text-anchor="middle" font-size="9.5">landing layer, append-only</text><text x="485" y="349" text-anchor="middle" font-size="9.5">batch_id=NNNNNNNN folders</text>
+ <rect x="590" y="300" width="140" height="60" rx="6" fill="#e8eff7" stroke="#0b5cad" stroke-width="2"/><text x="660" y="322" text-anchor="middle" font-weight="bold">PostgreSQL</text><text x="660" y="337" text-anchor="middle" font-size="9.5">warehouse: each order</text><text x="660" y="349" text-anchor="middle" font-size="9.5">once (upsert) + views</text>
+ <path d="M600 138 L500 300" stroke="#1f2933" fill="none" marker-end="url(#a2)"/><path d="M670 138 L670 298" stroke="#1f2933" fill="none" marker-end="url(#a2)"/>
+ <rect x="590" y="400" width="140" height="56" rx="6" fill="#f1f8f4" stroke="#0f8a5f" stroke-width="2"/><text x="660" y="422" text-anchor="middle" font-weight="bold">Streamlit dashboard</text><text x="660" y="437" text-anchor="middle" font-size="9.5">7 pages, localhost:8501</text>
+ <line x1="660" y1="360" x2="660" y2="398" stroke="#1f2933" marker-end="url(#a2)"/>
+ <rect x="170" y="400" width="300" height="56" rx="6" fill="#fffbe6" stroke="#b45309"/><text x="320" y="422" text-anchor="middle" font-weight="bold">Reconciliation (scripts/reconcile.py)</text><text x="320" y="437" text-anchor="middle" font-size="9.5">counts every layer; expected values computed from the source</text>
+ <path d="M470 428 L588 428" stroke="#b45309" stroke-dasharray="4 3" fill="none"/><path d="M320 400 L420 362" stroke="#b45309" stroke-dasharray="4 3" fill="none"/><path d="M240 400 L240 250" stroke="#b45309" stroke-dasharray="4 3" fill="none"/>
+ <text x="10" y="300" font-size="10" fill="#5b6770">Solid arrow = data moves.</text><text x="10" y="315" font-size="10" fill="#5b6770">Red = rejected data (kept, not lost).</text><text x="10" y="330" font-size="10" fill="#5b6770">Dashed = a check reads a layer.</text>
+</svg>
+<figcaption>Figure 4.1: The StreamPulse architecture. Only connections that exist in the code and were run are drawn.</figcaption>
+</figure>
+
+<h2 id="s21-4-1-which-technology-does-what-and-why-we-chose-it">4.1 Which technology does what, and why we chose it</h2>
+<table>
+<tr><th style="width:15%">Tool</th><th style="width:25%">Its job here</th><th>Why this choice (and what we did not choose)</th></tr>
+<tr><td><b>Python 3.11</b></td><td>Producer, API client, validation rules, loaders, scripts, tests, dashboard code.</td><td>Readable for beginners; huge ecosystem (pandas, kafka-python, psycopg2, Streamlit).</td></tr>
+<tr><td><b>Apache Kafka 4.1</b></td><td>Durable message conveyor between the producer and Spark. Remembers messages (offsets) so a restarted consumer can continue.</td><td>It is the standard tool for streaming data and the one the professor expects. It decouples fast producers from slower consumers.</td></tr>
+<tr><td><b>Spark 4.2 Structured Streaming</b></td><td>Reads Kafka in micro-batches, validates, removes in-batch duplicates, writes Parquet and PostgreSQL.</td><td>Handles growth (the same code could run on a cluster) and gives checkpoints for recovery. Runs in Docker because on Windows it needs <code>winutils.exe</code> (an untrusted third-party download we refused).</td></tr>
+<tr><td><b>Parquet</b></td><td>Landing layer: every valid message Spark consumed, kept for audit and replay.</td><td>Compact, columnar, typed. Simple files, no server.</td></tr>
+<tr><td><b>PostgreSQL 16</b></td><td>The warehouse: one clean row per order, plus reference tables and analytics views.</td><td>Free, reliable, great SQL. <code>INSERT ... ON CONFLICT</code> gives the safe upsert.</td></tr>
+<tr><td><b>Frankfurter API</b></td><td>Real external data: historical BRL&#8594;USD exchange rates.</td><td>No key, no quota, official ECB rates, <b>one</b> request covers the whole period. (Weather API needs thousands of calls; a state-name API adds little.)</td></tr>
+<tr><td><b>Airflow 2.10</b></td><td>Runs the repeatable steps in order, with retries and logs.</td><td>The standard orchestrator. Used only for <i>finite</i> tasks: an endless stream is not a task.</td></tr>
+<tr><td><b>Streamlit</b></td><td>The dashboard.</td><td>A dashboard in pure Python, no web-development skills needed.</td></tr>
+<tr><td><b>Docker Compose</b></td><td>Starts Kafka, PostgreSQL, Spark and Airflow the same way on any machine.</td><td>Reproducible setup, nothing to install by hand.</td></tr>
+</table>
+
+<h2 id="s22-4-2-the-services-and-ports">4.2 The services and ports</h2>
+<table>
+<tr><th>Service</th><th>Container name</th><th>Port (your PC)</th><th>Started by</th></tr>
+<tr><td>Kafka broker</td><td><code>streampulse-kafka</code></td><td>9092 (containers use <code>kafka:29092</code>)</td><td><code>scripts\kafka_start.ps1</code></td></tr>
+<tr><td>PostgreSQL</td><td><code>streampulse-postgres</code></td><td>5432</td><td><code>scripts\init_db.ps1</code></td></tr>
+<tr><td>Spark job</td><td>a temporary container per run</td><td>none</td><td><code>scripts\run_stream.ps1</code></td></tr>
+<tr><td>Airflow</td><td><code>streampulse-airflow</code></td><td>8080</td><td><code>scripts\airflow_up.ps1</code></td></tr>
+<tr><td>Dashboard</td><td>(runs directly on Windows)</td><td>8501</td><td><code>scripts\run_dashboard.ps1</code></td></tr>
+</table>
+<div class="box why"><span class="t">Why two Kafka addresses?</span>
+Inside a container, "localhost" means <i>the container itself</i>. So Kafka advertises two doors: <code>localhost:9092</code> for programs on your PC (the producer) and <code>kafka:29092</code> for other containers (Spark, Airflow). This is configured in <code>docker-compose.yml</code>.</div>
+
+<h1 id="s23-5-stage-1-the-python-producer-from-csv-rows-to-kafka-message">5. Stage 1: The Python producer (from CSV rows to Kafka messages)</h1>
+<p>File: <code>src/producer/dataset_producer.py</code>. This is the program you run to start the flow. It does eight things for every order. Follow one real order through them.</p>
+
+<h2 id="s24-5-1-our-example-order">5.1 Our example order</h2>
+<p>The very first order in replay order (it was the first message Kafka stored in partition 0). Real values from <code>docs/evidence/03_kafka/consume_sample_messages.txt</code>:</p>
+<table>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>order_id</td><td><code>2e7a8482f6fb09756ca50c10d7bfc047</code></td></tr>
+<tr><td>status</td><td>shipped</td></tr>
+<tr><td>purchase / approved / carrier</td><td>2016-09-04 21:15:19 / 2016-10-07 13:18:03 / 2016-10-18 13:14:51</td></tr>
+<tr><td>delivered to customer</td><td>(empty: not delivered yet, perfectly valid)</td></tr>
+<tr><td>customer</td><td>boa vista, state RR</td></tr>
+<tr><td>items</td><td>2 items, total price 72.89, freight 63.34</td></tr>
+<tr><td>payment</td><td>1 payment by credit card, total 136.23 BRL</td></tr>
+</table>
+
+<h2 id="s25-5-2-the-eight-steps">5.2 The eight steps</h2>
+<figure>
+<svg width="730" height="150" viewBox="0 0 730 150" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10.5">
+ <defs><marker id="a4" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker></defs>
+ <g fill="#e8eff7" stroke="#0b5cad"><rect x="5" y="20" width="82" height="62" rx="5"/><rect x="95" y="20" width="82" height="62" rx="5"/><rect x="185" y="20" width="82" height="62" rx="5"/><rect x="275" y="20" width="82" height="62" rx="5"/><rect x="365" y="20" width="82" height="62" rx="5"/><rect x="455" y="20" width="82" height="62" rx="5"/><rect x="545" y="20" width="82" height="62" rx="5"/><rect x="635" y="20" width="85" height="62" rx="5"/></g>
+ <g text-anchor="middle" font-weight="bold"><text x="46" y="40">1 Read</text><text x="136" y="40">2 Join</text><text x="226" y="40">3 Map types</text><text x="316" y="40">4 Validate</text><text x="406" y="40">5 Enrich</text><text x="496" y="40">6 Envelope</text><text x="586" y="40">7 Publish</text><text x="677" y="40">8 Summary</text></g>
+ <g text-anchor="middle" font-size="9"><text x="46" y="56">CSV file</text><text x="46" y="68">+ SHA-256</text><text x="136" y="56">orders +</text><text x="136" y="68">3 tables</text><text x="226" y="56">text &#8594; numbers,</text><text x="226" y="68">ISO dates</text><text x="316" y="56">rules; bad row</text><text x="316" y="68">&#8594; dead letter</text><text x="406" y="56">USD rate of</text><text x="406" y="68">purchase day</text><text x="496" y="56">record_uid,</text><text x="496" y="68">payload, raw</text><text x="586" y="56">key=order_id</text><text x="586" y="68">acks=all</text><text x="677" y="56">JSON file of</text><text x="677" y="68">all counts</text></g>
+ <g stroke="#1f2933"><line x1="88" y1="51" x2="94" y2="51" marker-end="url(#a4)"/><line x1="178" y1="51" x2="184" y2="51" marker-end="url(#a4)"/><line x1="268" y1="51" x2="274" y2="51" marker-end="url(#a4)"/><line x1="358" y1="51" x2="364" y2="51" marker-end="url(#a4)"/><line x1="448" y1="51" x2="454" y2="51" marker-end="url(#a4)"/><line x1="538" y1="51" x2="544" y2="51" marker-end="url(#a4)"/><line x1="628" y1="51" x2="634" y2="51" marker-end="url(#a4)"/></g>
+ <text x="365" y="115" text-anchor="middle" font-size="10" fill="#b42318">Step 4 can reject the row: it is written to data/dead_letter/ingest/&lt;run&gt;.jsonl with a reason, never silently dropped.</text>
+ <text x="365" y="132" text-anchor="middle" font-size="10" fill="#5b6770">Step 8 also records counts: read = valid + rejected;  published = valid;  failed publishes = 0.</text>
+</svg>
+<figcaption>Figure 5.1: What the producer does to every order.</figcaption>
+</figure>
+
+<h3>Step 1: read and fingerprint</h3>
+<p>The orders file is opened and its SHA-256 fingerprint is computed. That fingerprint is used to create the record's identity (step 6).</p>
+
+<h3>Step 2: join</h3>
+<p>Explained in chapter 3 (<code>build_order_rows</code>). Result: one row per order with customer city/state and the item/payment totals.</p>
+
+<h3>Step 3: map and convert types (<code>config/field_mapping.yaml</code>, <code>src/common/mapping.py</code>)</h3>
+<p>CSV values are all <i>text</i>. A <b>mapping file</b> says, for every field: which source column it comes from, its new name, its type, and whether it is required. Excerpt:</p>
+<pre class="code"><span class="tag code">config/field_mapping.yaml</span>
+  - {source_column: order_purchase_timestamp,      canonical_name: purchase_ts,           type: timestamp, required: true,  origin: orders}
+  - {source_column: order_delivered_customer_date, canonical_name: delivered_customer_ts, type: timestamp, required: false, origin: orders}
+  - {source_column: items_count,                   canonical_name: items_count,           type: int,       required: true,  origin: order_items}</pre>
+<p><code>apply_mapping()</code> converts each value (text &#8594; number, text &#8594; ISO timestamp such as <code>2016-09-04T21:15:19</code>) and returns <b>either a clean record or a list of errors</b>. It never crashes on bad data; it reports it. Error codes: <code>MISSING_REQUIRED</code> (a required value is empty) and <code>TYPE_ERROR</code> (e.g. "abc" where a number is needed).</p>
+<div class="box why"><span class="t">Why a mapping file and not hard-coded names?</span>
+Rule 7 of the project: <i>never assume column names</i>. The mapping file is built from the real profiled columns, so it can be read, reviewed, and changed without touching code. Spark even builds its message schema from the same file, so producer and consumer can never disagree.</div>
+
+<h3>Step 4: validate (<code>config/quality_rules.yaml</code>, <code>src/processing/validators.py</code>)</h3>
+<p>Nine rules check the order (chapter 9 explains each). If any <i>reject</i> rule fires, the order goes to the dead-letter file with the reason and is <b>not</b> published. The single function <code>classify_record()</code> decides this; the reconciliation script calls the same function, so the two can never disagree.</p>
+
+<h3>Step 5: enrich with the API</h3>
+<p>Chapter 6. Before the loop starts, the producer asks the API <b>once</b> for the BRL&#8594;USD rates of the whole date range, then looks up each order's purchase date in that table. If the API is down the producer logs a warning and continues without enrichment (it never stops the ingestion).</p>
+
+<h3>Step 6: build the envelope (the message)</h3>
+<p>A Kafka message is a standard "envelope" around the order. Real message consumed from Kafka (shortened with "..." only where long):</p>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/03_kafka/consume_sample_messages.txt</span>
+{
+  "schema_version": "1.0",
+  "record_uid": "fc6fdc70c71fd67c6611ac15899fad76",
+  "business_hash": "35d18ab7f8edeb353e6f06b79181cbfb",
+  "source_category": "kafka_replayed",
+  "source_file": "olist_orders_dataset.csv",
+  "source_file_sha256": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf",
+  "source_row_number": 4542,
+  "ingest_run_id": "limited-100",
+  "ingested_at": "2026-10-15T16:38:02.702715+00:00",
+  "payload": { "order_id": "2e7a8482...c047", "order_status": "shipped",
+               "purchase_ts": "2016-09-04T21:15:19", "delivered_customer_ts": null,
+               "customer_city": "boa vista", "customer_state": "RR",
+               "items_count": 2, "items_price_total": 72.89, "items_freight_total": 63.34,
+               "payments_count": 1, "payments_value_total": 136.23, "payment_types": "credit_card", ... },
+  "raw": { "order_id": "...", "order_purchase_timestamp": "2016-09-04 21:15:19", ... original source columns ... },
+  "api_enrichment": { "fx_rate_brl_usd": 0.30625, "fx_rate_date": "2016-09-02",
+                      "fx_match_type": "previous_business_day", "payments_value_usd": 41.72,
+                      "api_source_name": "frankfurter-ecb", "api_http_status": 200, ... }
+}</pre>
+<table>
+<tr><th style="width:24%">Field</th><th>Meaning</th></tr>
+<tr><td><code>record_uid</code></td><td>The <b>identity of this record</b>: a hash of (file fingerprint + row number). Same file + same row &#8658; same ID, always. This is what makes repeats recognisable.</td></tr>
+<tr><td><code>business_hash</code></td><td>A hash of the natural key <code>order_id</code>. Two different rows with the same business hash are about the <i>same order</i> (a source duplicate).</td></tr>
+<tr><td><code>source_category</code></td><td><code>kafka_replayed</code>: honest label that this was replayed, not live.</td></tr>
+<tr><td><code>source_file_sha256</code>, <code>source_row_number</code></td><td>Provenance: exactly which file and row it came from.</td></tr>
+<tr><td><code>ingest_run_id</code></td><td>Which execution of the producer sent it (e.g. <code>limited-100</code>, <code>full-run-01</code>).</td></tr>
+<tr><td><code>payload</code></td><td>The clean, typed order (what the warehouse stores).</td></tr>
+<tr><td><code>raw</code></td><td>The original source values, preserved (never lose the original).</td></tr>
+<tr><td><code>api_enrichment</code></td><td>The USD value and the API provenance (endpoint, time, HTTP status).</td></tr>
+</table>
+<pre class="code"><span class="tag code">src/producer/dataset_producer.py</span>
+def make_record_uid(file_sha256_value: str, row_number: int) -> str:
+    """Same file + same row => same ID, so a re-run can be recognised downstream."""
+    return hashlib.sha256(f"{file_sha256_value}:{row_number}".encode()).hexdigest()[:32]
+
+def make_business_hash(order_id: str) -> str:
+    """order_id is a verified natural key (no duplicates in the real orders file)."""
+    return hashlib.sha256(f"order_id:{order_id}".encode()).hexdigest()[:32]</pre>
+<div class="box analogy"><span class="t">Analogy: two kinds of ID</span>
+<code>record_uid</code> is like the <i>serial number of one photocopy</i> (this file, this row). <code>business_hash</code> is like the <i>title of the document</i>. Two photocopies of the same page have different serial numbers (different record_uid) but the same title (same business_hash).</div>
+
+<h3>Step 7: publish to Kafka</h3>
+<pre class="code"><span class="tag code">producer settings (create_producer)</span>
+acks="all"               # wait until the broker confirms the write is safely stored
+enable_idempotence=True  # the broker ignores duplicates caused by the producer's own retries
+retries=5, retry_backoff_ms=200
+linger_ms=20, batch_size=64*1024, compression_type="gzip"   # send in efficient batches
+key = order_id           # decides the partition
+headers = ingest_run_id, schema_version</pre>
+<p>Each send returns a "future". Two small callbacks count <b>successes</b> (and which partition got the message) and <b>failures</b>. Every 500 valid records the producer calls <code>flush()</code> and logs progress. <code>Ctrl+C</code> is handled: it flushes what was already sent and still writes the summary.</p>
+
+<h3>Step 8: the run summary</h3>
+<p>At the end a JSON file is written to <code>data/processed/ingestion_runs/&lt;run_id&gt;.json</code>. This is the proof that nothing was lost. The real full run:</p>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/03_kafka/producer_full_run.txt</span>
+"status": "completed",   "mode": "full",
+"rows_read": 99441,      "rows_valid": 99427,     "rows_rejected": 14,
+"rows_published": 99427, "rows_publish_failed": 0,
+"rows_enriched": 99427,  "rows_not_enriched": 0,  "source_duplicates_in_input": 0,
+"partition_counts_from_delivery_callbacks": { "0": 33199, "1": 33255, "2": 32973 }</pre>
+<p><b>How to read it:</b> 99,441 rows were read; 99,427 passed the checks; 14 were rejected (and stored); all 99,427 were delivered to Kafka with zero failures; every one received a USD value. The three partition numbers add up to 99,427. This took about 100 seconds.</p>
+
+<h2 id="s26-5-3-the-command-line-switches">5.3 The command-line switches</h2>
+<table>
+<tr><th>Switch</th><th>Meaning</th></tr>
+<tr><td><code>--limit N</code></td><td>Send only the first N orders (in replay order).</td></tr>
+<tr><td><code>--full</code></td><td>Send everything. <b>Required on purpose</b>: the program refuses to start unless you pick <code>--limit</code> or <code>--full</code>, so a 100,000-message run can never start by accident.</td></tr>
+<tr><td><code>--dry-run</code></td><td>Do all checks and counting but publish nothing.</td></tr>
+<tr><td><code>--skip N</code></td><td>Skip the first N orders (used to make non-overlapping test slices).</td></tr>
+<tr><td><code>--run-id NAME</code></td><td>Give this execution a name (used in logs, files and the database).</td></tr>
+<tr><td><code>--rate R</code></td><td>Records per second (0 = as fast as possible).</td></tr>
+<tr><td><code>--input FILE</code>, <code>--topic T</code>, <code>--bootstrap HOST</code></td><td>Use another orders-shaped CSV, another topic, another broker (used for demos and tests).</td></tr>
+<tr><td><code>--no-enrich</code></td><td>Skip the API step.</td></tr>
+<tr><td><code>--key-field F</code></td><td>Which field is the Kafka key (default <code>order_id</code>).</td></tr>
+</table>
+
+<h1 id="s27-6-stage-2-the-real-external-api-frankfurter">6. Stage 2: The real external API (Frankfurter)</h1>
+<h2 id="s28-6-1-what-and-why">6.1 What and why</h2>
+<p>Every order has a <b>money value in Brazilian reais (BRL)</b> and a <b>purchase date</b>. The <b>Frankfurter</b> service publishes official European Central Bank exchange rates for past dates. So we can add: <i>"what was this order worth in US dollars on the day it was bought?"</i></p>
+<div class="box why"><span class="t">Why this API?</span>
+The professor did not name an API (the file <code>docs/inputs/api_info.md</code> does not exist), so we chose one that matches the real columns. Frankfurter needs <b>no key</b>, has <b>no quota</b>, and <b>one request</b> returns about 544 daily rates for the whole 2016-2018 period. A weather API would have needed thousands of calls. Important honesty: <b>public APIs do not contain Olist orders.</b> This API provides reference data, and that is its role.</div>
+
+<h2 id="s29-6-2-the-request">6.2 The request</h2>
+<pre class="cmd"><span class="tag cmd">command</span>
+$py scripts\api_demo_call.py --sample --no-cache</pre>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/02_api/api_real_request.txt</span>
+Provider : Frankfurter (ECB reference rates), docs https://frankfurter.dev
+Request  : BRL -> USD, 2017-10-02 to 2017-10-08
+Retrieved: 2026-10-15T16:30:20.762754+00:00
+URL      : https://api.frankfurter.dev/v2/providers/ecb/rates?base=BRL&amp;quotes=USD&amp;from=2017-10-02&amp;to=2017-10-08
+HTTP     : 200   (served from local cache: False)
+Rows     : 5
+    {"date": "2017-10-02", "base": "BRL", "quote": "USD", "rate": 0.31507}
+Enrichment on sample purchase dates:
+   2017-10-07 -> (0.31641, '2017-10-06', 'previous_business_day')</pre>
+<p><b>Reading it:</b> HTTP <b>200</b> means "OK, here is your data". 1 BRL was worth 0.31507 USD on 2 October 2017. 2017-10-07 was a Saturday and the ECB publishes no weekend rates, so the program used Friday's rate and labelled it <code>previous_business_day</code>.</p>
+
+<h2 id="s30-6-3-how-the-client-protects-us-src-api-client-py">6.3 How the client protects us (<code>src/api/client.py</code>)</h2>
+<table>
+<tr><th style="width:24%">Feature</th><th>What it does</th><th>Why</th></tr>
+<tr><td>Timeouts</td><td>5 s to connect, 30 s to read.</td><td>Never wait forever.</td></tr>
+<tr><td>Retry with exponential backoff</td><td>Up to 4 retries on timeouts, network errors, HTTP 429 and 5xx, waiting 1 s, 2 s, 4 s...; obeys a <code>Retry-After</code> header.</td><td>Temporary problems fix themselves; a client must be polite when the server is busy.</td></tr>
+<tr><td>No retry on other 4xx</td><td>A "bad request" (e.g. unknown currency) fails immediately.</td><td>Retrying cannot fix it.</td></tr>
+<tr><td>Throttle</td><td>At least 0.5 s between calls.</td><td>Respect the provider's rate limit.</td></tr>
+<tr><td>Schema validation</td><td>The answer must be a non-empty list of <code>{date, base, quote, rate}</code> with a positive number.</td><td>Never trust an external answer blindly.</td></tr>
+<tr><td>File cache</td><td>The answer is saved in <code>data/processed/api_cache/</code>, keyed by the exact request. The same range is never requested twice.</td><td>Speed, and being kind to the provider (they encourage caching).</td></tr>
+<tr><td>Provenance fields</td><td>Endpoint (secrets masked), retrieval time, HTTP status, cache key are attached to every result.</td><td>Traceability: you can always say where a USD value came from.</td></tr>
+</table>
+<p>The retry behaviour was shown against a host that does not exist (a real client, an unreachable server; <i>not</i> a fake API):</p>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/02_api/api_retry_backoff_simulated.txt</span>
+WARNING API attempt 1 failed: ConnectionError
+WARNING Retrying in 1.0s (attempt 1 of 2)
+WARNING API attempt 2 failed: ConnectionError
+WARNING Retrying in 2.0s (attempt 2 of 2)
+WARNING API attempt 3 failed: ConnectionError
+RESULT   : request failed after retries: API failed after 3 attempts: ConnectionError</pre>
+
+<h2 id="s31-6-4-how-a-usd-value-is-attached-src-api-enrich-py">6.4 How a USD value is attached (<code>src/api/enrich.py</code>)</h2>
+<ol>
+<li>The lookup key is the purchase <b>date</b> (about 600 different dates), never one call per order. Rule 10: <i>do not call an API 99,441 times</i>.</li>
+<li>Exact date found &#8658; <code>fx_match_type = exact</code>.</li>
+<li>Weekend or holiday &#8658; use the latest earlier rate (at most 7 days back) &#8658; <code>previous_business_day</code>.</li>
+<li>No rate found &#8658; <code>api_enrichment = null</code> (counted, never hidden).</li>
+<li><code>payments_value_usd = payments_value_total &times; rate</code>, rounded to cents.</li>
+</ol>
+<p>Our example order was bought on a Sunday (2016-09-04), so it used the rate of Friday 2016-09-02 (0.30625): 136.23 BRL &times; 0.30625 = <b>41.72 USD</b>.</p>
+<table>
+<tr><th>Measured result</th><th>Value</th></tr>
+<tr><td>Requests needed for the whole dataset</td><td>1 (HTTP 200, 544 daily rates, 2016-09-04 to 2018-10-17)</td></tr>
+<tr><td>Orders that got a USD value</td><td>99,427 of 99,427 (match rate 100 %)</td></tr>
+<tr><td>Orders that used the previous business day</td><td>24,112 (weekends/holidays)</td></tr>
+<tr><td>Where the rates are stored</td><td>PostgreSQL <code>core.api_cache</code> (raw response) and <code>core.fx_rates</code> (one row per date)</td></tr>
+</table>
+<div class="box warn"><span class="t">Be honest about the USD numbers</span>
+They are <b>estimates</b>: BRL value &times; the ECB reference rate of the purchase day. Customers actually paid in BRL.</div>
+
+<h1 id="s32-7-stage-3-kafka-the-conveyor-belt">7. Stage 3: Kafka (the conveyor belt)</h1>
+
+<h2 id="s33-7-1-what-kafka-does-for-us">7.1 What Kafka does for us</h2>
+<p>Without Kafka, the producer would have to hand data directly to Spark, and both would need to run at the same speed at the same time. Kafka sits in the middle and <b>stores</b> the messages. The producer can finish and go away; Spark can start later, stop, restart and continue from where it left off, because Kafka remembers every message and its position (offset).</p>
+
+<figure>
+<svg width="720" height="190" viewBox="0 0 720 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10.5">
+ <text x="10" y="18" font-weight="bold">Topic "ecommerce_orders" = 3 lanes (partitions). Each message has an offset (its position in its lane).</text>
+ <g font-size="10"><text x="10" y="52">Partition 0</text><text x="10" y="102">Partition 1</text><text x="10" y="152">Partition 2</text></g>
+ <g fill="#fff4e0" stroke="#b45309">
+  <rect x="85" y="35" width="44" height="26"/><rect x="131" y="35" width="44" height="26"/><rect x="177" y="35" width="44" height="26"/><rect x="223" y="35" width="44" height="26"/><rect x="269" y="35" width="44" height="26"/><rect x="315" y="35" width="44" height="26"/>
+  <rect x="85" y="85" width="44" height="26"/><rect x="131" y="85" width="44" height="26"/><rect x="177" y="85" width="44" height="26"/><rect x="223" y="85" width="44" height="26"/><rect x="269" y="85" width="44" height="26"/>
+  <rect x="85" y="135" width="44" height="26"/><rect x="131" y="135" width="44" height="26"/><rect x="177" y="135" width="44" height="26"/><rect x="223" y="135" width="44" height="26"/>
+ </g>
+ <g text-anchor="middle" font-size="9.5"><text x="107" y="52">0</text><text x="153" y="52">1</text><text x="199" y="52">2</text><text x="245" y="52">3</text><text x="291" y="52">4</text><text x="337" y="52">5</text><text x="107" y="102">0</text><text x="153" y="102">1</text><text x="199" y="102">2</text><text x="245" y="102">3</text><text x="291" y="102">4</text><text x="107" y="152">0</text><text x="153" y="152">1</text><text x="199" y="152">2</text><text x="245" y="152">3</text></g>
+ <text x="372" y="52" font-size="10" fill="#5b6770">... up to offset 33,229 (partition 0, after the full run)</text>
+ <text x="330" y="102" font-size="10" fill="#5b6770">... up to offset 33,296</text><text x="290" y="152" font-size="10" fill="#5b6770">... up to offset 32,998</text>
+ <text x="10" y="182" font-size="10" fill="#0b5cad">key = hash(order_id) decides the lane. The same key always goes to the same lane, in order.</text>
+</svg>
+<figcaption>Figure 7.1: One topic, three partitions, each message numbered by offset. (Counts are the real offsets after the full run.)</figcaption>
+</figure>
+
+<h2 id="s34-7-2-how-the-topic-is-created-and-kept-healthy">7.2 How the topic is created and kept healthy</h2>
+<ul>
+<li><code>docker-compose.yml</code> starts Kafka (image <code>apache/kafka:4.1.0</code>, "KRaft" mode: no extra ZooKeeper server).</li>
+<li>A <b>healthcheck</b> asks the broker for its API versions every 10 seconds; "healthy" means it answers.</li>
+<li>A one-shot service <code>kafka-init</code> then creates the topic explicitly: <code>--partitions 3 --replication-factor 1</code>.</li>
+<li>Replication factor 1 = one copy of each message (we have one broker). In production you would use at least 3.</li>
+<li>Kafka keeps messages for about 7 days by default. After that you would simply replay again (safe, because replays are idempotent).</li>
+</ul>
+
+<h2 id="s35-7-2b-why-the-key-is-order-id-a-decision-measured-not-guessed">7.2b Why the key is <code>order_id</code> (a decision measured, not guessed)</h2>
+<p>The key decides how evenly work is shared. Before publishing we computed (offline, using Kafka's own hash formula) how three candidate keys would spread the real orders:</p>
+<table>
+<tr><th>Key</th><th>Lane 0</th><th>Lane 1</th><th>Lane 2</th><th>Verdict</th></tr>
+<tr><td><b><code>order_id</code></b> (99,441 different values)</td><td>33.4 %</td><td>33.4 %</td><td>33.2 %</td><td><b>Even. Chosen.</b></td></tr>
+<tr><td><code>customer_id</code></td><td>33.2 %</td><td>33.4 %</td><td>33.3 %</td><td>Even too, but no benefit.</td></tr>
+<tr><td><code>customer_state</code> (only 27 values)</td><td>22.2 %</td><td><b>66.9 %</b></td><td>10.9 %</td><td>Badly skewed (São Paulo alone is 42 % of orders).</td></tr>
+</table>
+<p>Then, after the real run, we <b>measured on the broker</b> (not just on paper):</p>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/03_kafka/partition_counts_after_full_run.txt</span>
+ecommerce_orders  partition 0: start_offset=0 end_offset=33230 messages=33230
+ecommerce_orders  partition 1: start_offset=0 end_offset=33297 messages=33297
+ecommerce_orders  partition 2: start_offset=0 end_offset=32999 messages=32999</pre>
+<p>(These include the 99 messages of an earlier 100-order test run; the full run itself added 33,199 + 33,255 + 32,973 = 99,427, exactly what the producer's delivery callbacks reported.)</p>
+<div class="box why"><span class="t">Why does order matter inside one lane?</span>
+Kafka only promises order <i>within</i> a partition. Each order is an independent event, so we do not need orders of <i>different</i> customers in sequence. We just need an even spread, so <code>order_id</code> is perfect. If we had needed "all events of one customer in order", we would have keyed by customer.</div>
+
+<h2 id="s36-7-3-commands-to-look-at-kafka">7.3 Commands to look at Kafka</h2>
+<pre class="cmd"><span class="tag cmd">commands</span>
+.\scripts\kafka_describe_topic.ps1                 # shape of the topic
+.\scripts\kafka_partition_counts.ps1               # MEASURED messages per partition
+.\scripts\kafka_consume_n.ps1 -Count 1 -Partition 0   # read one real message</pre>
+<pre class="real"><span class="tag real">real output &middot; kafka_describe_topic.ps1</span>
+Topic: ecommerce_orders  PartitionCount: 3  ReplicationFactor: 1  Configs: min.insync.replicas=1
+  Partition: 0  Leader: 1  Replicas: 1  Isr: 1
+  Partition: 1  Leader: 1  Replicas: 1  Isr: 1
+  Partition: 2  Leader: 1  Replicas: 1  Isr: 1</pre>
+<p><b>Meaning:</b> three lanes; the "leader" of each is broker number 1 (our only broker); "Isr" = in-sync replicas (the copies that are up to date).</p>
+
+<h1 id="s37-8-stage-4-spark-structured-streaming-the-processing-engine">8. Stage 4: Spark Structured Streaming (the processing engine)</h1>
+
+<h2 id="s38-8-1-why-it-runs-in-docker">8.1 Why it runs in Docker</h2>
+<p>On Windows, Spark needs a helper program <code>winutils.exe</code> to write files. When we first ran Spark on the host it crashed at start-up: <code>HADOOP_HOME and hadoop.home.dir are unset</code> (real log: <code>docs/evidence/00_environment/spark_baseline_existing_stream.txt</code>). The only fix is downloading an unofficial executable, which our rules forbid. So Spark runs in a small <b>Linux container</b> (<code>docker/spark/Dockerfile</code>), reading Kafka through its internal address and writing to the shared <code>data/</code> folder. Bonus: it works identically on any computer.</p>
+
+<h2 id="s39-8-2-the-big-idea-process-the-stream-as-many-small-batches">8.2 The big idea: process the stream as many small batches</h2>
+<figure>
+<svg width="730" height="170" viewBox="0 0 730 170" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10.5">
+ <defs><marker id="a5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker></defs>
+ <rect x="5" y="30" width="110" height="80" rx="6" fill="#fff4e0" stroke="#b45309"/><text x="60" y="55" text-anchor="middle" font-weight="bold">Kafka</text><text x="60" y="72" text-anchor="middle" font-size="9.5">new messages</text><text x="60" y="85" text-anchor="middle" font-size="9.5">since last offsets</text>
+ <rect x="150" y="20" width="400" height="104" rx="6" fill="#f1f8f4" stroke="#0f8a5f" stroke-dasharray="5 3"/><text x="350" y="38" text-anchor="middle" font-weight="bold" fill="#0f8a5f">one micro-batch (process_batch)</text>
+ <g fill="#fff" stroke="#0f8a5f"><rect x="160" y="48" width="70" height="60" rx="4"/><rect x="236" y="48" width="70" height="60" rx="4"/><rect x="312" y="48" width="70" height="60" rx="4"/><rect x="388" y="48" width="70" height="60" rx="4"/><rect x="464" y="48" width="78" height="60" rx="4"/></g>
+ <g text-anchor="middle" font-size="9.5"><text x="195" y="70">1 parse</text><text x="195" y="83">JSON</text><text x="271" y="70">2 split</text><text x="271" y="83">valid / bad</text><text x="347" y="70">3 remove</text><text x="347" y="83">in-batch dups</text><text x="423" y="70">4 write</text><text x="423" y="83">Parquet</text><text x="503" y="70">5 upsert</text><text x="503" y="83">PostgreSQL</text></g>
+ <rect x="585" y="30" width="140" height="80" rx="6" fill="#e8eff7" stroke="#0b5cad"/><text x="655" y="55" text-anchor="middle" font-weight="bold">Checkpoint</text><text x="655" y="72" text-anchor="middle" font-size="9.5">"batch N done,</text><text x="655" y="85" text-anchor="middle" font-size="9.5">next offsets are ..."</text>
+ <line x1="117" y1="70" x2="148" y2="70" stroke="#1f2933" marker-end="url(#a5)"/><line x1="552" y1="70" x2="583" y2="70" stroke="#1f2933" marker-end="url(#a5)"/>
+ <text x="365" y="150" text-anchor="middle" font-size="10" fill="#5b6770">repeat: every trigger (e.g. 5 seconds) or until no data is left (availableNow). Up to 10,000 messages per micro-batch.</text>
+</svg>
+<figcaption>Figure 8.1: One micro-batch. Only after all steps finish is the batch "committed" in the checkpoint.</figcaption>
+</figure>
+
+<h2 id="s40-8-3-the-files">8.3 The files</h2>
+<table>
+<tr><th style="width:28%">File</th><th>Role</th></tr>
+<tr><td><code>src/streaming/order_stream.py</code></td><td>The job: reads Kafka, calls <code>process_batch</code> for each micro-batch, handles stopping.</td></tr>
+<tr><td><code>src/streaming/transforms.py</code></td><td>Pure DataFrame functions (parse, split, flatten, dedup). Pure = easy to test on small tables.</td></tr>
+<tr><td><code>scripts/run_stream.ps1</code>, <code>stop_stream.ps1</code></td><td>Start and safely stop the container job.</td></tr>
+</table>
+
+<h2 id="s41-8-4-what-happens-inside-one-batch-step-by-step">8.4 What happens inside one batch, step by step</h2>
+<ol>
+<li><b>Parse.</b> The Kafka message value is bytes. It is converted to text and parsed with <code>from_json</code> using a schema <b>generated from the same mapping file</b> the producer used. The Kafka position (partition, offset) is kept.</li>
+<li><b>Split valid / invalid.</b> A message is invalid if it is not valid JSON (<code>MALFORMED_JSON</code>) or lacks <code>record_uid</code> / <code>order_id</code> (<code>SCHEMA_MISMATCH</code>). Invalid ones are written to <code>data/dead_letter/stream/</code> with the original text. (They do <b>not</b> crash the job.)</li>
+<li><b>Flatten.</b> The nested envelope becomes one flat row: envelope fields, typed order fields (timestamps become real timestamps), USD enrichment, original source columns as JSON text, Kafka partition and offset.</li>
+<li><b>Remove duplicates inside the batch.</b> If the same <code>record_uid</code> appears twice in this batch, keep the one with the smallest Kafka position.</li>
+<li><b>Write Parquet.</b> Into its own folder <code>data/processed/parquet/batch_id=00000007/</code>. If the same batch is ever run again, it overwrites <b>its own folder only</b>.</li>
+<li><b>Upsert into PostgreSQL</b> (chapter 10) inside one database transaction.</li>
+<li><b>Log counts.</b> One summary line is logged and appended to <code>data/processed/spark_batches/orders.jsonl</code>.</li>
+</ol>
+<p>Spark then writes "batch done" into the checkpoint. Real summary of the very first production batch:</p>
+<pre class="real"><span class="tag real">real output &middot; data/processed/spark_batches/orders.jsonl (first line)</span>
+{"batch_id": 0, "input_rows": 9998, "valid_rows": 9998, "invalid_rows": 0, "in_batch_duplicates": 99,
+ "parquet_rows_written": 9899,
+ "postgres": {"attempted": 9899, "inserted": 9899, "retry_duplicates": 0, "source_duplicates": 0, "batch_id": 0},
+ "offsets": [{"partition": 0, "first_offset": 0, "last_offset": 3337},
+             {"partition": 1, "first_offset": 0, "last_offset": 3344},
+             {"partition": 2, "first_offset": 0, "last_offset": 3314}], "seconds": 24.27}</pre>
+<table>
+<tr><th style="width:28%">Field</th><th>Meaning (for this real batch)</th></tr>
+<tr><td><code>input_rows: 9998</code></td><td>Spark read 9,998 messages from Kafka (the limit per batch is 10,000).</td></tr>
+<tr><td><code>valid_rows: 9998, invalid_rows: 0</code></td><td>All parseable and complete.</td></tr>
+<tr><td><code>in_batch_duplicates: 99</code></td><td>99 messages repeated a <code>record_uid</code> already in this batch (the first 99 orders had been sent twice: once in a 100-order test run, once in the full run).</td></tr>
+<tr><td><code>parquet_rows_written: 9899</code></td><td>9,998 &minus; 99 = 9,899 rows written.</td></tr>
+<tr><td><code>postgres.inserted: 9899</code></td><td>All 9,899 were new to the warehouse. (<code>retry_duplicates</code> and <code>source_duplicates</code> were 0.)</td></tr>
+<tr><td><code>offsets</code></td><td>Which Kafka positions this batch covered. The next batch starts right after these.</td></tr>
+<tr><td><code>seconds: 24.27</code></td><td>The first batch is slow (Spark warm-up); later ones took 5-8 seconds.</td></tr>
+</table>
+<p>All 10 batches of the first full pass processed <b>99,526 messages</b> (99,427 unique orders plus 99 repeats).</p>
+
+<h2 id="s42-8-5-the-checkpoint-spark-s-progress-notebook">8.5 The checkpoint (Spark's progress notebook)</h2>
+<pre class="real"><span class="tag real">real folder &middot; data/checkpoints/orders  (never delete this by hand)</span>
+commits/   0 1 2 3 ... 13     one tiny file per FINISHED batch
+offsets/   0 1 2 3 ... 13     which Kafka offsets each batch was PLANNED to read
+metadata                      the id of this streaming query
+sources/                      bookkeeping for the Kafka source
+
+offsets/0  last line:  {"ecommerce_orders":{"0":3338,"1":3345,"2":3315}}</pre>
+<p><b>How to read it:</b> after batch 0 the notebook says "next time start reading partition 0 at offset 3338, partition 1 at 3345, partition 2 at 3315". If Spark is stopped and started again with the same checkpoint, it reads this and continues exactly there. A batch has an <code>offsets</code> file when it is <i>planned</i> and a <code>commits</code> file when it is <i>finished</i>. If a batch is planned but not committed (a crash), it is simply <b>run again</b> after the restart. That is safe only because our writes are idempotent.</p>
+<div class="box analogy"><span class="t">Analogy: a bookmark</span>
+The checkpoint is a bookmark in a long book (Kafka). If you close the book (stop Spark), you do not start from page 1 again: you open it at the bookmark.</div>
+<div class="box bad"><span class="t">Never delete the checkpoint to "fix" something</span>
+Without it, Spark would re-read the topic from the beginning (we set <code>startingOffsets=earliest</code> for the first run only). Our scripts that clean up demos are restricted to demo folders and can never touch <code>data/checkpoints/orders</code>.</div>
+
+<h2 id="s43-8-6-triggers-and-limits">8.6 Triggers and limits</h2>
+<table>
+<tr><th>Setting</th><th>Meaning</th></tr>
+<tr><td><code>--trigger "5 seconds"</code> (default)</td><td>Check for new data every 5 seconds, forever, until stopped. Used for the live-style demo.</td></tr>
+<tr><td><code>--trigger availableNow</code></td><td>Process everything waiting in Kafka in as many batches as needed, then <b>stop by itself</b>. Used by Airflow, tests and most demos (a finite task).</td></tr>
+<tr><td><code>--max-offsets-per-trigger N</code></td><td>Cap on messages per batch (default 10,000). Small values (500) are used in recovery tests to create many batches.</td></tr>
+<tr><td><code>--starting-offsets earliest</code></td><td>Only for the very first run; later runs always continue from the checkpoint.</td></tr>
+</table>
+
+<h2 id="s44-8-7-stopping-safely-a-real-engineering-story">8.7 Stopping safely (a real engineering story)</h2>
+<p>Spark has no official "stop between two micro-batches" button. The obvious approach, calling <code>query.stop()</code>, interrupts Spark's thread at <i>any</i> moment, even the instant a batch starts. In our end-to-end test this caused an <b>intermittent failure</b>: an <code>InterruptedException</code> inside a running batch. The data was still correct (the other 17 checks passed) because writes are idempotent, but a "graceful stop" that sometimes is not graceful is not good enough.</p>
+<p>The fix is a small protocol (<code>order_stream.py</code>):</p>
+<pre class="code"><span class="tag code">src/streaming/order_stream.py (simplified)</span>
+STATE = {"in_batch": False, "stopping": False}
+
+def process_batch(batch_df, batch_id):
+    STATE["in_batch"] = True              # 1) say "I am in a batch" FIRST ...
+    if STATE["stopping"]:                 # 2) ... then look whether a stop was requested
+        STATE["in_batch"] = False
+        raise StopRequested("batch was not started and will run after the restart")
+    ... do the real work ...
+
+# main loop, when the stop file appears:
+STATE["stopping"] = True                  # a batch that starts from now on refuses to start
+wait until STATE["in_batch"] is False     # a running batch finishes normally
+if the query is still active (idle): query.stop()</pre>
+<p>Because "in batch" is set before the stop flag is read, there is no gap: either the batch sees the stop request and does <b>nothing</b>, or the stopper sees the batch running and waits for it. A batch can therefore never be interrupted while it is writing. The refused batch makes Spark log an error block that contains the word <code>StopRequested</code>; this is the <b>expected signature</b>, followed by the line <code>STOPPED_AT_BATCH_BOUNDARY</code>. After the change, three consecutive recovery runs passed 18 of 18 checks, and the final end-to-end run passed.</p>
+<div class="box warn"><span class="t">What you will see in the demo</span>
+When you stop Spark, the log may show <code>ERROR</code> lines and a traceback ending with <code>StopRequested: stop requested: batch 3 was not started and will run after the restart</code>. Do not panic: that is the deliberate safe stop. A real problem would <b>not</b> contain <code>StopRequested</code>.</div>
+
+<h2 id="s45-8-8-commands-for-spark">8.8 Commands for Spark</h2>
+<pre class="cmd"><span class="tag cmd">commands</span>
+.\scripts\run_stream.ps1 -Trigger availableNow     # finite run: process the backlog, then exit
+.\scripts\run_stream.ps1                           # continuous run (stays open)
+.\scripts\stop_stream.ps1                          # ask a running stream to stop safely
+$py scripts\parquet_readback.py                    # read the Parquet files back (works on Windows)</pre>
+<pre class="real"><span class="tag real">real output &middot; run_stream.ps1 -Trigger availableNow (re-ingesting 199 orders)</span>
+... INFO order_stream BATCH_SUMMARY {"batch_id": 10, "input_rows": 199, "valid_rows": 199, "invalid_rows": 0,
+    "in_batch_duplicates": 0, "parquet_rows_written": 199,
+    "postgres": {"attempted": 199, "inserted": 0, "retry_duplicates": 199, "source_duplicates": 0, ...
+... INFO order_stream Stream stopped.</pre>
+<p><b>Meaning:</b> 199 messages arrived in batch 10 (it continued from the checkpoint: batch ids are never reused). <b>None were inserted</b>: all 199 were recognised as repeats already in the warehouse. The warehouse still had 99,427 rows. This is idempotency, proved on real data (chapter 16).</p>
+
+<h1 id="s46-9-stage-5-data-quality-duplicates-and-the-dead-letter-queue">9. Stage 5: Data quality, duplicates and the dead-letter queue</h1>
+
+<h2 id="s47-9-1-three-promises">9.1 Three promises</h2>
+<ol>
+<li><b>Nothing is dropped silently.</b> A rejected record is stored with the reason and the original data.</li>
+<li><b>Empty is not wrong.</b> A missing delivery date is normal for an order not yet delivered. We reject only <i>contradictions</i>.</li>
+<li><b>Repeating is safe.</b> Sending the same data again never creates a duplicate row in the warehouse.</li>
+</ol>
+
+<h2 id="s48-9-2-the-rules-config-quality-rules-yaml-src-processing-valid">9.2 The rules (<code>config/quality_rules.yaml</code>, <code>src/processing/validators.py</code>)</h2>
+<p>Each rule was chosen because of something we <i>measured</i> in the real data (chapter 3), not guessed. Severity <b>reject</b> = goes to the dead-letter queue; <b>warn</b> = counted but the order continues.</p>
+<table>
+<tr><th>Rule</th><th>Plain meaning</th><th>Real result (99,441 orders)</th></tr>
+<tr><td><code>status_in_allowed_set</code></td><td>status must be one of the 8 values seen in the data</td><td>0 rejected</td></tr>
+<tr><td><code>purchase_date_in_range</code></td><td>purchase date must be between 2016-01-01 and 2018-12-31</td><td>0</td></tr>
+<tr><td><code>amounts_not_negative</code></td><td>price, freight, payment total must be &ge; 0</td><td>0</td></tr>
+<tr><td><code>approved_not_before_purchase</code></td><td>approval cannot precede the purchase</td><td>0</td></tr>
+<tr><td><code>delivered_not_before_purchase</code></td><td>delivery cannot precede the purchase</td><td>0 (used in Demo 3)</td></tr>
+<tr><td><code>delivered_status_has_date</code></td><td>status "delivered" requires a delivery date</td><td><b>8 rejected</b></td></tr>
+<tr><td><code>delivered_date_matches_status</code></td><td>a delivery date requires status "delivered"</td><td><b>6 rejected</b> (all "canceled")</td></tr>
+<tr><td><code>payment_total_positive</code> (warn)</td><td>an order with payment rows should have a total &gt; 0</td><td>3 warnings, not rejected</td></tr>
+</table>
+<p>In addition the mapping step rejects empty required fields and wrong types (0 found in the real data). Total: <b>14 rejected = 8 + 6</b>, which is why 99,441 &minus; 14 = 99,427.</p>
+<div class="box why"><span class="t">Why these 14 are rejected</span>
+An order marked "delivered" with no delivery date would break the delivery-time KPI; a "canceled" order that nevertheless has a delivery date contradicts itself. They are <b>not deleted</b>: they sit in the dead-letter files with their full original data, so a human can inspect them.</div>
+
+<h2 id="s49-9-3-what-a-dead-letter-record-looks-like">9.3 What a dead-letter record looks like</h2>
+<pre class="real"><span class="tag real">real output &middot; data/dead_letter/ingest/full-run-01.jsonl (one of the 14, shortened)</span>
+{ "dlq_id": "bafe2d00-e461-4d9a-a417-959e5da272b6",
+  "stage": "ingest",
+  "reason_code": "INCONSISTENT",
+  "reason_detail": "delivered_date_matches_status: status is 'canceled' but delivered_customer_ts is set",
+  "record_uid": "92fc65a4424b55837a4389c5239ea75a",
+  "ingest_run_id": "full-run-01",
+  "raw_payload": { "order_id": "65d1e226...", "order_status": "canceled",
+                   "order_delivered_customer_date": "2016-11-08 10:58:34", ... },
+  "rejected_at": "2026-10-15T16:39:30.603849+00:00" }</pre>
+<table>
+<tr><th style="width:22%">Field</th><th>Meaning</th></tr>
+<tr><td><code>stage</code></td><td>Where it was rejected: <code>ingest</code> (producer) or <code>stream</code> (Spark).</td></tr>
+<tr><td><code>reason_code</code></td><td>A short category: <code>MISSING_REQUIRED</code>, <code>TYPE_ERROR</code>, <code>RANGE_ERROR</code>, <code>INCONSISTENT</code>, <code>MALFORMED_JSON</code>, <code>SCHEMA_MISMATCH</code>.</td></tr>
+<tr><td><code>reason_detail</code></td><td>A sentence naming the rule and the values.</td></tr>
+<tr><td><code>raw_payload</code></td><td>The original data, so nothing is lost.</td></tr>
+<tr><td><code>rejected_at</code></td><td>UTC time stamp.</td></tr>
+</table>
+<p>Files: <code>data/dead_letter/ingest/&lt;run&gt;.jsonl</code> and <code>data/dead_letter/stream/&lt;stream&gt;-batch-N.jsonl</code>. They can be loaded into the table <code>core.dead_letter_records</code> (<code>python -m src.warehouse.load_reference --only dlq</code>). Two situations are tested with <b>real Spark</b>: broken JSON gets <code>MALFORMED_JSON</code>; a JSON message missing <code>record_uid</code> or <code>order_id</code> gets <code>SCHEMA_MISMATCH</code> (<code>docs/evidence/04_spark/malformed_message_test.txt</code>, 7 of 7 checks).</p>
+
+<h2 id="s50-9-4-the-three-kinds-of-same-record-the-most-asked-question">9.4 The three kinds of "same record" (the most asked question)</h2>
+<table>
+<tr><th style="width:20%">Kind</th><th style="width:30%">How we detect it</th><th>What we do</th></tr>
+<tr><td><b>Retry / replay duplicate</b></td><td>Same <code>record_uid</code> (same file, same row)</td><td>Do nothing; count it as <code>retry_duplicates</code>.</td></tr>
+<tr><td><b>Source duplicate</b></td><td>Different <code>record_uid</code> but same <code>business_hash</code> (same <code>order_id</code> in two different rows)</td><td>Keep the first; log the other once in <code>core.duplicate_records</code>.</td></tr>
+<tr><td><b>Re-ingestion</b></td><td>Same file ingested again under a new run id</td><td>Same <code>record_uid</code>s, so every record is a retry duplicate: nothing changes.</td></tr>
+</table>
+<figure>
+<svg width="720" height="190" viewBox="0 0 720 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10.5">
+ <defs><marker id="a6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker></defs>
+ <rect x="5" y="70" width="110" height="50" rx="6" fill="#e8eff7" stroke="#0b5cad"/><text x="60" y="92" text-anchor="middle" font-weight="bold">incoming</text><text x="60" y="106" text-anchor="middle" font-size="9.5">order message</text>
+ <line x1="117" y1="95" x2="150" y2="95" stroke="#1f2933" marker-end="url(#a6)"/>
+ <polygon points="152,95 232,55 312,95 232,135" fill="#fffbe6" stroke="#b45309"/><text x="232" y="92" text-anchor="middle" font-size="9.5">record_uid</text><text x="232" y="105" text-anchor="middle" font-size="9.5">already known?</text>
+ <line x1="232" y1="55" x2="232" y2="22" stroke="#1f2933"/><line x1="232" y1="22" x2="400" y2="22" stroke="#1f2933" marker-end="url(#a6)"/><text x="240" y="40" font-size="9.5">yes</text>
+ <rect x="402" y="5" width="300" height="36" rx="5" fill="#f3f5f8" stroke="#8795a6"/><text x="552" y="21" text-anchor="middle" font-weight="bold">RETRY DUPLICATE</text><text x="552" y="34" text-anchor="middle" font-size="9.5">write nothing, count it</text>
+ <line x1="312" y1="95" x2="350" y2="95" stroke="#1f2933" marker-end="url(#a6)"/><text x="322" y="88" font-size="9.5">no</text>
+ <polygon points="352,95 432,55 512,95 432,135" fill="#fffbe6" stroke="#b45309"/><text x="432" y="92" text-anchor="middle" font-size="9.5">same order_id</text><text x="432" y="105" text-anchor="middle" font-size="9.5">already stored?</text>
+ <line x1="432" y1="135" x2="432" y2="165" stroke="#1f2933"/><line x1="432" y1="165" x2="540" y2="165" stroke="#1f2933" marker-end="url(#a6)"/><text x="440" y="152" font-size="9.5">yes</text>
+ <rect x="542" y="148" width="170" height="36" rx="5" fill="#fff8ee" stroke="#b45309"/><text x="627" y="164" text-anchor="middle" font-weight="bold">SOURCE DUPLICATE</text><text x="627" y="177" text-anchor="middle" font-size="9.5">keep first, log the copy</text>
+ <line x1="512" y1="95" x2="560" y2="95" stroke="#1f2933" marker-end="url(#a6)"/><text x="522" y="88" font-size="9.5">no</text>
+ <rect x="562" y="75" width="150" height="40" rx="5" fill="#e8f5ee" stroke="#0f8a5f"/><text x="637" y="92" text-anchor="middle" font-weight="bold">NEW: INSERT</text><text x="637" y="106" text-anchor="middle" font-size="9.5">one new warehouse row</text>
+</svg>
+<figcaption>Figure 9.1: How the PostgreSQL writer classifies every incoming order.</figcaption>
+</figure>
+<div class="box analogy"><span class="t">Analogy: a library returns desk</span>
+Someone returns a book. If its barcode is already in the "returned" list, you ignore it (retry duplicate). If it is a different barcode but the same title that you already hold, you keep the first and note the second in a "spare copies" list (source duplicate). Otherwise you shelve it (new).</div>
+<div class="box warn"><span class="t">Honest note about the real data</span>
+The real orders file contains <b>no</b> source duplicates (every <code>order_id</code> is unique). Source duplicates are demonstrated with a small controlled test file (Demo 3). Retry duplicates, however, occur for real: whenever the same orders are replayed (we did it on purpose: 99 + 199 + 295 + ... repeats), and every one was ignored.</div>
+
+<h2 id="s51-9-5-a-worked-example-the-demo-3-test-file">9.5 A worked example: the Demo 3 test file</h2>
+<p>A tiny CSV in the <b>real orders schema</b> (<code>data/test_inputs/demo3_records.csv</code>, using a real customer) with three rows:</p>
+<table>
+<tr><th>Row</th><th>Order id</th><th>What is special</th><th>Expected and observed</th></tr>
+<tr><td>1</td><td><code>demo3_order_valid_001</code></td><td>valid</td><td>published and stored</td></tr>
+<tr><td>2</td><td><code>demo3_order_invalid_002</code></td><td>delivered on 2017-09-01, <b>before</b> the purchase on 2017-10-03</td><td>rejected: <code>RANGE_ERROR</code>, rule <code>delivered_not_before_purchase</code></td></tr>
+<tr><td>3</td><td><code>demo3_order_valid_001</code></td><td>exact copy of row 1</td><td>published (different <code>record_uid</code>); warehouse keeps row 1 and logs the copy as a source duplicate</td></tr>
+</table>
+<p>Real result of ingesting it <b>twice</b> (15 of 15 automated checks passed, <code>docs/evidence/05_data_quality/quality_idempotency_test.txt</code>):</p>
+<table>
+<tr><th>Layer</th><th>After 1st ingestion</th><th>After 2nd ingestion</th></tr>
+<tr><td>Kafka messages</td><td>2</td><td>4</td></tr>
+<tr><td>Parquet rows (distinct <code>record_uid</code>)</td><td>2 (2)</td><td>4 (2)</td></tr>
+<tr><td>PostgreSQL <code>core.orders</code></td><td><b>1</b></td><td><b>1</b></td></tr>
+<tr><td><code>core.duplicate_records</code></td><td>1</td><td>1 (not logged twice)</td></tr>
+<tr><td>2nd Spark batch result</td><td colspan="2"><code>retry_duplicates: 2, inserted: 0, source_duplicates: 0</code></td></tr>
+</table>
+<div class="box why"><span class="t">A bug this test found before it happened</span>
+While designing this test we noticed that a discarded copy is <i>not</i> in <code>core.orders</code>, so re-ingesting it would have been logged as a brand-new source duplicate every time. We fixed the writer: a <code>record_uid</code> already present in <code>core.duplicate_records</code> now counts as a retry, and a unique index protects the table.</div>
+
+<h2 id="s52-9-6-parquet-and-postgresql-behave-differently-on-purpose">9.6 Parquet and PostgreSQL behave differently on purpose</h2>
+<table>
+<tr><th></th><th>Parquet (landing layer)</th><th>PostgreSQL (warehouse)</th></tr>
+<tr><td>Purpose</td><td>Keep everything Spark consumed, for audit and replay</td><td>One clean row per order for analytics</td></tr>
+<tr><td>A repeat arriving in a <i>later</i> batch</td><td><b>Kept</b> (append-only)</td><td>Ignored (<code>retry_duplicates</code>)</td></tr>
+<tr><td>A repeat inside the <i>same</i> batch</td><td>Removed (in-batch dedup)</td><td>(never arrives)</td></tr>
+<tr><td>"How many orders?"</td><td><code>count(DISTINCT record_uid)</code> = 99,427</td><td><code>count(*)</code> = 99,427</td></tr>
+<tr><td>Total rows today</td><td>100,120</td><td>99,427</td></tr>
+</table>
+<p>So Parquet can contain <b>more rows</b> than PostgreSQL, and the difference is exactly the repeats. Reconciliation (chapter 15) reports and explains it.</p>
+
+<h1 id="s53-10-stage-6-postgresql-the-warehouse">10. Stage 6: PostgreSQL (the warehouse)</h1>
+
+<h2 id="s54-10-1-the-structure">10.1 The structure</h2>
+<p>PostgreSQL holds two <b>schemas</b> (folders for tables): <code>core</code> (the real tables) and <code>analytics</code> (views, i.e. saved questions). Created by <code>sql/schema.sql</code> and <code>sql/analytics.sql</code> through <code>scripts/init_db.ps1</code>. This is <b>repeatable</b>: every statement is <code>CREATE ... IF NOT EXISTS</code> or <code>CREATE OR REPLACE</code>, so running it again never deletes data.</p>
+<table>
+<tr><th style="width:26%">Table</th><th>What it holds</th><th>Rows today</th></tr>
+<tr><td><code>core.orders</code></td><td><b>The warehouse</b>: one row per order, with all typed fields, USD value, provenance and the original columns as JSON.</td><td>99,427</td></tr>
+<tr><td><code>core.duplicate_records</code></td><td>Source-duplicate copies that were discarded.</td><td>0 (real data has none)</td></tr>
+<tr><td><code>core.dead_letter_records</code></td><td>Rejected records loaded from the dead-letter files.</td><td>26 lines for 14 distinct records</td></tr>
+<tr><td><code>core.ingestion_runs</code></td><td>One row per producer run (read, valid, rejected, published...).</td><td>5 production runs loaded</td></tr>
+<tr><td><code>core.api_cache</code>, <code>core.fx_rates</code></td><td>Raw API responses; one exchange rate per date.</td><td>8 responses; 544 dates</td></tr>
+<tr><td><code>core.order_items</code>, <code>order_reviews</code>, <code>dim_products</code>, <code>dim_sellers</code>, <code>geo_zip</code></td><td>Reference tables loaded in batch (not streamed).</td><td>112,650 / 99,224 / 32,951 / 3,095 / 19,010</td></tr>
+</table>
+
+<h2 id="s55-10-2-the-key-table-core-orders">10.2 The key table: <code>core.orders</code></h2>
+<ul>
+<li><b>Primary key</b> <code>record_uid</code>: no two rows may share it.</li>
+<li><b>Unique</b> <code>order_id</code>: the natural key, one row per order.</li>
+<li>Typed columns: timestamps are <code>TIMESTAMP</code>, money is <code>NUMERIC(12,2)</code> (exact decimals, never floating point), the zip prefix is <code>TEXT</code> to keep leading zeros (e.g. <code>01037</code>).</li>
+<li>Provenance columns: <code>source_file_sha256</code>, <code>source_row_number</code>, <code>ingest_run_id</code>, <code>kafka_partition</code>, <code>kafka_offset</code>, <code>processed_at</code>.</li>
+<li>API columns: <code>fx_rate_brl_usd</code>, <code>fx_match_type</code>, <code>payments_value_usd</code>, <code>api_endpoint</code>, <code>api_http_status</code>...</li>
+<li>Indexes on purchase time, state and status (they make the dashboard queries fast).</li>
+</ul>
+
+<h2 id="s56-10-3-the-safe-write-src-warehouse-load-py">10.3 The safe write (<code>src/warehouse/load.py</code>)</h2>
+<p>For every micro-batch, Spark hands the rows to <code>upsert_orders()</code>, which runs <b>inside one transaction</b> (all-or-nothing):</p>
+<ol>
+<li>Copy the batch into a temporary <i>staging</i> table (it disappears at the end of the transaction).</li>
+<li>Find the <b>known</b> IDs: <code>record_uid</code>s already in <code>core.orders</code> or already logged in <code>core.duplicate_records</code> &#8658; these are <b>retry duplicates</b> (counted only).</li>
+<li>Among the rest, rank rows by <code>business_hash</code> and keep the first (lowest source row number).</li>
+<li>Log the others (or a copy of an order that is already stored) in <code>core.duplicate_records</code> as <b>source duplicates</b>.</li>
+<li><code>INSERT</code> the remaining first rows into <code>core.orders</code>.</li>
+</ol>
+<pre class="code"><span class="tag code">src/warehouse/load.py (the invariant that keeps us honest)</span>
+accounted = result["inserted"] + result["retry_duplicates"] + result["source_duplicates"]
+if accounted != result["attempted"]:      # should never happen; make it loud if it does
+    log.error("PostgreSQL batch %s: %d rows attempted but only %d accounted for", ...)</pre>
+<p>Every attempted row must be accounted for as exactly one of: inserted, retry, or source duplicate. (Seven integration tests on a real PostgreSQL check each case.) Database values are always passed as <b>parameters</b>, never pasted into SQL text (this prevents SQL injection).</p>
+<div class="box why"><span class="t">Why a transaction?</span>
+If something fails in the middle of a batch, the whole batch is rolled back: the database never contains "half a batch". Together with idempotency, re-running that batch later gives the correct result.</div>
+
+<h2 id="s57-10-4-reference-loaders-and-run-summaries">10.4 Reference loaders and run summaries</h2>
+<pre class="cmd"><span class="tag cmd">command</span>
+$py -m src.warehouse.load_reference                  # everything
+$py -m src.warehouse.load_reference --only runs dlq api    # selected parts</pre>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/07_postgresql/load_reference_run2.txt</span>
+products -> {'products_in_file': 32951, 'untranslated_category_rows': 623}
+sellers  -> {'sellers_in_file': 3095}
+items    -> {'order_items_in_file': 112650}
+reviews  -> {'reviews_in_file': 99224, 'repeated_review_id_order_id_pairs_skipped': 0}
+geo      -> {'geolocation_rows_read': 1000163, 'rows_outside_brazil_ignored': 42, 'zip_prefixes_loaded': 19010}
+runs     -> {'ingestion_run_files_seen': 13, 'runs_loaded': 3}
+dlq      -> {'dead_letter_records_loaded': 16, 'run_groups_replaced': 3}
+api      -> {'api_cache_files': 7, 'fx_rate_rows_seen': 786}</pre>
+<p>Running it a second time changed nothing (idempotent): products, sellers etc. use <code>ON CONFLICT DO NOTHING</code>; dead letters are replaced per run, never duplicated. The loader reads only runs of the production topic, so test and demo runs never pollute the real warehouse. The geolocation file (1,000,163 rows) is read in chunks and reduced to one average point per zip prefix (19,010 points).</p>
+
+<h2 id="s58-10-5-the-analytics-views-sql-analytics-sql">10.5 The analytics views (<code>sql/analytics.sql</code>)</h2>
+<p>A <b>view</b> is a saved question. The dashboard just reads these views. Definitions used everywhere:</p>
+<ul>
+<li><b>Revenue</b> = <code>payments_value_total</code> (what customers paid, including freight and after vouchers).</li>
+<li><b>Delivery time</b> = delivered date &minus; purchase date (only for delivered orders).</li>
+<li><b>Late</b> = delivered after the promised (estimated) date.</li>
+<li><b>USD</b> = estimate (BRL &times; ECB rate of the purchase day).</li>
+</ul>
+<table>
+<tr><th>View</th><th>Answers</th><th>Real values</th></tr>
+<tr><td><code>revenue_summary</code></td><td>Totals</td><td>99,427 orders; revenue 16,006,744.62 BRL; items 13,589,748.34; freight 2,251,677.40; average order 160.99 BRL; USD estimate 4,768,687.37</td></tr>
+<tr><td><code>order_status_distribution</code></td><td>How many per status</td><td>delivered 96,470 (97.03 %); shipped 1,107; canceled 619; unavailable 609; invoiced 314; processing 301; created 5; approved 2</td></tr>
+<tr><td><code>orders_per_day</code>, <code>orders_per_month</code></td><td>Growth over time</td><td>2016-09: 4 orders &#8594; peak 2017-11: 7,543 orders (Black Friday month) &#8594; 2018-08: 6,512</td></tr>
+<tr><td><code>payment_type_mix</code></td><td>Orders using each payment type (an order can use several)</td><td>credit_card 76,492; boleto 19,784; voucher 3,866; debit_card 1,527; not_defined 3</td></tr>
+<tr><td><code>late_delivery_summary</code></td><td>Late rate</td><td>96,470 delivered; 7,826 late = <b>8.11 %</b>; average delivery 12.56 days</td></tr>
+<tr><td><code>delivery_time_by_month</code></td><td>Average and median days</td><td>e.g. 2018-08: avg 7.73, median 7.01 days</td></tr>
+<tr><td><code>orders_by_state</code></td><td>Where customers are</td><td>SP 41,738; RJ 12,849; MG 11,634; RS 5,465; PR 5,045</td></tr>
+<tr><td><code>top_product_categories</code></td><td>Best categories (English names)</td><td>bed_bath_table 11,115; health_beauty 9,668; sports_leisure 8,639</td></tr>
+<tr><td><code>review_score_distribution</code></td><td>Review scores 1-5</td><td>1 star: 11,419; 2: 3,151; 3: 8,178; 4: 19,142; <b>5 stars: 57,320</b></td></tr>
+<tr><td><code>api_enrichment_summary</code></td><td>API health on the data</td><td>99,427 enriched = 100 %; 24,112 on previous business day</td></tr>
+</table>
+<p>Sanity check that the numbers agree with the profile: delivered 96,470 = 96,478 &minus; 8 rejected; canceled 619 = 625 &minus; 6 rejected. The data was neither lost nor invented.</p>
+
+<h2 id="s59-10-6-the-quality-checks-on-the-stored-data">10.6 The quality checks on the stored data</h2>
+<pre class="cmd"><span class="tag cmd">command</span>
+docker cp sql\quality_checks.sql streampulse-postgres:/tmp/qc.sql
+docker exec streampulse-postgres psql -U streampulse -d streampulse -f /tmp/qc.sql</pre>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/07_postgresql/quality_checks_output.txt</span>
+ rows in core.orders    | 99427      distinct record_uid | 99427
+ distinct order_id      | 99427      distinct business_hash | 99427
+ status outside the allowed set         | 0
+ duplicate order_id (problem_rows)      | 0
+ delivery date but status not delivered | 0
+ delivered before purchase              | 0
+ negative amounts                       | 0
+ delivered without delivery date        | 0
+ orders without items (kept, count 0)   | 775        orders without payments (kept) | 1</pre>
+<p><b>Meaning:</b> the four counts are identical (one row per order); every problem count is zero; the 775 item-less orders and the 1 payment-less order are kept on purpose and reported.</p>
+
+<h1 id="s60-11-stage-7-airflow-running-the-steps-as-a-workflow">11. Stage 7: Airflow (running the steps as a workflow)</h1>
+
+<h2 id="s61-11-1-what-airflow-is-and-why-it-is-here">11.1 What Airflow is, and why it is here</h2>
+<p>So far you started each step by hand. In real companies, steps must run in the right order, automatically, with <b>retries when something temporarily fails</b> and <b>logs</b> to see what happened. A tool that does this is a <b>workflow orchestrator</b>. We use <b>Apache Airflow</b>.</p>
+<p>In Airflow a workflow is a <b>DAG</b> (Directed Acyclic Graph): tasks joined by arrows meaning "this must finish first". "Acyclic" means no loops.</p>
+<div class="box analogy"><span class="t">Analogy: a recipe card</span>
+A DAG is a recipe: "1 chop onions, 2 fry onions, 3 add tomatoes". Airflow is the cook's assistant who follows the card, redoes a step if the stove fails once, and writes down what happened.</div>
+<div class="box warn"><span class="t">Why the stream is NOT an Airflow task</span>
+An Airflow task must <b>end</b>. A continuous Spark stream (a batch every 5 seconds, forever) never ends. So Airflow runs Spark with <code>--trigger availableNow</code> ("process what is waiting, then finish"), and the replay is limited by a parameter. Say this in the viva: <i>"Airflow orchestrates finite tasks; the endless stream is not a DAG task."</i></div>
+
+<h2 id="s62-11-2-how-it-is-deployed">11.2 How it is deployed</h2>
+<ul>
+<li>A custom Docker image (<code>docker/airflow/Dockerfile</code>) based on Airflow 2.10.5 with Java and its own Python virtual environment for our code (so our packages never clash with Airflow's).</li>
+<li><b>LocalExecutor</b> (runs tasks as processes on the same machine). Airflow's own bookkeeping lives in a <b>separate database named <code>airflow</code></b> inside the same PostgreSQL (the <code>streampulse</code> data is untouched).</li>
+<li>Start: <code>.\scripts\airflow_up.ps1</code> &#8658; UI at <code>http://localhost:8080</code>, user <code>admin</code>, password = <code>AIRFLOW_ADMIN_PASSWORD</code> in your <code>.env</code>.</li>
+<li>DAG files: <code>airflow/dags/streampulse_batch_dag.py</code> and <code>streampulse_failure_demo_dag.py</code>.</li>
+</ul>
+
+<h2 id="s63-11-3-the-dag-streampulse-batch-nine-finite-tasks">11.3 The DAG <code>streampulse_batch</code>: nine finite tasks</h2>
+<figure>
+<svg width="730" height="170" viewBox="0 0 730 170" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="9.5">
+ <defs><marker id="a7" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker></defs>
+ <g fill="#e8eff7" stroke="#0b5cad"><rect x="5" y="55" width="76" height="46" rx="5"/><rect x="92" y="55" width="76" height="46" rx="5"/><rect x="179" y="55" width="76" height="46" rx="5"/><rect x="266" y="55" width="76" height="46" rx="5"/><rect x="353" y="55" width="76" height="46" rx="5"/><rect x="440" y="55" width="76" height="46" rx="5"/><rect x="527" y="55" width="76" height="46" rx="5"/><rect x="614" y="55" width="76" height="46" rx="5"/></g>
+ <rect x="92" y="118" width="76" height="40" rx="5" fill="#f3f5f8" stroke="#8795a6"/>
+ <g text-anchor="middle" font-weight="bold"><text x="43" y="75">check_</text><text x="43" y="88">dataset_present</text><text x="130" y="75">validate_</text><text x="130" y="88">dataset_profile</text><text x="217" y="75">ingest_batch_</text><text x="217" y="88">to_kafka</text><text x="304" y="75">run_spark_</text><text x="304" y="88">available_now</text><text x="391" y="75">run_quality_</text><text x="391" y="88">checks_sql</text><text x="478" y="75">load_runs_</text><text x="478" y="88">dead_letters_api</text><text x="565" y="75">reconcile_</text><text x="565" y="88">counts</text><text x="652" y="75">refresh_</text><text x="652" y="88">analytics</text><text x="130" y="135">api_health_check</text><text x="130" y="148" font-weight="normal" font-size="9">(independent)</text></g>
+ <g stroke="#1f2933"><line x1="82" y1="78" x2="91" y2="78" marker-end="url(#a7)"/><line x1="169" y1="78" x2="178" y2="78" marker-end="url(#a7)"/><line x1="256" y1="78" x2="265" y2="78" marker-end="url(#a7)"/><line x1="343" y1="78" x2="352" y2="78" marker-end="url(#a7)"/><line x1="430" y1="78" x2="439" y2="78" marker-end="url(#a7)"/><line x1="517" y1="78" x2="526" y2="78" marker-end="url(#a7)"/><line x1="604" y1="78" x2="613" y2="78" marker-end="url(#a7)"/><path d="M43 102 L43 138 L90 138" fill="none" marker-end="url(#a7)"/></g>
+ <text x="365" y="25" text-anchor="middle" font-size="10.5" fill="#5b6770">Each task is a command run inside the Airflow container. A task starts only when the arrow's source succeeded.</text>
+</svg>
+<figcaption>Figure 11.1: The batch DAG. Real graph: <code>docs/evidence/08_airflow/airflow_streampulse_batch_graph.png</code>.</figcaption>
+</figure>
+<table>
+<tr><th style="width:26%">Task</th><th>What it runs</th><th>Seconds in the real run</th></tr>
+<tr><td><code>check_dataset_present</code></td><td>all 9 CSV files exist</td><td>1</td></tr>
+<tr><td><code>validate_dataset_profile</code></td><td>files still match the recorded SHA-256 fingerprints</td><td>2</td></tr>
+<tr><td><code>api_health_check</code></td><td>one real request to Frankfurter (independent branch)</td><td>1</td></tr>
+<tr><td><code>ingest_batch_to_kafka</code></td><td>producer with <code>--limit {{ params.limit }}</code> (default 500; we used 300)</td><td>5</td></tr>
+<tr><td><code>run_spark_available_now</code></td><td>Spark with <code>availableNow</code> into Parquet and PostgreSQL</td><td>70</td></tr>
+<tr><td><code>run_quality_checks_sql</code></td><td><code>scripts/run_quality_checks.py</code>: fails if any problem count &gt; 0</td><td>8</td></tr>
+<tr><td><code>load_runs_dead_letters_api</code></td><td>loads run summaries, dead letters, API cache</td><td>1</td></tr>
+<tr><td><code>reconcile_counts</code></td><td><code>scripts/reconcile.py</code>: fails on an unexplained difference</td><td>12</td></tr>
+<tr><td><code>refresh_analytics</code></td><td>re-applies the views (never drops data)</td><td>0.4</td></tr>
+</table>
+<p>Settings on every task: <b>2 retries</b>, <b>30 s</b> delay between retries, <b>time limit</b> (20 minutes; 30 for Spark). The DAG allows <b>one run at a time</b> (<code>max_active_runs=1</code>) because two runs would share one Spark checkpoint. Every step is safe to repeat, because replaying the same orders produces the same <code>record_uid</code>s.</p>
+
+<h2 id="s64-11-4-the-real-run">11.4 The real run</h2>
+<figure>
+<div class="crop" style="aspect-ratio: 1500 / 1000; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/08_airflow/airflow_streampulse_batch_grid.png" alt="Airflow grid view"></div>
+<figcaption>Figure 11.2: The real Airflow UI (grid view). The left bar is the <b>first run (red: it failed)</b>, the right bar is the <b>second run (all green: success)</b>. Rows are the nine tasks.</figcaption>
+</figure>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/08_airflow/dag_run2_streampulse_batch.txt</span>
+Triggered streampulse_batch run_id=manual__20261015T181422 conf={"limit": 300}
+23:44:40  run state: running
+   ...
+23:46:22  run state: success
+run_spark_available_now    success   18:14:38 -> 18:15:48
+run_quality_checks_sql     success
+reconcile_counts           success
+FINAL STATE: success</pre>
+<p>Inside the logs: the producer published 295 valid orders; Spark batch 11 received 590 messages (295 from the earlier failed attempt's ingestion + 295 new), inserted <b>0</b> and counted 295 retry duplicates; the quality checks printed <code>RESULT: all quality checks passed</code>; reconciliation printed <code>RESULT: all differences are zero or explained</code>.</p>
+
+<h3>The failed first run (kept as evidence, and why it matters)</h3>
+<div class="box bad"><span class="t">Real failure: "Permission denied"</span>
+<code>run_spark_available_now</code> failed 3 times (retries working) with
+<code>java.io.FileNotFoundException: /opt/streampulse/data/checkpoints/orders/offsets/.11....tmp (Permission denied)</code>.
+<b>Cause:</b> the production checkpoint folder was created earlier by the Spark container as the <b>root</b> user, but Airflow tasks ran as a different user who was not allowed to write there. <b>Fix:</b> the Airflow container now runs as root (documented trade-off for a demo; a real system would share one user or use volumes). The other tasks in that run succeeded, and the downstream tasks were marked <code>upstream_failed</code> (they correctly refused to run after a failure).</div>
+
+<h2 id="s65-11-5-the-retry-and-failure-demonstration-streampulse-failure">11.5 The retry and failure demonstration (<code>streampulse_failure_demo</code>)</h2>
+<p>To <i>show</i> retries, a second DAG runs the real producer against a Kafka address that does not exist (<code>kafka-does-not-exist:9092</code>). This simulates a real outage of a real dependency; no mock service is used.</p>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/08_airflow/dag_failure_demo_run.txt</span>
+attempt=1.log: Starting attempt 1 of 3 | ... KafkaTimeoutError: Unable to bootstrap from kafka-does-not-exist:9092
+attempt=2.log: Starting attempt 2 of 3 | ... KafkaTimeoutError: Unable to bootstrap from kafka-does-not-exist:9092
+attempt=3.log: Starting attempt 3 of 3 | ... KafkaTimeoutError: Unable to bootstrap from kafka-does-not-exist:9092
+ingest_from_unreachable_kafka  failed
+downstream_never_runs          upstream_failed
+FINAL STATE: failed</pre>
+<p><b>Meaning:</b> three attempts (1 original + 2 retries), then the task is <code>failed</code>, its follower is <code>upstream_failed</code>, and the DAG run is <code>failed</code>. <b>This failure is the intended result</b>; the DAG is kept paused so it never runs by accident.</p>
+
+<h2 id="s66-11-6-commands">11.6 Commands</h2>
+<pre class="cmd"><span class="tag cmd">commands</span>
+.\scripts\airflow_up.ps1                                              # start Airflow (first time builds the image)
+.\scripts\airflow_run_dag.ps1 -Dag streampulse_batch -Conf '{"limit": 300}'   # trigger, wait, print every task state
+.\scripts\airflow.ps1 dags list                                       # any Airflow CLI command
+.\scripts\run_tests_airflow.ps1                                       # the 8 DAG structure tests (inside the container)
+.\scripts\airflow_down.ps1                                            # stop (nothing is deleted)</pre>
+<p><code>airflow_run_dag.ps1</code> exits with 0 only if the run ends in <code>success</code>.</p>
+
+<h1 id="s67-12-stage-8-the-streamlit-dashboard-every-page-explained">12. Stage 8: The Streamlit dashboard (every page explained)</h1>
+
+<h2 id="s68-12-1-how-the-dashboard-works">12.1 How the dashboard works</h2>
+<p>Start it with <code>.\scripts\run_dashboard.ps1</code> and open <code>http://localhost:8501</code>. It is three separate pieces:</p>
+<table>
+<tr><th style="width:24%">File</th><th>Responsibility</th></tr>
+<tr><td><code>src/dashboard/queries.py</code></td><td>All database and Parquet access. Every number on the dashboard comes from here. Errors are logged fully for the developer but only a short safe message reaches the user (no passwords, no host names).</td></tr>
+<tr><td><code>src/dashboard/status.py</code></td><td>The status lights: <b>real checks</b>, not decoration.</td></tr>
+<tr><td><code>src/dashboard/app.py</code></td><td>Only the screen layout: tables, charts, text.</td></tr>
+</table>
+<ul>
+<li>Data is cached for 30 seconds; the sidebar button <b>Refresh data</b> clears the cache.</li>
+<li>Customer identifiers are never displayed.</li>
+<li>Money columns from PostgreSQL arrive as exact decimals; they are converted to normal numbers before charting.</li>
+<li>For demos: <code>.\scripts\run_dashboard.ps1 -Demo 3</code> shows the isolated demo database instead.</li>
+</ul>
+<div class="box why"><span class="t">Rule: no fake green lights</span>
+A status light is green <b>only if a real check just succeeded</b>. If a service is down it is red; if the check cannot be made it is grey ("unknown"). This was verified by really stopping Kafka and PostgreSQL (section 12.9).</div>
+
+<h2 id="s69-12-2-page-1-overview-and-status">12.2 Page 1: Overview and status</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 930; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_01_overview_and_status.png" alt="Overview page"></div>
+<figcaption>Figure 12.1: Overview and status (real screenshot).</figcaption></figure>
+<table>
+<tr><th style="width:24%">Element</th><th>What it tells you</th></tr>
+<tr><td>Blue banner</td><td>The honest framing: historical replay, not live orders. It is repeated in every page's sidebar.</td></tr>
+<tr><td>Architecture box</td><td>The implemented data flow in four lines.</td></tr>
+<tr><td><b>PostgreSQL</b> light</td><td>Runs <code>SELECT 1</code>. Green = the database answered.</td></tr>
+<tr><td><b>Kafka</b> light</td><td>Asks the broker for the topic's metadata. Green text: "topic 'ecommerce_orders' has 3 partition(s)".</td></tr>
+<tr><td><b>Exchange-rate API</b> light</td><td>Reads the last successful API response <i>stored in PostgreSQL</i> and shows its time (no new call).</td></tr>
+<tr><td><b>Parquet landing layer</b> light</td><td>Lists the files (e.g. "12 file(s)").</td></tr>
+<tr><td><b>Dataset files</b> light</td><td>Counts the CSV files (must be 9).</td></tr>
+<tr><td><b>Airflow (optional)</b> light</td><td>Calls Airflow's health URL. Red "not running" is normal when you did not start it; it is optional.</td></tr>
+<tr><td>Button "Run a live check of the exchange-rate API"</td><td>Makes exactly <b>one</b> real request and shows HTTP status and number of rates.</td></tr>
+</table>
+
+<h2 id="s70-12-3-page-2-dataset-and-provenance">12.3 Page 2: Dataset and provenance</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 1230; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_02_dataset_and_provenance.png" alt="Dataset page"></div>
+<figcaption>Figure 12.2: Dataset and provenance.</figcaption></figure>
+<ul>
+<li><b>First table:</b> the 9 source files with rows, columns and the start of their SHA-256 fingerprints (from the profiling run of 2026-10-15).</li>
+<li><b>Warehouse cards:</b> 99,427 orders in PostgreSQL = 99,427 distinct <code>record_uid</code> (one row per order); first purchase 2016-09-04, last 2018-10-17.</li>
+<li><b>Fingerprint table:</b> all 99,427 warehouse rows came from <b>one</b> source file with the fingerprint <code>8df58ef3...</code>, the same one recorded on day one. This is the provenance proof: the data came from the untouched Olist orders file.</li>
+<li><b>Reference tables:</b> sellers 3,095; geolocation zip prefixes 19,010; products 32,951; reviews 99,224; order items 112,650.</li>
+</ul>
+
+<h2 id="s71-12-4-page-3-ingestion-and-reconciliation">12.4 Page 3: Ingestion and reconciliation</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 880; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_03_ingestion_and_reconciliation.png" alt="Reconciliation page"></div>
+<figcaption>Figure 12.3: Ingestion and reconciliation (real screenshot).</figcaption></figure>
+<p><b>Top table:</b> one row per producer run. Read <code>full-run-01</code>: it read 99,441 rows, 99,427 were valid, 14 rejected, 99,427 published, 0 failed to publish. The runs <b>overlap</b> (the same first orders were replayed several times on purpose), so never add the rows up to get "unique orders".</p>
+<p><b>Layer reconciliation:</b></p>
+<table>
+<tr><th>Layer</th><th>Count</th><th>How to read it</th></tr>
+<tr><td>Kafka messages</td><td>100,514</td><td>Everything published, repeats included (99,427 unique + 1,087 repeats).</td></tr>
+<tr><td>Parquet rows</td><td>100,120</td><td>What Spark consumed and kept (append-only).</td></tr>
+<tr><td>Parquet distinct <code>record_uid</code></td><td>99,427</td><td>The unique valid orders.</td></tr>
+<tr><td>PostgreSQL orders</td><td>99,427</td><td>The deduplicated warehouse.</td></tr>
+</table>
+<ul>
+<li><b>Kafka minus Parquet rows = 394:</b> repeats that Spark removed <i>inside one batch</i> (99 in the first batch + 295 in batch 11).</li>
+<li><b>Parquet rows minus distinct = 693:</b> repeats that arrived in a <i>later</i> batch (199 + 295 + 199); Parquet keeps them, PostgreSQL ignores them.</li>
+<li><b>Parquet distinct minus PostgreSQL = 0</b> and "discarded source duplicates = 0": they match (the real data has no source duplicates).</li>
+</ul>
+<p>The line at the bottom reminds you that the full source-derived reconciliation is <code>scripts/reconcile.py</code> (chapter 15).</p>
+
+<h2 id="s72-12-5-page-4-data-quality">12.5 Page 4: Data quality</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 600; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_04_data_quality.png" alt="Data quality page"></div>
+<figcaption>Figure 12.4: Data quality (real screenshot).</figcaption></figure>
+<ul>
+<li><b>Orders without items (kept): 775</b> and <b>without payments (kept): 1.</b> They are incomplete but real; we keep them and show the count.</li>
+<li><b>Delivered without date: 0</b> and <b>Delivered before purchase: 0.</b> These two problem counters must be zero in the warehouse (the bad ones were rejected before arriving).</li>
+<li><b>Rejected records (dead-letter queue):</b> stage <code>ingest</code>, reason <code>INCONSISTENT</code>, <b>26</b> records, <b>14</b> distinct. 26 lines because overlapping runs rejected the same 14 records again (one line per run); 14 is the number of different orders.</li>
+<li><b>Duplicates:</b> "No source duplicates were found" (true for the real data).</li>
+</ul>
+
+<h2 id="s73-12-6-page-5-business-kpis">12.6 Page 5: Business KPIs</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 2100; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_05_business_kpis.png" alt="KPI page"></div>
+<figcaption>Figure 12.5: Business KPIs (real screenshot; the last chart continues below the image edge).</figcaption></figure>
+<table>
+<tr><th style="width:27%">Metric / chart</th><th>What it means</th><th>Real value / reading</th></tr>
+<tr><td>Orders</td><td>unique orders in the warehouse</td><td>99,427</td></tr>
+<tr><td>Revenue (BRL)</td><td>sum of <code>payments_value_total</code> (what customers paid)</td><td>16,006,745</td></tr>
+<tr><td>Revenue (USD, estimate)</td><td>BRL &times; ECB rate of each purchase day</td><td>4,768,687</td></tr>
+<tr><td>Average order value</td><td>average payment of orders with a payment</td><td>160.99 BRL</td></tr>
+<tr><td>Delivered orders / Late deliveries / Late % </td><td>delivered orders; delivered after the promised date; their share</td><td>96,470 / 7,826 / <b>8.11 %</b></td></tr>
+<tr><td>Average delivery days</td><td>delivery date &minus; purchase date</td><td>12.56 days</td></tr>
+<tr><td>Orders per month (bar)</td><td>business growth</td><td>starts at 4 orders (Sept 2016), grows, peaks in <b>Nov 2017 (7,543)</b>, about 6,000-7,000 per month in 2018</td></tr>
+<tr><td>Order status (table)</td><td>share of each status</td><td>delivered 97.03 %; shipped 1.11 %; canceled 0.62 %</td></tr>
+<tr><td>Top 10 customer states (bar)</td><td>where orders come from</td><td>SP (S&atilde;o Paulo) is far ahead: 41,738; then RJ 12,849; MG 11,634</td></tr>
+<tr><td>Average delivery days by month (line)</td><td>how delivery speed changed</td><td>recent months are faster, e.g. Aug 2018 avg 7.73 days vs May 2018 11.42</td></tr>
+<tr><td>Payment types (bar)</td><td>orders using each type (an order can use several)</td><td>credit_card 76,492 &gt; boleto 19,784 &gt; voucher 3,866 &gt; debit_card 1,527</td></tr>
+<tr><td>Top 10 categories (bar)</td><td>items sold per product category</td><td>bed_bath_table 11,115; health_beauty 9,668; sports_leisure 8,639</td></tr>
+<tr><td>Review scores (bar)</td><td>how customers rated</td><td>5 stars: 57,320; 4: 19,142; 3: 8,178; 2: 3,151; 1: 11,419</td></tr>
+</table>
+<div class="box warn"><span class="t">How to word the USD number</span>
+Say "an <b>estimated</b> 4.77 million USD at the European Central Bank's rate on each purchase day". Customers paid in reais.</div>
+
+<h2 id="s74-12-7-page-6-external-api">12.7 Page 6: External API</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 820; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_06_external_api.png" alt="API page"></div>
+<figcaption>Figure 12.6: External API (real screenshot).</figcaption></figure>
+<ul>
+<li><b>Orders 99,427 / Enriched with a rate 99,427 / Match rate 100.00 %:</b> every order received a USD value.</li>
+<li><b>Matched on previous business day: 24,112:</b> orders bought on weekends/holidays, which have no ECB rate.</li>
+<li><b>"Last API retrieval stored on records ... HTTP status 200":</b> provenance of the data in the warehouse.</li>
+<li><b>Green light:</b> the last successful response stored in PostgreSQL.</li>
+<li><b>Line chart:</b> the real BRL&#8594;USD rate from Sept 2016 to Oct 2018 (about 0.24 to 0.33 dollars per real; it falls in 2018 as the real weakened).</li>
+</ul>
+
+<h2 id="s75-12-8-page-7-recent-records">12.8 Page 7: Recent records</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 800; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_07_recent_records.png" alt="Recent records page"></div>
+<figcaption>Figure 12.7: Most recently processed orders (real screenshot).</figcaption></figure>
+<p>A table of the latest rows with business columns only: <code>order_id</code>, status, purchase time, state, number of items, payment in BRL and USD, which ingestion run brought it. A slider chooses how many rows (5-100). Below: <b>last processed into PostgreSQL</b> and <b>last ingestion run started</b>, i.e. how fresh the data is. (Customer identifiers are deliberately not shown.)</p>
+
+<h2 id="s76-12-9-when-services-are-really-down">12.9 When services are really down</h2>
+<p>We stopped the Kafka and PostgreSQL containers on purpose and took real screenshots, then restored them (99,427 rows were intact afterwards).</p>
+<div class="two">
+<div><div class="crop" style="aspect-ratio: 1500 / 900; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_all_down_01_overview_and_status.png" alt="Everything down"></div><div class="small">Overview with Kafka and PostgreSQL stopped: both <b>red</b>; the API light is <b>grey</b> (cannot be known without the database); Parquet and dataset files are still <b>green</b> because those checks really passed.</div></div>
+<div><div class="crop" style="aspect-ratio: 1500 / 900; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_all_down_02_business_kpis.png" alt="KPI page, database down"></div><div class="small">KPI page with PostgreSQL stopped: <b>"Unavailable: The database is unavailable or the query failed."</b> No technical details leak.</div></div>
+</div>
+<div class="box bad"><span class="t">Two dashboard bugs found by LOOKING at screenshots (not by tests)</span>
+<b>1.</b> The Kafka light was red while Kafka was running: a client option that this library version rejects raised an error, which my code reported as "down". (My first "down" tests passed for the wrong reason, so a test against the real broker was added.) <b>2.</b> Three pages printed Streamlit's own documentation: a line of the form <code>st.dataframe(x) if cond else st.write(y)</code> is a bare expression, and Streamlit displays the value of bare expressions. Fixed with a plain if/else, plus an automatic source check. Lesson: <b>always look at the real output.</b></div>
+
+<h1 id="s77-13-the-folder-and-file-map">13. The folder and file map</h1>
+<p>Open the project folder and you will see this. Learn the <b>purpose</b> of each folder; in the viva you will be asked "where is X?".</p>
+<table>
+<tr><th style="width:27%">Path</th><th>What it contains / why it exists</th></tr>
+<tr><td><code>Readme.md</code></td><td>Front page of the project: what it is, how to start.</td></tr>
+<tr><td><code>.env</code> (you create it)</td><td>Passwords and settings. <b>Never committed</b> (listed in <code>.gitignore</code>). Template: <code>.env.example</code>.</td></tr>
+<tr><td><code>docker-compose.yml</code></td><td>Defines every service (Kafka, PostgreSQL, Spark, Airflow): image, ports, volumes, health checks.</td></tr>
+<tr><td><code>requirements.txt</code>, <code>requirements-dev.txt</code></td><td>Python packages for running / for testing. <code>pytest.ini</code> defines the six test markers.</td></tr>
+<tr><td><code>data/raw/</code></td><td>The 9 Olist CSV files (git-ignored: licence and size).</td></tr>
+<tr><td><code>data/processed/parquet/orders/</code></td><td>The Parquet landing layer (<code>batch_id=NNNNNNNN</code> folders).</td></tr>
+<tr><td><code>data/processed/spark_batches/orders.jsonl</code></td><td>One JSON line per micro-batch: the <code>BATCH_SUMMARY</code> counts.</td></tr>
+<tr><td><code>data/checkpoints/orders/</code></td><td>Spark's progress memory. <b>Never delete.</b></td></tr>
+<tr><td><code>data/dead_letter/</code></td><td>Rejected records as JSON lines: <code>ingest/</code> (producer) and <code>stream/</code> (Spark).</td></tr>
+<tr><td><code>config/field_mapping.yaml</code></td><td>The map from Olist columns to message fields (single source of truth for the mapping).</td></tr>
+<tr><td><code>config/quality_rules.yaml</code></td><td>The 8 data-quality rules.</td></tr>
+<tr><td><code>src/common/</code></td><td><code>config.py</code> (reads <code>.env</code>), <code>mapping.py</code>, <code>orders_source.py</code> (the join).</td></tr>
+<tr><td><code>src/api/</code></td><td><code>client.py</code> (HTTP + retry + cache), <code>enrich.py</code> (BRL&#8594;USD logic).</td></tr>
+<tr><td><code>src/producer/dataset_producer.py</code></td><td>The Kafka producer (CLI).</td></tr>
+<tr><td><code>src/processing/</code></td><td><code>validators.py</code>, <code>classify.py</code> (pure rule functions), <code>deadletter.py</code>.</td></tr>
+<tr><td><code>src/streaming/</code></td><td><code>order_stream.py</code> (the Spark job, stop protocol), <code>transforms.py</code> (parse/flatten/validate in Spark).</td></tr>
+<tr><td><code>src/warehouse/</code></td><td><code>db.py</code> (connection), <code>load.py</code> (idempotent upsert), <code>load_reference.py</code> (items/products/sellers/reviews/geo).</td></tr>
+<tr><td><code>src/dashboard/</code></td><td><code>queries.py</code>, <code>status.py</code>, <code>app.py</code> (Streamlit).</td></tr>
+<tr><td><code>sql/</code></td><td><code>schema.sql</code> (tables), <code>analytics.sql</code> (11 views), <code>quality_checks.sql</code>, <code>analytics_samples.sql</code>.</td></tr>
+<tr><td><code>scripts/</code></td><td>PowerShell and Python helpers: every command in chapter 14 (see below).</td></tr>
+<tr><td><code>airflow/dags/</code></td><td>The two DAG files.</td></tr>
+<tr><td><code>docker/spark</code>, <code>docker/airflow</code></td><td>Dockerfiles for the two custom images.</td></tr>
+<tr><td><code>tests/unit | integration | e2e</code></td><td>Automated tests, by how much of the system they need.</td></tr>
+<tr><td><code>docs/</code></td><td>Specs (00-07), architecture, setup guide, data dictionary, quality rules, test cases, viva questions, limitations, final report, task tracker, evidence register.</td></tr>
+<tr><td><code>docs/evidence/00..11</code></td><td>Saved real outputs and screenshots, one folder per stage. Each file records its command, time and git commit.</td></tr>
+<tr><td><code>docs/phase_reports/</code></td><td>What was done in each phase, including failures.</td></tr>
+</table>
+<h3>Script families</h3>
+<ul>
+<li><b>kafka_*.ps1</b> start/stop Kafka, list/describe topic, consume N messages, count per partition.</li>
+<li><b>run_stream.ps1 / stop_stream.ps1</b> start and safely stop Spark. <b>init_db.ps1</b> creates the schema.</li>
+<li><b>airflow_*.ps1</b> start, stop, run a DAG, any CLI command.</li>
+<li><b>run_dashboard.ps1</b> starts Streamlit. <b>reconcile.py</b>, <b>run_quality_checks.py</b> verify the numbers.</li>
+<li><b>profile_dataset.py</b>, <b>check_dataset_fingerprint.py</b> examine the data. <b>secret_scan.py</b>, <b>check_evidence_paths.py</b> guard the repository.</li>
+<li><b>demo_setup / demo_load / demo3_cleanup / reset_demo_state</b> support the four demos on an isolated demo database.</li>
+<li><b>spark_experiments.py, quality_experiment.py, measure_key_options.py, explain_rejected_count.py</b>: experiments that produced evidence.</li>
+</ul>
+
+<h1 id="s78-14-the-commands-cookbook">14. The commands cookbook</h1>
+<p>Run every command from the <b>project root</b> in <b>PowerShell</b>. First, in each terminal: <code>$py = ".\.venv\Scripts\python.exe"</code>. Each entry gives: the command, <i>why</i>, what success looks like (taken from real runs) and what it means.</p>
+
+<h2 id="s79-14-1-first-time-setup">14.1 First-time setup</h2>
+<table>
+<tr><th style="width:30%">Command</th><th style="width:22%">Why</th><th>Expected output and meaning</th></tr>
+<tr><td><code>python -m venv .venv</code><br><code>$py -m pip install -r requirements.txt</code></td><td>Private Python environment with the exact packages.</td><td>"Successfully installed ...". If it fails, the Python version is wrong (we used 3.11).</td></tr>
+<tr><td><code>Copy-Item .env.example .env</code></td><td>Create your settings file. Edit <code>POSTGRES_PASSWORD</code>.</td><td>A new <code>.env</code> file. Never share or commit it.</td></tr>
+<tr><td><code>.\scripts\check_env.ps1</code></td><td>Are Python, Docker and the Kafka port ready?</td><td>Versions printed; port 9092 <code>reachable = True</code> only after Kafka is started.</td></tr>
+<tr><td><code>$py scripts\check_dataset_fingerprint.py</code></td><td>Are the 9 CSVs the untouched originals?</td><td><code>All 9 files match the fingerprints...</code> A mismatch means a file was altered or is wrong.</td></tr>
+</table>
+
+<h2 id="s80-14-2-infrastructure">14.2 Infrastructure</h2>
+<table>
+<tr><th style="width:30%">Command</th><th style="width:22%">Why</th><th>Expected output and meaning</th></tr>
+<tr><td><code>.\scripts\kafka_start.ps1</code></td><td>Start Kafka and create the topic.</td><td><code>Kafka health: healthy</code> and the topic <code>ecommerce_orders</code> with 3 partitions. <code>docker ps</code> shows <code>(healthy)</code>.</td></tr>
+<tr><td><code>.\scripts\init_db.ps1</code></td><td>Start PostgreSQL, create schemas, tables, views.</td><td><code>schema OK</code>. Safe to repeat (nothing is dropped).</td></tr>
+<tr><td><code>.\scripts\kafka_describe_topic.ps1</code></td><td>Show topic settings.</td><td><code>PartitionCount: 3  ReplicationFactor: 1</code>.</td></tr>
+<tr><td><code>docker compose --profile spark build spark</code></td><td>Build the Spark image once.</td><td>5-10 minutes the first time; ends with the image name. (Needed because Windows cannot run Spark directly.)</td></tr>
+</table>
+
+<h2 id="s81-14-3-ingestion">14.3 Ingestion</h2>
+<table>
+<tr><th style="width:30%">Command</th><th style="width:22%">Why</th><th>Expected output and meaning</th></tr>
+<tr><td><code>$py -m src.producer.dataset_producer --limit 100 --dry-run</code></td><td>Rehearse: read, join, validate, enrich; publish nothing.</td><td>A JSON summary with <code>rows_published: 0</code>. Nothing reached Kafka.</td></tr>
+<tr><td><code>$py -m src.producer.dataset_producer --limit 200 --run-id demo1</code></td><td>Publish the first 200 orders.</td><td><code>rows_read 200, rows_valid 199, rows_rejected 1, rows_publish_failed 0</code>. One order is bad and goes to the dead-letter file.</td></tr>
+<tr><td><code>$py -m src.producer.dataset_producer --full</code></td><td>Replay all orders (about 100 s).</td><td><code>rows_read 99441, rows_valid 99427, rows_rejected 14</code>. Without <code>--limit</code> or <code>--full</code> the producer refuses to run (so nobody replays 100k orders by accident).</td></tr>
+<tr><td><code>.\scripts\kafka_consume_n.ps1 -Count 1 -Partition 0</code></td><td>Look at a real message.</td><td>One JSON envelope (chapter 5).</td></tr>
+<tr><td><code>.\scripts\kafka_partition_counts.ps1</code></td><td>Messages per partition.</td><td>Three numbers that are nearly equal (33.4 / 33.4 / 33.2 %). Total = messages published.</td></tr>
+<tr><td><code>$py scripts\api_demo_call.py --sample --no-cache</code></td><td>One real API request.</td><td><code>HTTP : 200</code>, <code>Rows : 5</code>.</td></tr>
+<tr><td><code>$py scripts\api_demo_call.py --simulate-failure</code></td><td>Show the retry logic.</td><td><code>API failed after 3 attempts</code> (waits of 1 s and 2 s).</td></tr>
+</table>
+
+<h2 id="s82-14-4-spark-parquet-postgresql">14.4 Spark, Parquet, PostgreSQL</h2>
+<table>
+<tr><th style="width:30%">Command</th><th style="width:22%">Why</th><th>Expected output and meaning</th></tr>
+<tr><td><code>.\scripts\run_stream.ps1 -Trigger availableNow</code></td><td>Process everything waiting in Kafka, then stop.</td><td>One <code>BATCH_SUMMARY {...}</code> line per batch, then <code>Stream stopped.</code> Counts: input_rows, valid, invalid, in-batch duplicates, inserted, retry duplicates, source duplicates.</td></tr>
+<tr><td><code>.\scripts\run_stream.ps1</code></td><td>Continuous mode: a batch every 5 s.</td><td>A summary whenever new messages arrive; waits otherwise.</td></tr>
+<tr><td><code>.\scripts\stop_stream.ps1</code></td><td>Safe stop.</td><td>The running batch finishes first; the log shows <code>STOPPED_AT_BATCH_BOUNDARY</code>. Never kill the container.</td></tr>
+<tr><td><code>$py scripts\parquet_readback.py</code></td><td>Read the Parquet files back.</td><td>Row count, distinct <code>record_uid</code>, schema, 3 sample rows. Rows &ge; distinct (Parquet keeps repeats).</td></tr>
+<tr><td><code>docker exec streampulse-postgres psql -U streampulse -d streampulse -c "SELECT count(*), count(DISTINCT record_uid) FROM core.orders"</code></td><td>Count warehouse orders.</td><td><code>99427 | 99427</code> after a full run: one row per order.</td></tr>
+<tr><td><code>$py scripts\run_quality_checks.py</code></td><td>Run the SQL quality checks.</td><td>A table of problem counts, then <code>RESULT: all quality checks passed</code>. Exit code 1 if any is above 0.</td></tr>
+<tr><td><code>$py scripts\reconcile.py</code></td><td>Compare every layer with the source.</td><td><code>RESULT: all differences are zero or explained</code>; exit code 0 (see chapter 15).</td></tr>
+</table>
+
+<h2 id="s83-14-5-airflow-dashboard-tests">14.5 Airflow, dashboard, tests</h2>
+<table>
+<tr><th style="width:30%">Command</th><th style="width:22%">Why</th><th>Expected output and meaning</th></tr>
+<tr><td><code>.\scripts\airflow_up.ps1</code></td><td>Start Airflow.</td><td><code>Airflow is healthy</code>; UI at port 8080.</td></tr>
+<tr><td><code>.\scripts\airflow_run_dag.ps1 -Dag streampulse_batch -Conf '{"limit": 300}'</code></td><td>Run the workflow once.</td><td>Task states, then <code>FINAL STATE: success</code> in about 2 minutes.</td></tr>
+<tr><td><code>.\scripts\run_dashboard.ps1</code></td><td>Start Streamlit.</td><td><code>You can now view your Streamlit app</code>; open port 8501.</td></tr>
+<tr><td><code>$py -m pytest -m unit</code></td><td>Fast tests, no services.</td><td><code>73 passed, 1 skipped</code> (the skipped one needs Airflow's Python).</td></tr>
+<tr><td><code>$py -m pytest -m integration</code></td><td>Tests against real PostgreSQL/Kafka/API.</td><td><code>18 passed, 1 skipped</code>.</td></tr>
+<tr><td><code>.\scripts\run_tests_docker.ps1</code> / <code>.\scripts\run_tests_airflow.ps1</code></td><td>Tests that need Spark / Airflow.</td><td><code>5 passed</code> / <code>8 passed</code>.</td></tr>
+<tr><td><code>$py -m pytest -m e2e</code></td><td>Whole pipeline, real services (about 3.5 minutes).</td><td><code>4 passed, 1 skipped</code>.</td></tr>
+<tr><td><code>$py scripts\secret_scan.py</code></td><td>Make sure no secret is committed.</td><td><code>RESULT: clean</code>.</td></tr>
+</table>
+<div class="box warn"><span class="t">Shutting down safely</span>
+<code>.\scripts\stop_stream.ps1</code>, then <code>.\scripts\airflow_down.ps1</code>, then <code>docker compose stop</code>. Data stays in Docker volumes. <b>Never</b> delete <code>data/checkpoints</code> or the volumes unless you want to reprocess everything.</div>
+
+<h1 id="s84-15-reconciliation-proving-the-numbers-add-up">15. Reconciliation: proving the numbers add up</h1>
+<h2 id="s85-15-1-the-idea">15.1 The idea</h2>
+<p>Reconciliation means "count the same thing at every stage and explain every difference". Anyone can print a count; a good engineer shows that <b>nothing was lost or invented</b>. <code>scripts/reconcile.py</code> works from the <b>source</b>: it recomputes what each stage <i>should</i> contain using the same rules, then compares with what is <i>actually</i> there. It exits with code 1 if a difference is unexplained. It never adjusts an expected number to make a row pass.</p>
+<h2 id="s86-15-2-three-sections">15.2 Three sections</h2>
+<ol>
+<li><b>Run level:</b> each producer run versus the part of the file it covered (read, valid, rejected, published, dead-letter lines).</li>
+<li><b>Source level:</b> unique records over the <i>union</i> of all runs. Runs overlap, so run totals cannot simply be added.</li>
+<li><b>Pipeline stages:</b> Kafka &#8594; Spark &#8594; Parquet &#8594; PostgreSQL.</li>
+</ol>
+<h2 id="s87-15-3-real-output-shortened">15.3 Real output (shortened)</h2>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/07_postgresql/reconciliation_production_final.txt</span>
+== RUN LEVEL ==
+[full-run-01] rows read                     99,441   99,441   +0  [OK] whole orders file
+[full-run-01] valid                         99,427   99,427   +0  [OK] re-derived from that slice with the same rules
+[full-run-01] rejected                          14       14   +0  [OK] read - valid
+[full-run-01] published = valid             99,427   99,427   +0  [OK] failed publishes: 0
+[full-run-01] dead-letter lines = rejected      14       14   +0  [OK]
+== SOURCE LEVEL ==
+unique source rows covered                  99,441   99,441   +0  [OK] runs read 99,741 rows in total, so 300 rows were replayed more than once
+unique rejected (distinct record_uid in DLQ)    14       14   +0  [OK] 16 dead-letter LINES exist because overlapping runs rejected the same record again
+== PIPELINE STAGES ==
+4 messages in Kafka topic                   99,725   99,725   +0  [OK] 298 of them are repeats of an already published record_uid
+6 rows in Parquet (landing layer)           99,626   99,626   +0  [OK] consumed - invalid - in-batch duplicates (99)
+6b distinct record_uid in Parquet           99,427   99,427   +0  [OK]
+7 rows in PostgreSQL core.orders            99,427   99,427   +0  [OK]
+7b retry duplicates ignored by PostgreSQL      199      199   +0  [OK]
+8b rows = distinct business_hash            99,427   99,427   +0  [OK] one row per natural key
+RESULT: all differences are zero or explained</pre>
+<p>That file is the production state at the time of Phase 6. The final run (<code>docs/evidence/10_automated_tests/final_reconcile_production.txt</code>) covers six runs, after the re-ingestion and two Airflow runs, and ends with the same result line. The arithmetic of the first version:</p>
+<div class="box why"><span class="t">Reading the pipeline arithmetic</span>
+99,725 messages in Kafka &minus; 99 repeats removed inside one batch &minus; 0 invalid = <b>99,626</b> rows in Parquet. Distinct <code>record_uid</code> in Parquet = <b>99,427</b>; the other 199 Parquet rows are repeats that arrived in a later batch. PostgreSQL keeps one row per <code>record_uid</code> = <b>99,427</b>. Every number is explained.</div>
+
+<h2 id="s88-15-4-the-14-versus-15-story">15.4 The "14 versus 15" story</h2>
+<p>An early reconciliation said "15 rejected orders" while the correct figure from the source was 14. I did <b>not</b> change the expected number. I investigated (<code>scripts/explain_rejected_count.py</code>): the extra one was <b>one</b> <code>record_uid</code> (<code>92fc65a4...</code>) that two <i>overlapping</i> runs had both rejected, so it appeared as two dead-letter lines. The fix was to separate counting levels: run-level (lines) and source-level (distinct <code>record_uid</code>). Evidence: <code>docs/evidence/07_postgresql/rejected_14_vs_15_explained.txt</code>.</p>
+<div class="box why"><span class="t">Why the tool itself is trustworthy</span>
+A separate test deliberately creates a mismatch and checks that <code>reconcile.py</code> returns exit code 1 (<code>reconciliation_mismatch_exit_code.txt</code>). A checker that can never fail proves nothing.</div>
+
+<h1 id="s89-16-errors-retries-checkpoints-and-recovery">16. Errors, retries, checkpoints and recovery</h1>
+<p>A data pipeline is judged by what happens when something goes wrong. This chapter collects every protection in one place, then the real failures that were found and fixed.</p>
+
+<h2 id="s90-16-1-the-protections-layer-by-layer">16.1 The protections, layer by layer</h2>
+<table>
+<tr><th style="width:18%">Where</th><th style="width:34%">What can go wrong</th><th>Protection</th></tr>
+<tr><td>Dataset</td><td>A file is missing or altered</td><td>SHA-256 fingerprint check (<code>check_dataset_fingerprint.py</code>; first Airflow tasks).</td></tr>
+<tr><td>API</td><td>Network error, slow answer, HTTP 5xx</td><td>3 attempts with waits of 1 s then 2 s; cache of stored responses; the pipeline still works if the API fails (the order is kept, marked "not enriched"), and the failure is real, never faked.</td></tr>
+<tr><td>Producer</td><td>A bad row</td><td>Eight rules; bad rows go to the dead-letter file with a reason code, good rows continue.</td></tr>
+<tr><td>Producer &#8594; Kafka</td><td>Lost or doubled message on a retry</td><td><code>acks=all</code>, idempotent producer, gzip; every failed publish is counted (<code>rows_publish_failed</code>).</td></tr>
+<tr><td>Kafka &#8594; Spark</td><td>Spark stops or crashes</td><td>The <b>checkpoint</b> remembers the next offsets to read.</td></tr>
+<tr><td>Spark batch</td><td>Malformed JSON, missing fields</td><td>Split valid/invalid inside every batch; invalid go to the stream dead-letter with code <code>MALFORMED_JSON</code> or <code>SCHEMA_MISMATCH</code>.</td></tr>
+<tr><td>Spark &#8594; PostgreSQL</td><td>Same order arrives again</td><td>One transaction; <code>record_uid</code> is unique; an existing uid is counted as a retry duplicate and skipped.</td></tr>
+<tr><td>Airflow</td><td>A task fails for a temporary reason</td><td>2 retries, 30 s apart; a failed task stops its followers.</td></tr>
+<tr><td>Dashboard</td><td>A service is down</td><td>Real status lights; a short safe error message; no fake green.</td></tr>
+</table>
+
+<h2 id="s91-16-2-retry-at-least-once-and-the-idempotent-sink">16.2 Retry, at-least-once and the idempotent sink</h2>
+<div class="box analogy"><span class="t">Analogy: posting a parcel with tracking</span>
+If you are not sure the parcel arrived, you send it again. The receiver checks the tracking number: "I already have this one" and throws the duplicate away. Resending is safe because the receiver recognises repeats.</div>
+<ul>
+<li><b>At-least-once delivery</b>: after a crash a message may be delivered <i>more than once</i>, never zero times.</li>
+<li><b>Idempotent sink</b>: writing the same message again changes nothing. Here, the sink is PostgreSQL with a unique <code>record_uid</code>.</li>
+<li>Together this gives the <i>effect</i> of "each order counted once" in the warehouse. We never claim "exactly-once".</li>
+</ul>
+
+<h2 id="s92-16-3-checkpoint-recovery-what-exactly-happens">16.3 Checkpoint recovery: what exactly happens</h2>
+<p>For each micro-batch Spark writes <code>offsets/N</code> (the plan: "I will read from here to there") <b>before</b> processing and <code>commits/N</code> after it has finished. On restart:</p>
+<ul>
+<li><code>offsets/N</code> and <code>commits/N</code> both exist: batch N is finished; the next batch starts after it.</li>
+<li><code>offsets/N</code> exists but <code>commits/N</code> does not: batch N was interrupted; it is <b>run again</b> with the same offsets. Its rows may already have reached PostgreSQL, but that is harmless: they are retry duplicates.</li>
+</ul>
+<pre class="real"><span class="tag real">real file &middot; data/checkpoints/orders/offsets/0</span>
+{"ecommerce_orders":{"0":3338,"1":3345,"2":3315}}</pre>
+<p>Meaning: the first batch consumed 3,338 + 3,345 + 3,315 = 9,998 messages (partitions 0, 1, 2). Offsets are positions; the numbers are "up to, not including".</p>
+
+<h2 id="s93-16-4-the-recovery-experiment-isolated-checkpoint">16.4 The recovery experiment (isolated checkpoint)</h2>
+<p>To prove recovery without risking the production checkpoint, an <b>isolated</b> experiment used its own checkpoint, Parquet folder and database tables (<code>04_spark/recovery_test.txt</code>, <code>07_postgresql/reconciliation_recovery_experiment_r2.txt</code>).</p>
+<ol>
+<li>Start Spark on a backlog; let it commit batches 0 and 1; request a safe stop. <b>4,995 messages stay unread</b>.</li>
+<li>While Spark is down, publish <b>2,000 new</b> orders and <b>99 repeats</b> of old ones.</li>
+<li>Restart. The first batch starts at the committed offset (partition 0 at 1000), not at zero.</li>
+<li>Result: Spark consumed 8,094 messages in total; Parquet 8,094 rows, <b>7,995 distinct</b>; PostgreSQL <b>7,995</b>; retry duplicates counted <b>99</b>; <b>18 of 18 checks passed</b>.</li>
+</ol>
+<p>Meaning: nothing was lost (the unread backlog and the new orders were all processed), nothing was doubled in the warehouse (the 99 repeats were recognised), and no old data was reprocessed from scratch.</p>
+<p>The failed first attempt (stopping <i>during</i> a batch) is kept as history: <code>04_spark/recovery_test_attempt1_stop_during_batch.txt</code>.</p>
+
+<h2 id="s94-16-5-proof-that-re-ingestion-is-harmless">16.5 Proof that re-ingestion is harmless</h2>
+<p>On the real production data (99,427 orders) I published the first 200 orders again. Spark consumed <b>199</b> messages, inserted <b>0</b>, counted <b>199 retry duplicates</b>, and the count stayed <b>99,427</b> (<code>07_postgresql/reingestion_production.txt</code>). The two Airflow runs repeated the same proof with 295 messages each.</p>
+
+<h2 id="s95-16-6-dead-letter-queue-dlq-recap">16.6 Dead-letter queue (DLQ) recap</h2>
+<p>A DLQ keeps the records you could not accept, <b>with the reason</b>, so they can be inspected and fixed instead of silently disappearing. Two places: <code>data/dead_letter/ingest/</code> (rejected by the producer: the 14 real orders) and <code>data/dead_letter/stream/</code> (rejected inside Spark: a malformed message). The real Spark path was exercised by publishing a deliberately broken message (<code>04_spark/malformed_message_test.txt</code>).</p>
+
+<h2 id="s96-16-7-the-honest-failures-list">16.7 The honest failures list</h2>
+<p>These happened for real, were diagnosed, fixed and are kept as evidence. Telling them is a strength: it shows testing found real problems.</p>
+<table>
+<tr><th style="width:26%">Failure</th><th style="width:30%">Cause</th><th>Fix</th></tr>
+<tr><td>Spark would not start on Windows</td><td>Host Spark needs <code>winutils.exe</code></td><td>Run Spark in Docker.</td></tr>
+<tr><td>Spark image failed to build</td><td>Base image no longer had OpenJDK 17</td><td>Pin the <code>slim-bookworm</code> base.</td></tr>
+<tr><td>Malformed JSON labelled <code>SCHEMA_MISMATCH</code></td><td><code>from_json</code> returns a row of nulls, not an error</td><td>Test JSON validity separately with <code>get_json_object</code>; the test was not changed.</td></tr>
+<tr><td>Reference-table load crashed</td><td>numpy float not accepted by the database driver</td><td>Cast to plain <code>float</code>/<code>int</code>. Failed attempt kept.</td></tr>
+<tr><td>First Airflow run failed</td><td>Permission denied on the root-owned checkpoint</td><td>Run the Airflow container as root (documented).</td></tr>
+<tr><td>Dashboard: Kafka red while healthy</td><td>Unsupported client option</td><td>Removed it; added a test against the real broker.</td></tr>
+<tr><td>Dashboard: money charted as text</td><td>Exact decimals not numeric to the chart library</td><td>Convert before charting.</td></tr>
+<tr><td>Dashboard: internal docs printed</td><td>Streamlit prints bare expressions</td><td>Plain if/else + automatic source check.</td></tr>
+<tr><td>Intermittent e2e failure</td><td>Stop request raced with a starting batch</td><td>New stop protocol (<code>StopRequested</code>); 3 stress runs and a final e2e run passed.</td></tr>
+<tr><td>Fresh-environment test failed twice</td><td>"Filename too long" (very deep scratch folder)</td><td>Passed from a short path.</td></tr>
+<tr><td>14 vs 15 rejected</td><td>Run overlap</td><td>Separated run-level and source-level counting.</td></tr>
+</table>
+
+<h1 id="s97-17-testing">17. Testing</h1>
+<h2 id="s98-17-1-why-several-suites">17.1 Why several suites</h2>
+<p>The quick tests run in seconds with no services; the slow ones start the real system. Markers (<code>pytest -m ...</code>) choose which to run.</p>
+<table>
+<tr><th style="width:15%">Suite</th><th style="width:30%">Needs / how it runs</th><th style="width:30%">What it covers</th><th>Final result</th></tr>
+<tr><td>unit</td><td>Nothing external</td><td>Mapping, validators, producer ids and hashes, API client retry/cache, reconcile logic, stop classification, dashboard helpers, DAG structure, source checks</td><td><b>73 passed, 1 skipped</b></td></tr>
+<tr><td>integration</td><td>PostgreSQL, Kafka, internet (real API)</td><td>Warehouse upsert and duplicate rules, dashboard queries, stored API results, one real API call</td><td><b>18 passed, 1 skipped</b></td></tr>
+<tr><td>spark</td><td>Inside the Spark container</td><td>The Spark transforms: parse, validate, flatten, dedup</td><td><b>5 passed</b></td></tr>
+<tr><td>airflow</td><td>Inside the Airflow container</td><td>DAG imports; 9 tasks; retries; no cycles; parameters</td><td><b>8 passed</b></td></tr>
+<tr><td>e2e</td><td>Everything real, isolated checkpoint (3.5 min)</td><td>Full flow, malformed message, recovery after stop, idempotent reload</td><td><b>4 passed, 1 skipped</b></td></tr>
+<tr><td>manual</td><td>A human</td><td>The four live demos</td><td><code>PENDING_HUMAN</code></td></tr>
+</table>
+<p>Every run saved a timestamped log under <code>docs/evidence/10_automated_tests/</code>, with the git commit. Failed runs are kept (e.g. <code>pytest_e2e_20261016_FAILED_stop_race.txt</code>). The final summary: <code>final_verification_summary.txt</code>, which also shows: secret scan <code>clean</code>, every cited evidence path exists, production reconciliation <code>all differences are zero or explained</code>.</p>
+<h2 id="s99-17-2-what-is-mocked-and-what-is-real">17.2 What is mocked and what is real</h2>
+<ul>
+<li><b>Unit tests</b> may use fake HTTP responses to check the retry <i>logic</i> (that is their purpose; they are labelled as such).</li>
+<li><b>Integration and e2e tests use the real services</b>, including the real Frankfurter API. No test pretends to be Kafka or PostgreSQL.</li>
+<li>One test deliberately checks that the reconciliation tool <b>fails</b> on a real mismatch.</li>
+<li>A passing test is never presented as more than it is: unit tests are "tested", only saved real outputs are "verified with evidence".</li>
+</ul>
+<h2 id="s100-17-3-status-vocabulary">17.3 Status vocabulary</h2>
+<p><code>NOT_STARTED</code> &#8594; <code>IN_PROGRESS</code> / <code>BLOCKED</code> &#8594; <code>IMPLEMENTED_NOT_TESTED</code> &#8594; <code>TESTED</code> &#8594; <code>VERIFIED_WITH_EVIDENCE</code>. The last one is allowed only when an evidence file exists. See <code>docs/task_tracker.md</code> and <code>docs/evidence_register.md</code>.</p>
+
+<h1 id="s101-18-limitations-say-them-before-you-are-asked">18. Limitations (say them before you are asked)</h1>
+<ul>
+<li><b>Replay, not live.</b> The dataset is history (2016-2018). We replay it into Kafka; we never call these "live orders".</li>
+<li><b>The API is not the order source.</b> It supplies the exchange rate. USD values are <b>estimates</b> (weekends use the previous business day: 24,112 orders).</li>
+<li><b>At-least-once, not exactly-once</b>; deduplication happens in PostgreSQL.</li>
+<li><b>Small infrastructure:</b> one Kafka broker (replication factor 1), one PostgreSQL, Spark in local mode in one container. No monitoring or alerting stack, no schema registry.</li>
+<li><b>Parquet is append-only</b>, so it contains repeats; the warehouse is the deduplicated truth.</li>
+<li><b>Dataset facts:</b> 775 orders have no items and 1 has no payment (kept and counted); timestamps have no time zone; the licence (CC BY-NC-SA 4.0) was read from a search excerpt and should be re-checked on the Kaggle page.</li>
+<li><b>Airflow runs as root</b> in the container (demo trade-off). It orchestrates finite tasks only.</li>
+<li><b>Retention:</b> Kafka forgets messages after 7 days; replaying again is safe.</li>
+<li><b>Not done by the agent (human actions):</b> the four live demos and their screenshots, confirming the project title with the professor (dataset is e-commerce, not food delivery), asking whether a specific API was expected.</li>
+<li><b>Future work:</b> more brokers, a schema registry, alerting, a live source, a cloud warehouse, row-level dashboard drill-down.</li>
+</ul>
+<p>Full list: <code>docs/known_limitations.md</code>.</p>
+
+<h1 id="s102-19-the-four-demonstrations">19. The four demonstrations</h1>
+<p>The professor expects you to perform four short demos live. They were <b>prepared and dry-run by the assistant</b> (real outputs in <code>docs/evidence/11_manual_demos/dry_runs/</code>), but the live run and its screenshots are <span class="tag">PENDING_HUMAN</span>: you must do them. Exact commands: <code>docs/demo_cheatsheet.md</code> and <code>docs/manual_demo_guide.md</code>. Demos 3 and 4 use an isolated demo database and checkpoint (<code>scripts\demo_setup.ps1</code>), so the production data is not touched.</p>
+<table>
+<tr><th style="width:20%">Demo</th><th style="width:36%">What you do</th><th>What you should see and say</th></tr>
+<tr><td><b>1. Dataset ingestion</b></td><td>Check the fingerprints, dry-run, publish 200 orders, look at one message and the partition counts.</td><td><code>rows_read 200, valid 199, rejected 1</code>. "The dataset is real Olist data, joined from four files; the bad row is in the dead-letter file with its reason."</td></tr>
+<tr><td><b>2. Real API</b></td><td><code>api_demo_call.py --sample --no-cache</code>, then <code>--simulate-failure</code>.</td><td><code>HTTP : 200</code>, 5 rows; then three attempts and a clear failure. "Frankfurter returns ECB rates, no key needed; retries wait 1 s and 2 s."</td></tr>
+<tr><td><b>3. Data quality</b></td><td>Load a tiny file of 3 orders (one with an impossible value) twice.</td><td>2 valid + 1 rejected (<code>RANGE_ERROR</code>); after loading twice the warehouse still has 1 order per id; Parquet has 4 rows but 2 distinct. "Parquet keeps repeats, PostgreSQL does not."</td></tr>
+<tr><td><b>4. Failure and recovery</b></td><td>Start Spark, stop it safely after 3 committed batches, publish more orders (and repeats) while it is down, restart.</td><td>Dry run: +1,000 new and +99 repeats; 3,995 unique orders; reconciliation exit code 0. "The checkpoint resumed from the right offset; nothing lost, nothing doubled."</td></tr>
+</table>
+<div class="box warn"><span class="t">Be honest during the demo</span>
+If something fails (for example no internet during Demo 2), show the real failure and explain it. Never edit an output. Fill in the "ACTUAL observed output" fields in the demo READMEs yourself.</div>
+
+<h1 id="s103-20-viva-questions-and-answers">20. Viva questions and answers</h1>
+<p>Format: <b>short answer</b> first, then the detail. Numbers are the measured ones.</p>
+<div class="qa"><p class="q">Q1. What does StreamPulse do?</p><p>It replays the real Olist e-commerce orders (99,441 rows) into Kafka, processes them with Spark Structured Streaming into a Parquet landing layer and a deduplicated PostgreSQL warehouse, adds a BRL&#8594;USD value from the Frankfurter (ECB) API, orchestrates finite steps with Airflow and shows the results on a Streamlit dashboard.</p></div>
+<div class="qa"><p class="q">Q2. Is this real-time?</p><p>The <i>processing</i> is stream-style (micro-batches every 5 seconds), but the <i>data</i> is historical, replayed. I call it "historical dataset replay", not live orders.</p></div>
+<div class="qa"><p class="q">Q3. Why this dataset?</p><p>Olist is a real, public, multi-table Brazilian e-commerce dataset (CC BY-NC-SA 4.0) with orders, items, payments, reviews, products and dates: rich enough for joins, quality problems and business KPIs. It is e-commerce, not food delivery, which is why the title was changed and flagged for the professor.</p></div>
+<div class="qa"><p class="q">Q4. What is the API and why that one?</p><p>Frankfurter: free, no key, ECB reference rates. The professor named no API; BRL&#8594;USD fits the data because it has payment values in reais and purchase dates. It is enrichment, not the order source.</p></div>
+<div class="qa"><p class="q">Q5. Why Kafka? What are topic, partition, offset, key?</p><p>Kafka decouples producer and consumer and stores messages durably so Spark can stop and resume. A topic is a named log (<code>ecommerce_orders</code>); it is split into 3 partitions for parallelism; an offset is a message's position in a partition; the key decides the partition.</p></div>
+<div class="qa"><p class="q">Q6. Why <code>order_id</code> as the key?</p><p>It spreads messages evenly (measured 33.4 / 33.4 / 33.2 %) and keeps all messages of one order in one partition. <code>customer_state</code> would put 66.9 % into one partition (a "hot" partition).</p></div>
+<div class="qa"><p class="q">Q7. Micro-batches and triggers?</p><p>Spark Structured Streaming collects new messages into small batches. Trigger <code>5 seconds</code> runs a batch every 5 s (up to 10,000 messages); <code>availableNow</code> processes what is waiting and stops, which is how Airflow can run it.</p></div>
+<div class="qa"><p class="q">Q8. What is a checkpoint and what happens after a crash?</p><p>Files recording which offsets each batch will read (<code>offsets/N</code>) and which batches finished (<code>commits/N</code>). After a restart Spark continues after the last committed batch and re-runs an interrupted one. Proven by the recovery experiment: 18/18 checks, no loss, 99 repeats recognised.</p></div>
+<div class="qa"><p class="q">Q9. Parquet versus PostgreSQL?</p><p>Parquet: compressed columnar files, cheap, append-only landing layer (12 files, 100,120 rows incl. repeats). PostgreSQL: the structured warehouse with constraints and SQL, deduplicated (99,427 rows).</p></div>
+<div class="qa"><p class="q">Q10. ETL or ELT?</p><p>Mostly ETL for the orders: they are validated and flattened in Spark before the warehouse. Raw payloads are kept in Parquet and the dead-letter files, and the analytics views are computed inside PostgreSQL (ELT-style).</p></div>
+<div class="qa"><p class="q">Q11. How do you handle bad data?</p><p>Eight rules in <code>config/quality_rules.yaml</code>. Bad records are not dropped silently: they go to the dead-letter queue with a reason code (e.g. <code>INCONSISTENT</code>: 8 delivered-without-date and 6 canceled-with-delivery-date = 14 orders).</p></div>
+<div class="qa"><p class="q">Q12. Explain deduplication and idempotency.</p><p><code>record_uid</code> identifies one source row; <code>business_hash</code> identifies one order. The warehouse upsert runs in one transaction and classifies each record as new, retry duplicate (same uid) or source duplicate (same order, different uid). Invariant: attempted = inserted + retry + source. Re-ingesting 199 messages inserted 0.</p></div>
+<div class="qa"><p class="q">Q13. Is it exactly-once?</p><p>No. It is <b>at-least-once delivery with an idempotent sink</b>, which gives the same <i>result</i> in the warehouse.</p></div>
+<div class="qa"><p class="q">Q14. Why is the stream not an Airflow task? </p><p>A task must finish; a continuous stream never does. Airflow runs finite steps (including Spark with <code>availableNow</code>) with retries and logs. The real DAG run succeeded 9/9; a real failed run (permission denied) and a failure demo show retries.</p></div>
+<div class="qa"><p class="q">Q15. How do you know the dashboard status lights are not fake?</p><p>Each light is a real check (a SQL query, Kafka metadata, file listing, HTTP call). When I really stopped Kafka and PostgreSQL the lights turned red and the KPI page showed a safe error.</p></div>
+<div class="qa"><p class="q">Q16. Explain lineage and provenance.</p><p>Every message carries the source file's SHA-256, row number, run id and API retrieval time. The dashboard shows that all 99,427 warehouse rows come from one file fingerprint (<code>8df58ef3...</code>).</p></div>
+<div class="qa"><p class="q">Q17. How do you know the numbers are right?</p><p><code>reconcile.py</code> recomputes expected counts from the source and compares each layer; it exits 1 on an unexplained difference (tested on a deliberate mismatch). Result: all differences zero or explained.</p></div>
+<div class="qa"><p class="q">Q18. What went wrong during the project?</p><p>Chapter 16.7: winutils, missing JDK, malformed JSON mislabelled, numpy float, Airflow permission, three dashboard bugs, a stop race, a path-length issue and the 14-vs-15 count. Each was diagnosed, fixed and kept as evidence.</p></div>
+<div class="qa"><p class="q">Q19. What are the limitations?</p><p>Chapter 18: replay not live, estimated USD, single broker, at-least-once, Parquet repeats, Airflow as root, manual demos pending.</p></div>
+<div class="qa"><p class="q">Q20. How would you scale it?</p><p>More partitions and brokers (replication factor 3), Spark on a cluster, a schema registry, monitoring and alerting, a managed warehouse, Airflow on Kubernetes.</p></div>
+<div class="qa"><p class="q">Q21. What are the key numbers?</p><p>See Appendix B. Memorise: 99,441 read; 99,427 valid; 14 rejected; 3 partitions; 100,514 Kafka messages; 99,427 in PostgreSQL; 8.11 % late; 100 % enriched.</p></div>
+
+<h1 id="s104-appendix-a-glossary">Appendix A: Glossary</h1>
+<table>
+<tr><th style="width:24%">Term</th><th>Meaning</th></tr>
+<tr><td>Airflow / DAG / task</td><td>Workflow tool / a graph of tasks that cannot loop / one step.</td></tr>
+<tr><td>API</td><td>A way for programs to ask another service for data over HTTP.</td></tr>
+<tr><td>At-least-once</td><td>Every message is delivered one or more times.</td></tr>
+<tr><td>availableNow</td><td>Spark trigger: process what is waiting, then finish.</td></tr>
+<tr><td>Batch / micro-batch</td><td>A group of records processed together / a small batch made every few seconds.</td></tr>
+<tr><td>business_hash</td><td>Fingerprint of one order (<code>order_id</code>); equal hashes = same order.</td></tr>
+<tr><td>Checkpoint</td><td>Spark's saved progress (offsets and commits).</td></tr>
+<tr><td>Consumer / producer</td><td>Program reading from / writing to Kafka.</td></tr>
+<tr><td>Dead-letter queue</td><td>Store of rejected records with reasons.</td></tr>
+<tr><td>Deduplication</td><td>Keeping one copy of repeated records.</td></tr>
+<tr><td>Docker / container / volume</td><td>Packaged software / a running package / storage that survives restarts.</td></tr>
+<tr><td>Enrichment</td><td>Adding information from another source (the USD value).</td></tr>
+<tr><td>Envelope</td><td>The outer JSON: payload, raw, api_enrichment, source_category, provenance.</td></tr>
+<tr><td>ETL / ELT</td><td>Extract-Transform-Load / Extract-Load-Transform.</td></tr>
+<tr><td>Exactly-once</td><td>Each message processed exactly one time (not claimed here).</td></tr>
+<tr><td>Idempotent</td><td>Repeating an action does not change the result again.</td></tr>
+<tr><td>Join (LEFT JOIN)</td><td>Combining tables on a shared key; LEFT keeps every row of the left table.</td></tr>
+<tr><td>Kafka / topic / partition / offset / key</td><td>Message log system / named stream / slice of a topic / position / value deciding the partition.</td></tr>
+<tr><td>Landing layer</td><td>First stored copy of processed data (Parquet).</td></tr>
+<tr><td>Lineage / provenance</td><td>Where data came from and how it travelled.</td></tr>
+<tr><td>Parquet</td><td>Compressed columnar file format.</td></tr>
+<tr><td>PostgreSQL / schema / view</td><td>Relational database / group of tables / saved query.</td></tr>
+<tr><td>Reconciliation</td><td>Comparing counts across stages and explaining differences.</td></tr>
+<tr><td>record_uid</td><td>sha256(file sha + ":" + row number), first 32 characters; identifies one source row.</td></tr>
+<tr><td>Retry / backoff</td><td>Trying again / waiting longer between tries (1 s, 2 s).</td></tr>
+<tr><td>Sink</td><td>The final destination of a pipeline (PostgreSQL).</td></tr>
+<tr><td>Spark Structured Streaming</td><td>Spark's engine for processing data in micro-batches.</td></tr>
+<tr><td>Streamlit</td><td>Python library for dashboards.</td></tr>
+<tr><td>Upsert</td><td>Insert, or skip/update if it already exists.</td></tr>
+</table>
+
+<h1 id="s105-appendix-b-key-numbers-all-measured">Appendix B: Key numbers (all measured)</h1>
+<table>
+<tr><th style="width:55%">Fact</th><th>Value</th></tr>
+<tr><td>Orders read / valid / rejected (distinct)</td><td>99,441 / 99,427 / 14 (8 delivered w/o date, 6 canceled with delivery date)</td></tr>
+<tr><td>Kafka partitions / replication / spread</td><td>3 / 1 / 33.4, 33.4, 33.2 %</td></tr>
+<tr><td>Messages in Kafka / Parquet rows / distinct / PostgreSQL</td><td>100,514 / 100,120 / 99,427 / 99,427</td></tr>
+<tr><td>Reference tables</td><td>sellers 3,095; geolocation 19,010; products 32,951; reviews 99,224; items 112,650</td></tr>
+<tr><td>Revenue BRL / USD estimate / average order</td><td>16,006,745 / 4,768,687 / 160.99</td></tr>
+<tr><td>Delivered / late / late %</td><td>96,470 / 7,826 / 8.11 %</td></tr>
+<tr><td>Average delivery time</td><td>12.56 days</td></tr>
+<tr><td>Enrichment match rate / previous-business-day matches</td><td>100 % / 24,112</td></tr>
+<tr><td>Orders without items / payments</td><td>775 / 1</td></tr>
+<tr><td>Tests</td><td>unit 73, integration 18, Spark 5, Airflow 8, e2e 4 (all passed)</td></tr>
+<tr><td>Airflow DAG</td><td>9 tasks, 2 retries, 30 s delay; real run success</td></tr>
+</table>
+
+<h1 id="s106-appendix-c-where-to-find-the-evidence">Appendix C: Where to find the evidence</h1>
+<table>
+<tr><th style="width:30%">Folder in <code>docs/evidence/</code></th><th>Contents</th></tr>
+<tr><td>00_environment</td><td>Tool versions, Docker, ports</td></tr>
+<tr><td>01_dataset</td><td>Profiling, fingerprints, join check, licence note</td></tr>
+<tr><td>02_api</td><td>Real API calls, retry demo, cache</td></tr>
+<tr><td>03_kafka</td><td>Topic, partition counts, key experiment, sample messages</td></tr>
+<tr><td>04_spark</td><td>Batch logs, recovery experiments, stop stress runs, malformed-message test</td></tr>
+<tr><td>05_data_quality</td><td>Rule experiments, dead-letter examples</td></tr>
+<tr><td>06_parquet</td><td>Read-backs</td></tr>
+<tr><td>07_postgresql</td><td>Schema, analytics views, quality checks, reconciliations, re-ingestion</td></tr>
+<tr><td>08_airflow</td><td>DAG runs, failure demo, screenshots</td></tr>
+<tr><td>09_dashboard</td><td>Seven page screenshots and the outage screenshots</td></tr>
+<tr><td>10_automated_tests</td><td>Every test run, passed and failed, plus the final summary</td></tr>
+<tr><td>11_manual_demos</td><td>Dry runs and the four demo READMEs (<code>PENDING_HUMAN</code>)</td></tr>
+</table>
+<p>The master index is <code>docs/evidence_register.md</code>; the final audit is <code>docs/final_report.md</code>.</p>
+</body></html>

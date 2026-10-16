@@ -1,0 +1,103 @@
+<h1>19. The four demonstrations</h1>
+<p>The professor expects you to perform four short demos live. They were <b>prepared and dry-run by the assistant</b> (real outputs in <code>docs/evidence/11_manual_demos/dry_runs/</code>), but the live run and its screenshots are <span class="tag">PENDING_HUMAN</span>: you must do them. Exact commands: <code>docs/demo_cheatsheet.md</code> and <code>docs/manual_demo_guide.md</code>. Demos 3 and 4 use an isolated demo database and checkpoint (<code>scripts\demo_setup.ps1</code>), so the production data is not touched.</p>
+<table>
+<tr><th style="width:20%">Demo</th><th style="width:36%">What you do</th><th>What you should see and say</th></tr>
+<tr><td><b>1. Dataset ingestion</b></td><td>Check the fingerprints, dry-run, publish 200 orders, look at one message and the partition counts.</td><td><code>rows_read 200, valid 199, rejected 1</code>. "The dataset is real Olist data, joined from four files; the bad row is in the dead-letter file with its reason."</td></tr>
+<tr><td><b>2. Real API</b></td><td><code>api_demo_call.py --sample --no-cache</code>, then <code>--simulate-failure</code>.</td><td><code>HTTP : 200</code>, 5 rows; then three attempts and a clear failure. "Frankfurter returns ECB rates, no key needed; retries wait 1 s and 2 s."</td></tr>
+<tr><td><b>3. Data quality</b></td><td>Load a tiny file of 3 orders (one with an impossible value) twice.</td><td>2 valid + 1 rejected (<code>RANGE_ERROR</code>); after loading twice the warehouse still has 1 order per id; Parquet has 4 rows but 2 distinct. "Parquet keeps repeats, PostgreSQL does not."</td></tr>
+<tr><td><b>4. Failure and recovery</b></td><td>Start Spark, stop it safely after 3 committed batches, publish more orders (and repeats) while it is down, restart.</td><td>Dry run: +1,000 new and +99 repeats; 3,995 unique orders; reconciliation exit code 0. "The checkpoint resumed from the right offset; nothing lost, nothing doubled."</td></tr>
+</table>
+<div class="box warn"><span class="t">Be honest during the demo</span>
+If something fails (for example no internet during Demo 2), show the real failure and explain it. Never edit an output. Fill in the "ACTUAL observed output" fields in the demo READMEs yourself.</div>
+
+<h1>20. Viva questions and answers</h1>
+<p>Format: <b>short answer</b> first, then the detail. Numbers are the measured ones.</p>
+<div class="qa"><p class="q">Q1. What does StreamPulse do?</p><p>It replays the real Olist e-commerce orders (99,441 rows) into Kafka, processes them with Spark Structured Streaming into a Parquet landing layer and a deduplicated PostgreSQL warehouse, adds a BRL&#8594;USD value from the Frankfurter (ECB) API, orchestrates finite steps with Airflow and shows the results on a Streamlit dashboard.</p></div>
+<div class="qa"><p class="q">Q2. Is this real-time?</p><p>The <i>processing</i> is stream-style (micro-batches every 5 seconds), but the <i>data</i> is historical, replayed. I call it "historical dataset replay", not live orders.</p></div>
+<div class="qa"><p class="q">Q3. Why this dataset?</p><p>Olist is a real, public, multi-table Brazilian e-commerce dataset (CC BY-NC-SA 4.0) with orders, items, payments, reviews, products and dates: rich enough for joins, quality problems and business KPIs. It is e-commerce, not food delivery, which is why the title was changed and flagged for the professor.</p></div>
+<div class="qa"><p class="q">Q4. What is the API and why that one?</p><p>Frankfurter: free, no key, ECB reference rates. The professor named no API; BRL&#8594;USD fits the data because it has payment values in reais and purchase dates. It is enrichment, not the order source.</p></div>
+<div class="qa"><p class="q">Q5. Why Kafka? What are topic, partition, offset, key?</p><p>Kafka decouples producer and consumer and stores messages durably so Spark can stop and resume. A topic is a named log (<code>ecommerce_orders</code>); it is split into 3 partitions for parallelism; an offset is a message's position in a partition; the key decides the partition.</p></div>
+<div class="qa"><p class="q">Q6. Why <code>order_id</code> as the key?</p><p>It spreads messages evenly (measured 33.4 / 33.4 / 33.2 %) and keeps all messages of one order in one partition. <code>customer_state</code> would put 66.9 % into one partition (a "hot" partition).</p></div>
+<div class="qa"><p class="q">Q7. Micro-batches and triggers?</p><p>Spark Structured Streaming collects new messages into small batches. Trigger <code>5 seconds</code> runs a batch every 5 s (up to 10,000 messages); <code>availableNow</code> processes what is waiting and stops, which is how Airflow can run it.</p></div>
+<div class="qa"><p class="q">Q8. What is a checkpoint and what happens after a crash?</p><p>Files recording which offsets each batch will read (<code>offsets/N</code>) and which batches finished (<code>commits/N</code>). After a restart Spark continues after the last committed batch and re-runs an interrupted one. Proven by the recovery experiment: 18/18 checks, no loss, 99 repeats recognised.</p></div>
+<div class="qa"><p class="q">Q9. Parquet versus PostgreSQL?</p><p>Parquet: compressed columnar files, cheap, append-only landing layer (12 files, 100,120 rows incl. repeats). PostgreSQL: the structured warehouse with constraints and SQL, deduplicated (99,427 rows).</p></div>
+<div class="qa"><p class="q">Q10. ETL or ELT?</p><p>Mostly ETL for the orders: they are validated and flattened in Spark before the warehouse. Raw payloads are kept in Parquet and the dead-letter files, and the analytics views are computed inside PostgreSQL (ELT-style).</p></div>
+<div class="qa"><p class="q">Q11. How do you handle bad data?</p><p>Eight rules in <code>config/quality_rules.yaml</code>. Bad records are not dropped silently: they go to the dead-letter queue with a reason code (e.g. <code>INCONSISTENT</code>: 8 delivered-without-date and 6 canceled-with-delivery-date = 14 orders).</p></div>
+<div class="qa"><p class="q">Q12. Explain deduplication and idempotency.</p><p><code>record_uid</code> identifies one source row; <code>business_hash</code> identifies one order. The warehouse upsert runs in one transaction and classifies each record as new, retry duplicate (same uid) or source duplicate (same order, different uid). Invariant: attempted = inserted + retry + source. Re-ingesting 199 messages inserted 0.</p></div>
+<div class="qa"><p class="q">Q13. Is it exactly-once?</p><p>No. It is <b>at-least-once delivery with an idempotent sink</b>, which gives the same <i>result</i> in the warehouse.</p></div>
+<div class="qa"><p class="q">Q14. Why is the stream not an Airflow task? </p><p>A task must finish; a continuous stream never does. Airflow runs finite steps (including Spark with <code>availableNow</code>) with retries and logs. The real DAG run succeeded 9/9; a real failed run (permission denied) and a failure demo show retries.</p></div>
+<div class="qa"><p class="q">Q15. How do you know the dashboard status lights are not fake?</p><p>Each light is a real check (a SQL query, Kafka metadata, file listing, HTTP call). When I really stopped Kafka and PostgreSQL the lights turned red and the KPI page showed a safe error.</p></div>
+<div class="qa"><p class="q">Q16. Explain lineage and provenance.</p><p>Every message carries the source file's SHA-256, row number, run id and API retrieval time. The dashboard shows that all 99,427 warehouse rows come from one file fingerprint (<code>8df58ef3...</code>).</p></div>
+<div class="qa"><p class="q">Q17. How do you know the numbers are right?</p><p><code>reconcile.py</code> recomputes expected counts from the source and compares each layer; it exits 1 on an unexplained difference (tested on a deliberate mismatch). Result: all differences zero or explained.</p></div>
+<div class="qa"><p class="q">Q18. What went wrong during the project?</p><p>Chapter 16.7: winutils, missing JDK, malformed JSON mislabelled, numpy float, Airflow permission, three dashboard bugs, a stop race, a path-length issue and the 14-vs-15 count. Each was diagnosed, fixed and kept as evidence.</p></div>
+<div class="qa"><p class="q">Q19. What are the limitations?</p><p>Chapter 18: replay not live, estimated USD, single broker, at-least-once, Parquet repeats, Airflow as root, manual demos pending.</p></div>
+<div class="qa"><p class="q">Q20. How would you scale it?</p><p>More partitions and brokers (replication factor 3), Spark on a cluster, a schema registry, monitoring and alerting, a managed warehouse, Airflow on Kubernetes.</p></div>
+<div class="qa"><p class="q">Q21. What are the key numbers?</p><p>See Appendix B. Memorise: 99,441 read; 99,427 valid; 14 rejected; 3 partitions; 100,514 Kafka messages; 99,427 in PostgreSQL; 8.11 % late; 100 % enriched.</p></div>
+
+<h1>Appendix A: Glossary</h1>
+<table>
+<tr><th style="width:24%">Term</th><th>Meaning</th></tr>
+<tr><td>Airflow / DAG / task</td><td>Workflow tool / a graph of tasks that cannot loop / one step.</td></tr>
+<tr><td>API</td><td>A way for programs to ask another service for data over HTTP.</td></tr>
+<tr><td>At-least-once</td><td>Every message is delivered one or more times.</td></tr>
+<tr><td>availableNow</td><td>Spark trigger: process what is waiting, then finish.</td></tr>
+<tr><td>Batch / micro-batch</td><td>A group of records processed together / a small batch made every few seconds.</td></tr>
+<tr><td>business_hash</td><td>Fingerprint of one order (<code>order_id</code>); equal hashes = same order.</td></tr>
+<tr><td>Checkpoint</td><td>Spark's saved progress (offsets and commits).</td></tr>
+<tr><td>Consumer / producer</td><td>Program reading from / writing to Kafka.</td></tr>
+<tr><td>Dead-letter queue</td><td>Store of rejected records with reasons.</td></tr>
+<tr><td>Deduplication</td><td>Keeping one copy of repeated records.</td></tr>
+<tr><td>Docker / container / volume</td><td>Packaged software / a running package / storage that survives restarts.</td></tr>
+<tr><td>Enrichment</td><td>Adding information from another source (the USD value).</td></tr>
+<tr><td>Envelope</td><td>The outer JSON: payload, raw, api_enrichment, source_category, provenance.</td></tr>
+<tr><td>ETL / ELT</td><td>Extract-Transform-Load / Extract-Load-Transform.</td></tr>
+<tr><td>Exactly-once</td><td>Each message processed exactly one time (not claimed here).</td></tr>
+<tr><td>Idempotent</td><td>Repeating an action does not change the result again.</td></tr>
+<tr><td>Join (LEFT JOIN)</td><td>Combining tables on a shared key; LEFT keeps every row of the left table.</td></tr>
+<tr><td>Kafka / topic / partition / offset / key</td><td>Message log system / named stream / slice of a topic / position / value deciding the partition.</td></tr>
+<tr><td>Landing layer</td><td>First stored copy of processed data (Parquet).</td></tr>
+<tr><td>Lineage / provenance</td><td>Where data came from and how it travelled.</td></tr>
+<tr><td>Parquet</td><td>Compressed columnar file format.</td></tr>
+<tr><td>PostgreSQL / schema / view</td><td>Relational database / group of tables / saved query.</td></tr>
+<tr><td>Reconciliation</td><td>Comparing counts across stages and explaining differences.</td></tr>
+<tr><td>record_uid</td><td>sha256(file sha + ":" + row number), first 32 characters; identifies one source row.</td></tr>
+<tr><td>Retry / backoff</td><td>Trying again / waiting longer between tries (1 s, 2 s).</td></tr>
+<tr><td>Sink</td><td>The final destination of a pipeline (PostgreSQL).</td></tr>
+<tr><td>Spark Structured Streaming</td><td>Spark's engine for processing data in micro-batches.</td></tr>
+<tr><td>Streamlit</td><td>Python library for dashboards.</td></tr>
+<tr><td>Upsert</td><td>Insert, or skip/update if it already exists.</td></tr>
+</table>
+
+<h1>Appendix B: Key numbers (all measured)</h1>
+<table>
+<tr><th style="width:55%">Fact</th><th>Value</th></tr>
+<tr><td>Orders read / valid / rejected (distinct)</td><td>99,441 / 99,427 / 14 (8 delivered w/o date, 6 canceled with delivery date)</td></tr>
+<tr><td>Kafka partitions / replication / spread</td><td>3 / 1 / 33.4, 33.4, 33.2 %</td></tr>
+<tr><td>Messages in Kafka / Parquet rows / distinct / PostgreSQL</td><td>100,514 / 100,120 / 99,427 / 99,427</td></tr>
+<tr><td>Reference tables</td><td>sellers 3,095; geolocation 19,010; products 32,951; reviews 99,224; items 112,650</td></tr>
+<tr><td>Revenue BRL / USD estimate / average order</td><td>16,006,745 / 4,768,687 / 160.99</td></tr>
+<tr><td>Delivered / late / late %</td><td>96,470 / 7,826 / 8.11 %</td></tr>
+<tr><td>Average delivery time</td><td>12.56 days</td></tr>
+<tr><td>Enrichment match rate / previous-business-day matches</td><td>100 % / 24,112</td></tr>
+<tr><td>Orders without items / payments</td><td>775 / 1</td></tr>
+<tr><td>Tests</td><td>unit 73, integration 18, Spark 5, Airflow 8, e2e 4 (all passed)</td></tr>
+<tr><td>Airflow DAG</td><td>9 tasks, 2 retries, 30 s delay; real run success</td></tr>
+</table>
+
+<h1>Appendix C: Where to find the evidence</h1>
+<table>
+<tr><th style="width:30%">Folder in <code>docs/evidence/</code></th><th>Contents</th></tr>
+<tr><td>00_environment</td><td>Tool versions, Docker, ports</td></tr>
+<tr><td>01_dataset</td><td>Profiling, fingerprints, join check, licence note</td></tr>
+<tr><td>02_api</td><td>Real API calls, retry demo, cache</td></tr>
+<tr><td>03_kafka</td><td>Topic, partition counts, key experiment, sample messages</td></tr>
+<tr><td>04_spark</td><td>Batch logs, recovery experiments, stop stress runs, malformed-message test</td></tr>
+<tr><td>05_data_quality</td><td>Rule experiments, dead-letter examples</td></tr>
+<tr><td>06_parquet</td><td>Read-backs</td></tr>
+<tr><td>07_postgresql</td><td>Schema, analytics views, quality checks, reconciliations, re-ingestion</td></tr>
+<tr><td>08_airflow</td><td>DAG runs, failure demo, screenshots</td></tr>
+<tr><td>09_dashboard</td><td>Seven page screenshots and the outage screenshots</td></tr>
+<tr><td>10_automated_tests</td><td>Every test run, passed and failed, plus the final summary</td></tr>
+<tr><td>11_manual_demos</td><td>Dry runs and the four demo READMEs (<code>PENDING_HUMAN</code>)</td></tr>
+</table>
+<p>The master index is <code>docs/evidence_register.md</code>; the final audit is <code>docs/final_report.md</code>.</p>

@@ -1,0 +1,206 @@
+<h1>11. Stage 7: Airflow (running the steps as a workflow)</h1>
+
+<h2>11.1 What Airflow is, and why it is here</h2>
+<p>So far you started each step by hand. In real companies, steps must run in the right order, automatically, with <b>retries when something temporarily fails</b> and <b>logs</b> to see what happened. A tool that does this is a <b>workflow orchestrator</b>. We use <b>Apache Airflow</b>.</p>
+<p>In Airflow a workflow is a <b>DAG</b> (Directed Acyclic Graph): tasks joined by arrows meaning "this must finish first". "Acyclic" means no loops.</p>
+<div class="box analogy"><span class="t">Analogy: a recipe card</span>
+A DAG is a recipe: "1 chop onions, 2 fry onions, 3 add tomatoes". Airflow is the cook's assistant who follows the card, redoes a step if the stove fails once, and writes down what happened.</div>
+<div class="box warn"><span class="t">Why the stream is NOT an Airflow task</span>
+An Airflow task must <b>end</b>. A continuous Spark stream (a batch every 5 seconds, forever) never ends. So Airflow runs Spark with <code>--trigger availableNow</code> ("process what is waiting, then finish"), and the replay is limited by a parameter. Say this in the viva: <i>"Airflow orchestrates finite tasks; the endless stream is not a DAG task."</i></div>
+
+<h2>11.2 How it is deployed</h2>
+<ul>
+<li>A custom Docker image (<code>docker/airflow/Dockerfile</code>) based on Airflow 2.10.5 with Java and its own Python virtual environment for our code (so our packages never clash with Airflow's).</li>
+<li><b>LocalExecutor</b> (runs tasks as processes on the same machine). Airflow's own bookkeeping lives in a <b>separate database named <code>airflow</code></b> inside the same PostgreSQL (the <code>streampulse</code> data is untouched).</li>
+<li>Start: <code>.\scripts\airflow_up.ps1</code> &#8658; UI at <code>http://localhost:8080</code>, user <code>admin</code>, password = <code>AIRFLOW_ADMIN_PASSWORD</code> in your <code>.env</code>.</li>
+<li>DAG files: <code>airflow/dags/streampulse_batch_dag.py</code> and <code>streampulse_failure_demo_dag.py</code>.</li>
+</ul>
+
+<h2>11.3 The DAG <code>streampulse_batch</code>: nine finite tasks</h2>
+<figure>
+<svg width="730" height="170" viewBox="0 0 730 170" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="9.5">
+ <defs><marker id="a7" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker></defs>
+ <g fill="#e8eff7" stroke="#0b5cad"><rect x="5" y="55" width="76" height="46" rx="5"/><rect x="92" y="55" width="76" height="46" rx="5"/><rect x="179" y="55" width="76" height="46" rx="5"/><rect x="266" y="55" width="76" height="46" rx="5"/><rect x="353" y="55" width="76" height="46" rx="5"/><rect x="440" y="55" width="76" height="46" rx="5"/><rect x="527" y="55" width="76" height="46" rx="5"/><rect x="614" y="55" width="76" height="46" rx="5"/></g>
+ <rect x="92" y="118" width="76" height="40" rx="5" fill="#f3f5f8" stroke="#8795a6"/>
+ <g text-anchor="middle" font-weight="bold"><text x="43" y="75">check_</text><text x="43" y="88">dataset_present</text><text x="130" y="75">validate_</text><text x="130" y="88">dataset_profile</text><text x="217" y="75">ingest_batch_</text><text x="217" y="88">to_kafka</text><text x="304" y="75">run_spark_</text><text x="304" y="88">available_now</text><text x="391" y="75">run_quality_</text><text x="391" y="88">checks_sql</text><text x="478" y="75">load_runs_</text><text x="478" y="88">dead_letters_api</text><text x="565" y="75">reconcile_</text><text x="565" y="88">counts</text><text x="652" y="75">refresh_</text><text x="652" y="88">analytics</text><text x="130" y="135">api_health_check</text><text x="130" y="148" font-weight="normal" font-size="9">(independent)</text></g>
+ <g stroke="#1f2933"><line x1="82" y1="78" x2="91" y2="78" marker-end="url(#a7)"/><line x1="169" y1="78" x2="178" y2="78" marker-end="url(#a7)"/><line x1="256" y1="78" x2="265" y2="78" marker-end="url(#a7)"/><line x1="343" y1="78" x2="352" y2="78" marker-end="url(#a7)"/><line x1="430" y1="78" x2="439" y2="78" marker-end="url(#a7)"/><line x1="517" y1="78" x2="526" y2="78" marker-end="url(#a7)"/><line x1="604" y1="78" x2="613" y2="78" marker-end="url(#a7)"/><path d="M43 102 L43 138 L90 138" fill="none" marker-end="url(#a7)"/></g>
+ <text x="365" y="25" text-anchor="middle" font-size="10.5" fill="#5b6770">Each task is a command run inside the Airflow container. A task starts only when the arrow's source succeeded.</text>
+</svg>
+<figcaption>Figure 11.1: The batch DAG. Real graph: <code>docs/evidence/08_airflow/airflow_streampulse_batch_graph.png</code>.</figcaption>
+</figure>
+<table>
+<tr><th style="width:26%">Task</th><th>What it runs</th><th>Seconds in the real run</th></tr>
+<tr><td><code>check_dataset_present</code></td><td>all 9 CSV files exist</td><td>1</td></tr>
+<tr><td><code>validate_dataset_profile</code></td><td>files still match the recorded SHA-256 fingerprints</td><td>2</td></tr>
+<tr><td><code>api_health_check</code></td><td>one real request to Frankfurter (independent branch)</td><td>1</td></tr>
+<tr><td><code>ingest_batch_to_kafka</code></td><td>producer with <code>--limit {{ params.limit }}</code> (default 500; we used 300)</td><td>5</td></tr>
+<tr><td><code>run_spark_available_now</code></td><td>Spark with <code>availableNow</code> into Parquet and PostgreSQL</td><td>70</td></tr>
+<tr><td><code>run_quality_checks_sql</code></td><td><code>scripts/run_quality_checks.py</code>: fails if any problem count &gt; 0</td><td>8</td></tr>
+<tr><td><code>load_runs_dead_letters_api</code></td><td>loads run summaries, dead letters, API cache</td><td>1</td></tr>
+<tr><td><code>reconcile_counts</code></td><td><code>scripts/reconcile.py</code>: fails on an unexplained difference</td><td>12</td></tr>
+<tr><td><code>refresh_analytics</code></td><td>re-applies the views (never drops data)</td><td>0.4</td></tr>
+</table>
+<p>Settings on every task: <b>2 retries</b>, <b>30 s</b> delay between retries, <b>time limit</b> (20 minutes; 30 for Spark). The DAG allows <b>one run at a time</b> (<code>max_active_runs=1</code>) because two runs would share one Spark checkpoint. Every step is safe to repeat, because replaying the same orders produces the same <code>record_uid</code>s.</p>
+
+<h2>11.4 The real run</h2>
+<figure>
+<div class="crop" style="aspect-ratio: 1500 / 1000; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/08_airflow/airflow_streampulse_batch_grid.png" alt="Airflow grid view"></div>
+<figcaption>Figure 11.2: The real Airflow UI (grid view). The left bar is the <b>first run (red: it failed)</b>, the right bar is the <b>second run (all green: success)</b>. Rows are the nine tasks.</figcaption>
+</figure>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/08_airflow/dag_run2_streampulse_batch.txt</span>
+Triggered streampulse_batch run_id=manual__20261015T181422 conf={"limit": 300}
+23:44:40  run state: running
+   ...
+23:46:22  run state: success
+run_spark_available_now    success   18:14:38 -> 18:15:48
+run_quality_checks_sql     success
+reconcile_counts           success
+FINAL STATE: success</pre>
+<p>Inside the logs: the producer published 295 valid orders; Spark batch 11 received 590 messages (295 from the earlier failed attempt's ingestion + 295 new), inserted <b>0</b> and counted 295 retry duplicates; the quality checks printed <code>RESULT: all quality checks passed</code>; reconciliation printed <code>RESULT: all differences are zero or explained</code>.</p>
+
+<h3>The failed first run (kept as evidence, and why it matters)</h3>
+<div class="box bad"><span class="t">Real failure: "Permission denied"</span>
+<code>run_spark_available_now</code> failed 3 times (retries working) with
+<code>java.io.FileNotFoundException: /opt/streampulse/data/checkpoints/orders/offsets/.11....tmp (Permission denied)</code>.
+<b>Cause:</b> the production checkpoint folder was created earlier by the Spark container as the <b>root</b> user, but Airflow tasks ran as a different user who was not allowed to write there. <b>Fix:</b> the Airflow container now runs as root (documented trade-off for a demo; a real system would share one user or use volumes). The other tasks in that run succeeded, and the downstream tasks were marked <code>upstream_failed</code> (they correctly refused to run after a failure).</div>
+
+<h2>11.5 The retry and failure demonstration (<code>streampulse_failure_demo</code>)</h2>
+<p>To <i>show</i> retries, a second DAG runs the real producer against a Kafka address that does not exist (<code>kafka-does-not-exist:9092</code>). This simulates a real outage of a real dependency; no mock service is used.</p>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/08_airflow/dag_failure_demo_run.txt</span>
+attempt=1.log: Starting attempt 1 of 3 | ... KafkaTimeoutError: Unable to bootstrap from kafka-does-not-exist:9092
+attempt=2.log: Starting attempt 2 of 3 | ... KafkaTimeoutError: Unable to bootstrap from kafka-does-not-exist:9092
+attempt=3.log: Starting attempt 3 of 3 | ... KafkaTimeoutError: Unable to bootstrap from kafka-does-not-exist:9092
+ingest_from_unreachable_kafka  failed
+downstream_never_runs          upstream_failed
+FINAL STATE: failed</pre>
+<p><b>Meaning:</b> three attempts (1 original + 2 retries), then the task is <code>failed</code>, its follower is <code>upstream_failed</code>, and the DAG run is <code>failed</code>. <b>This failure is the intended result</b>; the DAG is kept paused so it never runs by accident.</p>
+
+<h2>11.6 Commands</h2>
+<pre class="cmd"><span class="tag cmd">commands</span>
+.\scripts\airflow_up.ps1                                              # start Airflow (first time builds the image)
+.\scripts\airflow_run_dag.ps1 -Dag streampulse_batch -Conf '{"limit": 300}'   # trigger, wait, print every task state
+.\scripts\airflow.ps1 dags list                                       # any Airflow CLI command
+.\scripts\run_tests_airflow.ps1                                       # the 8 DAG structure tests (inside the container)
+.\scripts\airflow_down.ps1                                            # stop (nothing is deleted)</pre>
+<p><code>airflow_run_dag.ps1</code> exits with 0 only if the run ends in <code>success</code>.</p>
+
+<h1>12. Stage 8: The Streamlit dashboard (every page explained)</h1>
+
+<h2>12.1 How the dashboard works</h2>
+<p>Start it with <code>.\scripts\run_dashboard.ps1</code> and open <code>http://localhost:8501</code>. It is three separate pieces:</p>
+<table>
+<tr><th style="width:24%">File</th><th>Responsibility</th></tr>
+<tr><td><code>src/dashboard/queries.py</code></td><td>All database and Parquet access. Every number on the dashboard comes from here. Errors are logged fully for the developer but only a short safe message reaches the user (no passwords, no host names).</td></tr>
+<tr><td><code>src/dashboard/status.py</code></td><td>The status lights: <b>real checks</b>, not decoration.</td></tr>
+<tr><td><code>src/dashboard/app.py</code></td><td>Only the screen layout: tables, charts, text.</td></tr>
+</table>
+<ul>
+<li>Data is cached for 30 seconds; the sidebar button <b>Refresh data</b> clears the cache.</li>
+<li>Customer identifiers are never displayed.</li>
+<li>Money columns from PostgreSQL arrive as exact decimals; they are converted to normal numbers before charting.</li>
+<li>For demos: <code>.\scripts\run_dashboard.ps1 -Demo 3</code> shows the isolated demo database instead.</li>
+</ul>
+<div class="box why"><span class="t">Rule: no fake green lights</span>
+A status light is green <b>only if a real check just succeeded</b>. If a service is down it is red; if the check cannot be made it is grey ("unknown"). This was verified by really stopping Kafka and PostgreSQL (section 12.9).</div>
+
+<h2>12.2 Page 1: Overview and status</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 930; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_01_overview_and_status.png" alt="Overview page"></div>
+<figcaption>Figure 12.1: Overview and status (real screenshot).</figcaption></figure>
+<table>
+<tr><th style="width:24%">Element</th><th>What it tells you</th></tr>
+<tr><td>Blue banner</td><td>The honest framing: historical replay, not live orders. It is repeated in every page's sidebar.</td></tr>
+<tr><td>Architecture box</td><td>The implemented data flow in four lines.</td></tr>
+<tr><td><b>PostgreSQL</b> light</td><td>Runs <code>SELECT 1</code>. Green = the database answered.</td></tr>
+<tr><td><b>Kafka</b> light</td><td>Asks the broker for the topic's metadata. Green text: "topic 'ecommerce_orders' has 3 partition(s)".</td></tr>
+<tr><td><b>Exchange-rate API</b> light</td><td>Reads the last successful API response <i>stored in PostgreSQL</i> and shows its time (no new call).</td></tr>
+<tr><td><b>Parquet landing layer</b> light</td><td>Lists the files (e.g. "12 file(s)").</td></tr>
+<tr><td><b>Dataset files</b> light</td><td>Counts the CSV files (must be 9).</td></tr>
+<tr><td><b>Airflow (optional)</b> light</td><td>Calls Airflow's health URL. Red "not running" is normal when you did not start it; it is optional.</td></tr>
+<tr><td>Button "Run a live check of the exchange-rate API"</td><td>Makes exactly <b>one</b> real request and shows HTTP status and number of rates.</td></tr>
+</table>
+
+<h2>12.3 Page 2: Dataset and provenance</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 1230; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_02_dataset_and_provenance.png" alt="Dataset page"></div>
+<figcaption>Figure 12.2: Dataset and provenance.</figcaption></figure>
+<ul>
+<li><b>First table:</b> the 9 source files with rows, columns and the start of their SHA-256 fingerprints (from the profiling run of 2026-10-15).</li>
+<li><b>Warehouse cards:</b> 99,427 orders in PostgreSQL = 99,427 distinct <code>record_uid</code> (one row per order); first purchase 2016-09-04, last 2018-10-17.</li>
+<li><b>Fingerprint table:</b> all 99,427 warehouse rows came from <b>one</b> source file with the fingerprint <code>8df58ef3...</code>, the same one recorded on day one. This is the provenance proof: the data came from the untouched Olist orders file.</li>
+<li><b>Reference tables:</b> sellers 3,095; geolocation zip prefixes 19,010; products 32,951; reviews 99,224; order items 112,650.</li>
+</ul>
+
+<h2>12.4 Page 3: Ingestion and reconciliation</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 880; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_03_ingestion_and_reconciliation.png" alt="Reconciliation page"></div>
+<figcaption>Figure 12.3: Ingestion and reconciliation (real screenshot).</figcaption></figure>
+<p><b>Top table:</b> one row per producer run. Read <code>full-run-01</code>: it read 99,441 rows, 99,427 were valid, 14 rejected, 99,427 published, 0 failed to publish. The runs <b>overlap</b> (the same first orders were replayed several times on purpose), so never add the rows up to get "unique orders".</p>
+<p><b>Layer reconciliation:</b></p>
+<table>
+<tr><th>Layer</th><th>Count</th><th>How to read it</th></tr>
+<tr><td>Kafka messages</td><td>100,514</td><td>Everything published, repeats included (99,427 unique + 1,087 repeats).</td></tr>
+<tr><td>Parquet rows</td><td>100,120</td><td>What Spark consumed and kept (append-only).</td></tr>
+<tr><td>Parquet distinct <code>record_uid</code></td><td>99,427</td><td>The unique valid orders.</td></tr>
+<tr><td>PostgreSQL orders</td><td>99,427</td><td>The deduplicated warehouse.</td></tr>
+</table>
+<ul>
+<li><b>Kafka minus Parquet rows = 394:</b> repeats that Spark removed <i>inside one batch</i> (99 in the first batch + 295 in batch 11).</li>
+<li><b>Parquet rows minus distinct = 693:</b> repeats that arrived in a <i>later</i> batch (199 + 295 + 199); Parquet keeps them, PostgreSQL ignores them.</li>
+<li><b>Parquet distinct minus PostgreSQL = 0</b> and "discarded source duplicates = 0": they match (the real data has no source duplicates).</li>
+</ul>
+<p>The line at the bottom reminds you that the full source-derived reconciliation is <code>scripts/reconcile.py</code> (chapter 15).</p>
+
+<h2>12.5 Page 4: Data quality</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 600; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_04_data_quality.png" alt="Data quality page"></div>
+<figcaption>Figure 12.4: Data quality (real screenshot).</figcaption></figure>
+<ul>
+<li><b>Orders without items (kept): 775</b> and <b>without payments (kept): 1.</b> They are incomplete but real; we keep them and show the count.</li>
+<li><b>Delivered without date: 0</b> and <b>Delivered before purchase: 0.</b> These two problem counters must be zero in the warehouse (the bad ones were rejected before arriving).</li>
+<li><b>Rejected records (dead-letter queue):</b> stage <code>ingest</code>, reason <code>INCONSISTENT</code>, <b>26</b> records, <b>14</b> distinct. 26 lines because overlapping runs rejected the same 14 records again (one line per run); 14 is the number of different orders.</li>
+<li><b>Duplicates:</b> "No source duplicates were found" (true for the real data).</li>
+</ul>
+
+<h2>12.6 Page 5: Business KPIs</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 2100; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_05_business_kpis.png" alt="KPI page"></div>
+<figcaption>Figure 12.5: Business KPIs (real screenshot; the last chart continues below the image edge).</figcaption></figure>
+<table>
+<tr><th style="width:27%">Metric / chart</th><th>What it means</th><th>Real value / reading</th></tr>
+<tr><td>Orders</td><td>unique orders in the warehouse</td><td>99,427</td></tr>
+<tr><td>Revenue (BRL)</td><td>sum of <code>payments_value_total</code> (what customers paid)</td><td>16,006,745</td></tr>
+<tr><td>Revenue (USD, estimate)</td><td>BRL &times; ECB rate of each purchase day</td><td>4,768,687</td></tr>
+<tr><td>Average order value</td><td>average payment of orders with a payment</td><td>160.99 BRL</td></tr>
+<tr><td>Delivered orders / Late deliveries / Late % </td><td>delivered orders; delivered after the promised date; their share</td><td>96,470 / 7,826 / <b>8.11 %</b></td></tr>
+<tr><td>Average delivery days</td><td>delivery date &minus; purchase date</td><td>12.56 days</td></tr>
+<tr><td>Orders per month (bar)</td><td>business growth</td><td>starts at 4 orders (Sept 2016), grows, peaks in <b>Nov 2017 (7,543)</b>, about 6,000-7,000 per month in 2018</td></tr>
+<tr><td>Order status (table)</td><td>share of each status</td><td>delivered 97.03 %; shipped 1.11 %; canceled 0.62 %</td></tr>
+<tr><td>Top 10 customer states (bar)</td><td>where orders come from</td><td>SP (S&atilde;o Paulo) is far ahead: 41,738; then RJ 12,849; MG 11,634</td></tr>
+<tr><td>Average delivery days by month (line)</td><td>how delivery speed changed</td><td>recent months are faster, e.g. Aug 2018 avg 7.73 days vs May 2018 11.42</td></tr>
+<tr><td>Payment types (bar)</td><td>orders using each type (an order can use several)</td><td>credit_card 76,492 &gt; boleto 19,784 &gt; voucher 3,866 &gt; debit_card 1,527</td></tr>
+<tr><td>Top 10 categories (bar)</td><td>items sold per product category</td><td>bed_bath_table 11,115; health_beauty 9,668; sports_leisure 8,639</td></tr>
+<tr><td>Review scores (bar)</td><td>how customers rated</td><td>5 stars: 57,320; 4: 19,142; 3: 8,178; 2: 3,151; 1: 11,419</td></tr>
+</table>
+<div class="box warn"><span class="t">How to word the USD number</span>
+Say "an <b>estimated</b> 4.77 million USD at the European Central Bank's rate on each purchase day". Customers paid in reais.</div>
+
+<h2>12.7 Page 6: External API</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 820; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_06_external_api.png" alt="API page"></div>
+<figcaption>Figure 12.6: External API (real screenshot).</figcaption></figure>
+<ul>
+<li><b>Orders 99,427 / Enriched with a rate 99,427 / Match rate 100.00 %:</b> every order received a USD value.</li>
+<li><b>Matched on previous business day: 24,112:</b> orders bought on weekends/holidays, which have no ECB rate.</li>
+<li><b>"Last API retrieval stored on records ... HTTP status 200":</b> provenance of the data in the warehouse.</li>
+<li><b>Green light:</b> the last successful response stored in PostgreSQL.</li>
+<li><b>Line chart:</b> the real BRL&#8594;USD rate from Sept 2016 to Oct 2018 (about 0.24 to 0.33 dollars per real; it falls in 2018 as the real weakened).</li>
+</ul>
+
+<h2>12.8 Page 7: Recent records</h2>
+<figure><div class="crop" style="aspect-ratio: 1500 / 800; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_07_recent_records.png" alt="Recent records page"></div>
+<figcaption>Figure 12.7: Most recently processed orders (real screenshot).</figcaption></figure>
+<p>A table of the latest rows with business columns only: <code>order_id</code>, status, purchase time, state, number of items, payment in BRL and USD, which ingestion run brought it. A slider chooses how many rows (5-100). Below: <b>last processed into PostgreSQL</b> and <b>last ingestion run started</b>, i.e. how fresh the data is. (Customer identifiers are deliberately not shown.)</p>
+
+<h2>12.9 When services are really down</h2>
+<p>We stopped the Kafka and PostgreSQL containers on purpose and took real screenshots, then restored them (99,427 rows were intact afterwards).</p>
+<div class="two">
+<div><div class="crop" style="aspect-ratio: 1500 / 900; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_all_down_01_overview_and_status.png" alt="Everything down"></div><div class="small">Overview with Kafka and PostgreSQL stopped: both <b>red</b>; the API light is <b>grey</b> (cannot be known without the database); Parquet and dataset files are still <b>green</b> because those checks really passed.</div></div>
+<div><div class="crop" style="aspect-ratio: 1500 / 900; overflow:hidden; border:1px solid #d5dbe3"><img class="shot" src="../evidence/09_dashboard/dashboard_all_down_02_business_kpis.png" alt="KPI page, database down"></div><div class="small">KPI page with PostgreSQL stopped: <b>"Unavailable: The database is unavailable or the query failed."</b> No technical details leak.</div></div>
+</div>
+<div class="box bad"><span class="t">Two dashboard bugs found by LOOKING at screenshots (not by tests)</span>
+<b>1.</b> The Kafka light was red while Kafka was running: a client option that this library version rejects raised an error, which my code reported as "down". (My first "down" tests passed for the wrong reason, so a test against the real broker was added.) <b>2.</b> Three pages printed Streamlit's own documentation: a line of the form <code>st.dataframe(x) if cond else st.write(y)</code> is a bare expression, and Streamlit displays the value of bare expressions. Fixed with a plain if/else, plus an automatic source check. Lesson: <b>always look at the real output.</b></div>

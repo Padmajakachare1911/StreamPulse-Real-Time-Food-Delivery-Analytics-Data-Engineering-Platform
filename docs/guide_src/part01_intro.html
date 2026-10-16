@@ -1,0 +1,130 @@
+<div class="cover">
+  <h1>StreamPulse</h1>
+  <div class="sub">Real-Time Order Delivery Analytics &amp; Data Engineering Platform<br>(Olist e-commerce dataset)</div>
+  <div class="line"><b>The Complete Project Guide</b></div>
+  <div class="line">From absolute zero to a confident viva defence</div>
+  <div class="line" style="margin-top:24pt;color:#5b6770">Kafka &middot; Spark Structured Streaming &middot; Parquet &middot; PostgreSQL &middot; Frankfurter API &middot; Airflow &middot; Streamlit</div>
+  <div class="line" style="margin-top:34pt;font-size:10pt;color:#5b6770">Every number in this guide comes from a real run of this project.<br>The evidence files are listed in the appendix and in <code>docs/evidence_register.md</code>.</div>
+  <div class="line" style="margin-top:20pt;font-size:10pt;color:#b45309"><b>Honest framing:</b> this is a <i>historical dataset replayed through a streaming pipeline</i>, not live orders.</div>
+</div>
+
+<h1>Contents</h1>
+<!--TOC-->
+
+<h1>How to use this guide</h1>
+<p>This guide assumes you know <b>nothing</b> about data engineering. Read it once from the start. By the end you should be able to (1) run the project, (2) explain every part in your own words, and (3) answer a professor's questions honestly.</p>
+
+<h2>Colour code used in the guide</h2>
+<table>
+<tr><th style="width:26%">Box</th><th>Meaning</th></tr>
+<tr><td><span class="tag real">real output</span> green block</td><td>Text copied from a real run of this project (the source file is named).</td></tr>
+<tr><td><span class="tag cmd">command</span> purple block</td><td>A PowerShell command you can type. Always run from the repository root.</td></tr>
+<tr><td><span class="tag code">code</span> blue block</td><td>An excerpt from the project's source code.</td></tr>
+<tr><td>Violet box</td><td>An <b>analogy</b>: a real-life comparison to make an idea easy.</td></tr>
+<tr><td>Green box</td><td><b>Why?</b> The reason a design choice was made.</td></tr>
+<tr><td>Orange / red box</td><td>A warning or a real problem we met and fixed.</td></tr>
+</table>
+
+<h2>Suggested reading order</h2>
+<ol>
+<li><b>Part 1</b> (chapters 1-4): the big picture, the vocabulary, the data, the architecture. Read this first, slowly.</li>
+<li><b>Part 2</b> (chapters 5-12): the journey of one order through every stage, then the dashboard.</li>
+<li><b>Part 3</b> (chapters 13-15): the folder map, every command and what its output means, reconciliation.</li>
+<li><b>Part 4</b> (chapters 16-20): errors and recovery, testing, limitations, the four demos, viva questions.</li>
+<li><b>Appendices</b>: full glossary, key numbers, evidence index.</li>
+</ol>
+
+<div class="box why"><span class="t">If you only have one hour</span>
+Read chapter 1, chapter 2 (the words), the architecture picture in chapter 4, then chapters 9, 15, 16 (quality, reconciliation, recovery) and chapter 20 (viva). These are the parts a professor is most likely to ask about.</div>
+
+<h1>1. What is StreamPulse, in plain words?</h1>
+<p>An online shop (marketplace) receives orders all day. Each order has a customer, a status (<i>delivered</i>, <i>shipped</i>, <i>canceled</i>...), dates, money paid, and so on. A company wants to answer questions such as <i>How many orders per month? How much money did we make? How many deliveries were late?</i></p>
+<p>The raw order data is spread over several files and is messy. <b>StreamPulse is the machinery that takes the messy files, cleans and checks them, moves them step by step through a chain of tools, stores them safely, and finally shows the answers on a web dashboard.</b> Building that kind of machinery is called <b>data engineering</b>.</p>
+
+<div class="box analogy"><span class="t">Analogy: a parcel factory</span>
+Imagine a factory that receives boxes (orders) from a warehouse. A worker opens each box and checks it (validation). Broken boxes go to a "problems" shelf with a note saying what is wrong (dead-letter queue). Good boxes are labelled and put on a conveyor belt (Kafka). Machines at the end of the belt (Spark) sort them into a big archive (Parquet) and into a neat catalogue where each box appears exactly once (PostgreSQL). A manager's screen (the dashboard) shows how many boxes there are. Auditors (reconciliation) count the boxes at every stage to be sure none got lost or counted twice.</div>
+
+<h2>1.1 The honest framing: what is real and what is not</h2>
+<table>
+<tr><th style="width:30%">Question</th><th>Honest answer</th></tr>
+<tr><td>Is the data real?</td><td><b>Yes.</b> It is the public <i>Brazilian E-Commerce Public Dataset by Olist</i> (about 100,000 real, anonymised orders from 2016-2018).</td></tr>
+<tr><td>Is it food delivery?</td><td><b>No.</b> It is e-commerce (many product types). The original project title said "Food Delivery"; we changed the subtitle because the dataset is not food. <i>You should confirm this with your professor.</i></td></tr>
+<tr><td>Are the orders live?</td><td><b>No.</b> They are historical. We <b>replay</b> them through a streaming pipeline at a speed we control. Always say: <i>"historical dataset replay through a streaming pipeline"</i>.</td></tr>
+<tr><td>Is the API real?</td><td><b>Yes.</b> The Frankfurter API (European Central Bank exchange rates) is a real public service. It does <b>not</b> contain orders; it gives currency rates.</td></tr>
+<tr><td>Is it "exactly-once"?</td><td><b>No.</b> It is <i>at-least-once delivery with an idempotent (safe-to-repeat) database write</i>. Chapter 16 explains the difference.</td></tr>
+</table>
+
+<h2>1.2 The one-line journey</h2>
+<pre class="code">Olist CSV files  ->  Python producer  ->  Kafka  ->  Spark  ->  Parquet files + PostgreSQL  ->  Streamlit dashboard
+                      (check, join)     (conveyor)  (process)   (archive)   (clean catalogue)      (see the answers)
+                                  + Frankfurter API adds a USD value to every order
+                                  + Airflow runs the repeatable steps as a scheduled workflow</pre>
+
+<h2>1.3 What we actually achieved (measured)</h2>
+<table>
+<tr><th>Result</th><th>Value</th><th>Where it is proved</th></tr>
+<tr><td>Orders in the real file</td><td>99,441</td><td><code>docs/evidence/01_dataset/dataset_profile.txt</code></td></tr>
+<tr><td>Orders accepted (valid)</td><td>99,427</td><td><code>03_kafka/producer_full_run.txt</code></td></tr>
+<tr><td>Orders rejected (contradict themselves)</td><td>14 (kept in the dead-letter queue)</td><td><code>05_data_quality/</code>, <code>07_postgresql/rejected_14_vs_15_explained.txt</code></td></tr>
+<tr><td>Rows in the warehouse</td><td>99,427 (each order exactly once)</td><td><code>07_postgresql/quality_checks_output.txt</code></td></tr>
+<tr><td>Total revenue in the data</td><td>16,006,744.62 BRL (about 4.77 million USD, estimated)</td><td><code>07_postgresql/analytics_views_output.txt</code></td></tr>
+<tr><td>Late deliveries</td><td>8.11 %</td><td>same file</td></tr>
+<tr><td>Automated tests</td><td>73 unit + 18 integration + 5 Spark + 8 Airflow + 4 end-to-end, all passing</td><td><code>10_automated_tests/final_*.txt</code></td></tr>
+</table>
+
+<h1>2. The vocabulary (read this before anything else)</h1>
+<p>Most confusion in data engineering comes from unfamiliar words. Here are the essential ones, each with a plain explanation. A longer glossary is at the end of the guide.</p>
+
+<h2>2.1 About data and pipelines</h2>
+<table>
+<tr><th style="width:22%">Word</th><th>Plain meaning</th><th>Example in this project</th></tr>
+<tr><td><b>Data pipeline</b></td><td>A chain of steps that moves data from where it starts to where it is useful.</td><td>CSV &rarr; Python &rarr; Kafka &rarr; Spark &rarr; PostgreSQL &rarr; dashboard</td></tr>
+<tr><td><b>Batch</b> vs <b>stream</b></td><td>Batch = process a big pile at once, then stop. Stream = process small pieces continuously as they arrive.</td><td>Reading the 100,000-order file is a pile; Kafka + Spark treat it as a flow of messages.</td></tr>
+<tr><td><b>Event / message</b></td><td>One small piece of information that something happened.</td><td>"Order X was placed at 21:15 for 136.23 BRL" is one message.</td></tr>
+<tr><td><b>Replay</b></td><td>Sending old recorded data through a system as if it were new.</td><td>We replay 2016-2018 orders in a few minutes.</td></tr>
+<tr><td><b>ETL / ELT</b></td><td>Extract-Transform-Load (clean first, then store) vs Extract-Load-Transform (store first, clean later).</td><td>Mostly ETL: we check and transform before loading; SQL views do the final analytics.</td></tr>
+<tr><td><b>Validation</b></td><td>Checking that data follows the rules.</td><td>"A delivered order must have a delivery date."</td></tr>
+<tr><td><b>Enrichment</b></td><td>Adding extra information from another source.</td><td>Adding the USD value from the exchange-rate API.</td></tr>
+<tr><td><b>Provenance / lineage</b></td><td>Knowing where every piece of data came from.</td><td>Each row remembers its source file hash, row number, run id, Kafka position.</td></tr>
+</table>
+
+<h2>2.2 About Kafka</h2>
+<table>
+<tr><th style="width:22%">Word</th><th>Plain meaning</th></tr>
+<tr><td><b>Kafka</b></td><td>A system that stores and delivers messages in order, like a very reliable conveyor belt that remembers everything for a few days.</td></tr>
+<tr><td><b>Broker</b></td><td>The Kafka server (ours runs in a Docker container).</td></tr>
+<tr><td><b>Topic</b></td><td>A named channel of messages. Ours is <code>ecommerce_orders</code>.</td></tr>
+<tr><td><b>Partition</b></td><td>A topic is split into several lanes (ours: 3) so work can be shared. Order is guaranteed only <i>inside</i> one lane.</td></tr>
+<tr><td><b>Offset</b></td><td>The position number of a message inside a lane (0, 1, 2, ...). Like a page number.</td></tr>
+<tr><td><b>Key</b></td><td>A label on a message that decides which lane it goes to. Same key &rarr; same lane. Ours: the <code>order_id</code>.</td></tr>
+<tr><td><b>Producer</b></td><td>A program that <i>puts</i> messages into Kafka (our Python replay script).</td></tr>
+<tr><td><b>Consumer</b></td><td>A program that <i>reads</i> messages from Kafka (Spark).</td></tr>
+</table>
+
+<h2>2.3 About Spark and storage</h2>
+<table>
+<tr><th style="width:22%">Word</th><th>Plain meaning</th></tr>
+<tr><td><b>Spark Structured Streaming</b></td><td>A tool that reads a flow of data in small groups and processes each group like a mini batch.</td></tr>
+<tr><td><b>Micro-batch</b></td><td>One small group of messages processed together (ours: up to 10,000 messages).</td></tr>
+<tr><td><b>Trigger</b></td><td>The rule for <i>when</i> to run the next micro-batch: every 5 seconds, or <code>availableNow</code> = "process everything waiting, then finish".</td></tr>
+<tr><td><b>Checkpoint</b></td><td>Spark's progress notebook: which Kafka offsets have been processed. After a stop, Spark continues from there.</td></tr>
+<tr><td><b>Parquet</b></td><td>A compact file format for tables, good for analytics. Think "a very efficient Excel file".</td></tr>
+<tr><td><b>Landing layer</b></td><td>The first place data is stored after processing, kept as-is for audit. Ours: Parquet files.</td></tr>
+<tr><td><b>Data warehouse</b></td><td>A clean database prepared for questions and reports. Ours: PostgreSQL.</td></tr>
+<tr><td><b>View</b></td><td>A saved SQL question that looks like a table (e.g. "orders per month").</td></tr>
+<tr><td><b>KPI</b></td><td>Key performance indicator: an important number such as revenue or late-delivery rate.</td></tr>
+</table>
+
+<h2>2.4 About safety and correctness</h2>
+<table>
+<tr><th style="width:22%">Word</th><th>Plain meaning</th></tr>
+<tr><td><b>Idempotent</b></td><td>Doing it twice has the same result as doing it once. Pressing a lift button twice does not call two lifts.</td></tr>
+<tr><td><b>Upsert</b></td><td>"Update or insert": add the row if it is new, skip (or update) it if it already exists.</td></tr>
+<tr><td><b>Duplicate</b></td><td>The same thing appearing more than once. We distinguish <i>retry duplicates</i> and <i>source duplicates</i> (chapter 9).</td></tr>
+<tr><td><b>Dead-letter queue (DLQ)</b></td><td>A "problems shelf": rejected records are stored with the reason instead of being thrown away.</td></tr>
+<tr><td><b>At-least-once</b></td><td>Every message is delivered one <i>or more</i> times; none is lost, but repeats are possible.</td></tr>
+<tr><td><b>Exactly-once</b></td><td>Every message is processed exactly one time. Hard to guarantee across many systems; <b>we do not claim it</b>.</td></tr>
+<tr><td><b>Reconciliation</b></td><td>Counting records at every stage and checking that the numbers agree (or are explained).</td></tr>
+<tr><td><b>Orchestrator / DAG</b></td><td>A tool (Airflow) that runs steps in the right order with retries. A DAG is the "recipe": tasks and arrows, no loops.</td></tr>
+<tr><td><b>Container / Docker</b></td><td>A sealed, ready-to-run package of a program and everything it needs. Our Kafka, PostgreSQL, Spark and Airflow run in containers.</td></tr>
+</table>

@@ -1,0 +1,138 @@
+<h1>13. The folder and file map</h1>
+<p>Open the project folder and you will see this. Learn the <b>purpose</b> of each folder; in the viva you will be asked "where is X?".</p>
+<table>
+<tr><th style="width:27%">Path</th><th>What it contains / why it exists</th></tr>
+<tr><td><code>Readme.md</code></td><td>Front page of the project: what it is, how to start.</td></tr>
+<tr><td><code>.env</code> (you create it)</td><td>Passwords and settings. <b>Never committed</b> (listed in <code>.gitignore</code>). Template: <code>.env.example</code>.</td></tr>
+<tr><td><code>docker-compose.yml</code></td><td>Defines every service (Kafka, PostgreSQL, Spark, Airflow): image, ports, volumes, health checks.</td></tr>
+<tr><td><code>requirements.txt</code>, <code>requirements-dev.txt</code></td><td>Python packages for running / for testing. <code>pytest.ini</code> defines the six test markers.</td></tr>
+<tr><td><code>data/raw/</code></td><td>The 9 Olist CSV files (git-ignored: licence and size).</td></tr>
+<tr><td><code>data/processed/parquet/orders/</code></td><td>The Parquet landing layer (<code>batch_id=NNNNNNNN</code> folders).</td></tr>
+<tr><td><code>data/processed/spark_batches/orders.jsonl</code></td><td>One JSON line per micro-batch: the <code>BATCH_SUMMARY</code> counts.</td></tr>
+<tr><td><code>data/checkpoints/orders/</code></td><td>Spark's progress memory. <b>Never delete.</b></td></tr>
+<tr><td><code>data/dead_letter/</code></td><td>Rejected records as JSON lines: <code>ingest/</code> (producer) and <code>stream/</code> (Spark).</td></tr>
+<tr><td><code>config/field_mapping.yaml</code></td><td>The map from Olist columns to message fields (single source of truth for the mapping).</td></tr>
+<tr><td><code>config/quality_rules.yaml</code></td><td>The 8 data-quality rules.</td></tr>
+<tr><td><code>src/common/</code></td><td><code>config.py</code> (reads <code>.env</code>), <code>mapping.py</code>, <code>orders_source.py</code> (the join).</td></tr>
+<tr><td><code>src/api/</code></td><td><code>client.py</code> (HTTP + retry + cache), <code>enrich.py</code> (BRL&#8594;USD logic).</td></tr>
+<tr><td><code>src/producer/dataset_producer.py</code></td><td>The Kafka producer (CLI).</td></tr>
+<tr><td><code>src/processing/</code></td><td><code>validators.py</code>, <code>classify.py</code> (pure rule functions), <code>deadletter.py</code>.</td></tr>
+<tr><td><code>src/streaming/</code></td><td><code>order_stream.py</code> (the Spark job, stop protocol), <code>transforms.py</code> (parse/flatten/validate in Spark).</td></tr>
+<tr><td><code>src/warehouse/</code></td><td><code>db.py</code> (connection), <code>load.py</code> (idempotent upsert), <code>load_reference.py</code> (items/products/sellers/reviews/geo).</td></tr>
+<tr><td><code>src/dashboard/</code></td><td><code>queries.py</code>, <code>status.py</code>, <code>app.py</code> (Streamlit).</td></tr>
+<tr><td><code>sql/</code></td><td><code>schema.sql</code> (tables), <code>analytics.sql</code> (11 views), <code>quality_checks.sql</code>, <code>analytics_samples.sql</code>.</td></tr>
+<tr><td><code>scripts/</code></td><td>PowerShell and Python helpers: every command in chapter 14 (see below).</td></tr>
+<tr><td><code>airflow/dags/</code></td><td>The two DAG files.</td></tr>
+<tr><td><code>docker/spark</code>, <code>docker/airflow</code></td><td>Dockerfiles for the two custom images.</td></tr>
+<tr><td><code>tests/unit | integration | e2e</code></td><td>Automated tests, by how much of the system they need.</td></tr>
+<tr><td><code>docs/</code></td><td>Specs (00-07), architecture, setup guide, data dictionary, quality rules, test cases, viva questions, limitations, final report, task tracker, evidence register.</td></tr>
+<tr><td><code>docs/evidence/00..11</code></td><td>Saved real outputs and screenshots, one folder per stage. Each file records its command, time and git commit.</td></tr>
+<tr><td><code>docs/phase_reports/</code></td><td>What was done in each phase, including failures.</td></tr>
+</table>
+<h3>Script families</h3>
+<ul>
+<li><b>kafka_*.ps1</b> start/stop Kafka, list/describe topic, consume N messages, count per partition.</li>
+<li><b>run_stream.ps1 / stop_stream.ps1</b> start and safely stop Spark. <b>init_db.ps1</b> creates the schema.</li>
+<li><b>airflow_*.ps1</b> start, stop, run a DAG, any CLI command.</li>
+<li><b>run_dashboard.ps1</b> starts Streamlit. <b>reconcile.py</b>, <b>run_quality_checks.py</b> verify the numbers.</li>
+<li><b>profile_dataset.py</b>, <b>check_dataset_fingerprint.py</b> examine the data. <b>secret_scan.py</b>, <b>check_evidence_paths.py</b> guard the repository.</li>
+<li><b>demo_setup / demo_load / demo3_cleanup / reset_demo_state</b> support the four demos on an isolated demo database.</li>
+<li><b>spark_experiments.py, quality_experiment.py, measure_key_options.py, explain_rejected_count.py</b>: experiments that produced evidence.</li>
+</ul>
+
+<h1>14. The commands cookbook</h1>
+<p>Run every command from the <b>project root</b> in <b>PowerShell</b>. First, in each terminal: <code>$py = ".\.venv\Scripts\python.exe"</code>. Each entry gives: the command, <i>why</i>, what success looks like (taken from real runs) and what it means.</p>
+
+<h2>14.1 First-time setup</h2>
+<table>
+<tr><th style="width:30%">Command</th><th style="width:22%">Why</th><th>Expected output and meaning</th></tr>
+<tr><td><code>python -m venv .venv</code><br><code>$py -m pip install -r requirements.txt</code></td><td>Private Python environment with the exact packages.</td><td>"Successfully installed ...". If it fails, the Python version is wrong (we used 3.11).</td></tr>
+<tr><td><code>Copy-Item .env.example .env</code></td><td>Create your settings file. Edit <code>POSTGRES_PASSWORD</code>.</td><td>A new <code>.env</code> file. Never share or commit it.</td></tr>
+<tr><td><code>.\scripts\check_env.ps1</code></td><td>Are Python, Docker and the Kafka port ready?</td><td>Versions printed; port 9092 <code>reachable = True</code> only after Kafka is started.</td></tr>
+<tr><td><code>$py scripts\check_dataset_fingerprint.py</code></td><td>Are the 9 CSVs the untouched originals?</td><td><code>All 9 files match the fingerprints...</code> A mismatch means a file was altered or is wrong.</td></tr>
+</table>
+
+<h2>14.2 Infrastructure</h2>
+<table>
+<tr><th style="width:30%">Command</th><th style="width:22%">Why</th><th>Expected output and meaning</th></tr>
+<tr><td><code>.\scripts\kafka_start.ps1</code></td><td>Start Kafka and create the topic.</td><td><code>Kafka health: healthy</code> and the topic <code>ecommerce_orders</code> with 3 partitions. <code>docker ps</code> shows <code>(healthy)</code>.</td></tr>
+<tr><td><code>.\scripts\init_db.ps1</code></td><td>Start PostgreSQL, create schemas, tables, views.</td><td><code>schema OK</code>. Safe to repeat (nothing is dropped).</td></tr>
+<tr><td><code>.\scripts\kafka_describe_topic.ps1</code></td><td>Show topic settings.</td><td><code>PartitionCount: 3  ReplicationFactor: 1</code>.</td></tr>
+<tr><td><code>docker compose --profile spark build spark</code></td><td>Build the Spark image once.</td><td>5-10 minutes the first time; ends with the image name. (Needed because Windows cannot run Spark directly.)</td></tr>
+</table>
+
+<h2>14.3 Ingestion</h2>
+<table>
+<tr><th style="width:30%">Command</th><th style="width:22%">Why</th><th>Expected output and meaning</th></tr>
+<tr><td><code>$py -m src.producer.dataset_producer --limit 100 --dry-run</code></td><td>Rehearse: read, join, validate, enrich; publish nothing.</td><td>A JSON summary with <code>rows_published: 0</code>. Nothing reached Kafka.</td></tr>
+<tr><td><code>$py -m src.producer.dataset_producer --limit 200 --run-id demo1</code></td><td>Publish the first 200 orders.</td><td><code>rows_read 200, rows_valid 199, rows_rejected 1, rows_publish_failed 0</code>. One order is bad and goes to the dead-letter file.</td></tr>
+<tr><td><code>$py -m src.producer.dataset_producer --full</code></td><td>Replay all orders (about 100 s).</td><td><code>rows_read 99441, rows_valid 99427, rows_rejected 14</code>. Without <code>--limit</code> or <code>--full</code> the producer refuses to run (so nobody replays 100k orders by accident).</td></tr>
+<tr><td><code>.\scripts\kafka_consume_n.ps1 -Count 1 -Partition 0</code></td><td>Look at a real message.</td><td>One JSON envelope (chapter 5).</td></tr>
+<tr><td><code>.\scripts\kafka_partition_counts.ps1</code></td><td>Messages per partition.</td><td>Three numbers that are nearly equal (33.4 / 33.4 / 33.2 %). Total = messages published.</td></tr>
+<tr><td><code>$py scripts\api_demo_call.py --sample --no-cache</code></td><td>One real API request.</td><td><code>HTTP : 200</code>, <code>Rows : 5</code>.</td></tr>
+<tr><td><code>$py scripts\api_demo_call.py --simulate-failure</code></td><td>Show the retry logic.</td><td><code>API failed after 3 attempts</code> (waits of 1 s and 2 s).</td></tr>
+</table>
+
+<h2>14.4 Spark, Parquet, PostgreSQL</h2>
+<table>
+<tr><th style="width:30%">Command</th><th style="width:22%">Why</th><th>Expected output and meaning</th></tr>
+<tr><td><code>.\scripts\run_stream.ps1 -Trigger availableNow</code></td><td>Process everything waiting in Kafka, then stop.</td><td>One <code>BATCH_SUMMARY {...}</code> line per batch, then <code>Stream stopped.</code> Counts: input_rows, valid, invalid, in-batch duplicates, inserted, retry duplicates, source duplicates.</td></tr>
+<tr><td><code>.\scripts\run_stream.ps1</code></td><td>Continuous mode: a batch every 5 s.</td><td>A summary whenever new messages arrive; waits otherwise.</td></tr>
+<tr><td><code>.\scripts\stop_stream.ps1</code></td><td>Safe stop.</td><td>The running batch finishes first; the log shows <code>STOPPED_AT_BATCH_BOUNDARY</code>. Never kill the container.</td></tr>
+<tr><td><code>$py scripts\parquet_readback.py</code></td><td>Read the Parquet files back.</td><td>Row count, distinct <code>record_uid</code>, schema, 3 sample rows. Rows &ge; distinct (Parquet keeps repeats).</td></tr>
+<tr><td><code>docker exec streampulse-postgres psql -U streampulse -d streampulse -c "SELECT count(*), count(DISTINCT record_uid) FROM core.orders"</code></td><td>Count warehouse orders.</td><td><code>99427 | 99427</code> after a full run: one row per order.</td></tr>
+<tr><td><code>$py scripts\run_quality_checks.py</code></td><td>Run the SQL quality checks.</td><td>A table of problem counts, then <code>RESULT: all quality checks passed</code>. Exit code 1 if any is above 0.</td></tr>
+<tr><td><code>$py scripts\reconcile.py</code></td><td>Compare every layer with the source.</td><td><code>RESULT: all differences are zero or explained</code>; exit code 0 (see chapter 15).</td></tr>
+</table>
+
+<h2>14.5 Airflow, dashboard, tests</h2>
+<table>
+<tr><th style="width:30%">Command</th><th style="width:22%">Why</th><th>Expected output and meaning</th></tr>
+<tr><td><code>.\scripts\airflow_up.ps1</code></td><td>Start Airflow.</td><td><code>Airflow is healthy</code>; UI at port 8080.</td></tr>
+<tr><td><code>.\scripts\airflow_run_dag.ps1 -Dag streampulse_batch -Conf '{"limit": 300}'</code></td><td>Run the workflow once.</td><td>Task states, then <code>FINAL STATE: success</code> in about 2 minutes.</td></tr>
+<tr><td><code>.\scripts\run_dashboard.ps1</code></td><td>Start Streamlit.</td><td><code>You can now view your Streamlit app</code>; open port 8501.</td></tr>
+<tr><td><code>$py -m pytest -m unit</code></td><td>Fast tests, no services.</td><td><code>73 passed, 1 skipped</code> (the skipped one needs Airflow's Python).</td></tr>
+<tr><td><code>$py -m pytest -m integration</code></td><td>Tests against real PostgreSQL/Kafka/API.</td><td><code>18 passed, 1 skipped</code>.</td></tr>
+<tr><td><code>.\scripts\run_tests_docker.ps1</code> / <code>.\scripts\run_tests_airflow.ps1</code></td><td>Tests that need Spark / Airflow.</td><td><code>5 passed</code> / <code>8 passed</code>.</td></tr>
+<tr><td><code>$py -m pytest -m e2e</code></td><td>Whole pipeline, real services (about 3.5 minutes).</td><td><code>4 passed, 1 skipped</code>.</td></tr>
+<tr><td><code>$py scripts\secret_scan.py</code></td><td>Make sure no secret is committed.</td><td><code>RESULT: clean</code>.</td></tr>
+</table>
+<div class="box warn"><span class="t">Shutting down safely</span>
+<code>.\scripts\stop_stream.ps1</code>, then <code>.\scripts\airflow_down.ps1</code>, then <code>docker compose stop</code>. Data stays in Docker volumes. <b>Never</b> delete <code>data/checkpoints</code> or the volumes unless you want to reprocess everything.</div>
+
+<h1>15. Reconciliation: proving the numbers add up</h1>
+<h2>15.1 The idea</h2>
+<p>Reconciliation means "count the same thing at every stage and explain every difference". Anyone can print a count; a good engineer shows that <b>nothing was lost or invented</b>. <code>scripts/reconcile.py</code> works from the <b>source</b>: it recomputes what each stage <i>should</i> contain using the same rules, then compares with what is <i>actually</i> there. It exits with code 1 if a difference is unexplained. It never adjusts an expected number to make a row pass.</p>
+<h2>15.2 Three sections</h2>
+<ol>
+<li><b>Run level:</b> each producer run versus the part of the file it covered (read, valid, rejected, published, dead-letter lines).</li>
+<li><b>Source level:</b> unique records over the <i>union</i> of all runs. Runs overlap, so run totals cannot simply be added.</li>
+<li><b>Pipeline stages:</b> Kafka &#8594; Spark &#8594; Parquet &#8594; PostgreSQL.</li>
+</ol>
+<h2>15.3 Real output (shortened)</h2>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/07_postgresql/reconciliation_production_final.txt</span>
+== RUN LEVEL ==
+[full-run-01] rows read                     99,441   99,441   +0  [OK] whole orders file
+[full-run-01] valid                         99,427   99,427   +0  [OK] re-derived from that slice with the same rules
+[full-run-01] rejected                          14       14   +0  [OK] read - valid
+[full-run-01] published = valid             99,427   99,427   +0  [OK] failed publishes: 0
+[full-run-01] dead-letter lines = rejected      14       14   +0  [OK]
+== SOURCE LEVEL ==
+unique source rows covered                  99,441   99,441   +0  [OK] runs read 99,741 rows in total, so 300 rows were replayed more than once
+unique rejected (distinct record_uid in DLQ)    14       14   +0  [OK] 16 dead-letter LINES exist because overlapping runs rejected the same record again
+== PIPELINE STAGES ==
+4 messages in Kafka topic                   99,725   99,725   +0  [OK] 298 of them are repeats of an already published record_uid
+6 rows in Parquet (landing layer)           99,626   99,626   +0  [OK] consumed - invalid - in-batch duplicates (99)
+6b distinct record_uid in Parquet           99,427   99,427   +0  [OK]
+7 rows in PostgreSQL core.orders            99,427   99,427   +0  [OK]
+7b retry duplicates ignored by PostgreSQL      199      199   +0  [OK]
+8b rows = distinct business_hash            99,427   99,427   +0  [OK] one row per natural key
+RESULT: all differences are zero or explained</pre>
+<p>That file is the production state at the time of Phase 6. The final run (<code>docs/evidence/10_automated_tests/final_reconcile_production.txt</code>) covers six runs, after the re-ingestion and two Airflow runs, and ends with the same result line. The arithmetic of the first version:</p>
+<div class="box why"><span class="t">Reading the pipeline arithmetic</span>
+99,725 messages in Kafka &minus; 99 repeats removed inside one batch &minus; 0 invalid = <b>99,626</b> rows in Parquet. Distinct <code>record_uid</code> in Parquet = <b>99,427</b>; the other 199 Parquet rows are repeats that arrived in a later batch. PostgreSQL keeps one row per <code>record_uid</code> = <b>99,427</b>. Every number is explained.</div>
+
+<h2>15.4 The "14 versus 15" story</h2>
+<p>An early reconciliation said "15 rejected orders" while the correct figure from the source was 14. I did <b>not</b> change the expected number. I investigated (<code>scripts/explain_rejected_count.py</code>): the extra one was <b>one</b> <code>record_uid</code> (<code>92fc65a4...</code>) that two <i>overlapping</i> runs had both rejected, so it appeared as two dead-letter lines. The fix was to separate counting levels: run-level (lines) and source-level (distinct <code>record_uid</code>). Evidence: <code>docs/evidence/07_postgresql/rejected_14_vs_15_explained.txt</code>.</p>
+<div class="box why"><span class="t">Why the tool itself is trustworthy</span>
+A separate test deliberately creates a mismatch and checks that <code>reconcile.py</code> returns exit code 1 (<code>reconciliation_mismatch_exit_code.txt</code>). A checker that can never fail proves nothing.</div>

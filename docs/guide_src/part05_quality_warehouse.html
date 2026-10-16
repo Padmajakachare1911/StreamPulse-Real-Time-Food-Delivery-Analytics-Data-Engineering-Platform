@@ -1,0 +1,201 @@
+<h1>9. Stage 5: Data quality, duplicates and the dead-letter queue</h1>
+
+<h2>9.1 Three promises</h2>
+<ol>
+<li><b>Nothing is dropped silently.</b> A rejected record is stored with the reason and the original data.</li>
+<li><b>Empty is not wrong.</b> A missing delivery date is normal for an order not yet delivered. We reject only <i>contradictions</i>.</li>
+<li><b>Repeating is safe.</b> Sending the same data again never creates a duplicate row in the warehouse.</li>
+</ol>
+
+<h2>9.2 The rules (<code>config/quality_rules.yaml</code>, <code>src/processing/validators.py</code>)</h2>
+<p>Each rule was chosen because of something we <i>measured</i> in the real data (chapter 3), not guessed. Severity <b>reject</b> = goes to the dead-letter queue; <b>warn</b> = counted but the order continues.</p>
+<table>
+<tr><th>Rule</th><th>Plain meaning</th><th>Real result (99,441 orders)</th></tr>
+<tr><td><code>status_in_allowed_set</code></td><td>status must be one of the 8 values seen in the data</td><td>0 rejected</td></tr>
+<tr><td><code>purchase_date_in_range</code></td><td>purchase date must be between 2016-01-01 and 2018-12-31</td><td>0</td></tr>
+<tr><td><code>amounts_not_negative</code></td><td>price, freight, payment total must be &ge; 0</td><td>0</td></tr>
+<tr><td><code>approved_not_before_purchase</code></td><td>approval cannot precede the purchase</td><td>0</td></tr>
+<tr><td><code>delivered_not_before_purchase</code></td><td>delivery cannot precede the purchase</td><td>0 (used in Demo 3)</td></tr>
+<tr><td><code>delivered_status_has_date</code></td><td>status "delivered" requires a delivery date</td><td><b>8 rejected</b></td></tr>
+<tr><td><code>delivered_date_matches_status</code></td><td>a delivery date requires status "delivered"</td><td><b>6 rejected</b> (all "canceled")</td></tr>
+<tr><td><code>payment_total_positive</code> (warn)</td><td>an order with payment rows should have a total &gt; 0</td><td>3 warnings, not rejected</td></tr>
+</table>
+<p>In addition the mapping step rejects empty required fields and wrong types (0 found in the real data). Total: <b>14 rejected = 8 + 6</b>, which is why 99,441 &minus; 14 = 99,427.</p>
+<div class="box why"><span class="t">Why these 14 are rejected</span>
+An order marked "delivered" with no delivery date would break the delivery-time KPI; a "canceled" order that nevertheless has a delivery date contradicts itself. They are <b>not deleted</b>: they sit in the dead-letter files with their full original data, so a human can inspect them.</div>
+
+<h2>9.3 What a dead-letter record looks like</h2>
+<pre class="real"><span class="tag real">real output &middot; data/dead_letter/ingest/full-run-01.jsonl (one of the 14, shortened)</span>
+{ "dlq_id": "bafe2d00-e461-4d9a-a417-959e5da272b6",
+  "stage": "ingest",
+  "reason_code": "INCONSISTENT",
+  "reason_detail": "delivered_date_matches_status: status is 'canceled' but delivered_customer_ts is set",
+  "record_uid": "92fc65a4424b55837a4389c5239ea75a",
+  "ingest_run_id": "full-run-01",
+  "raw_payload": { "order_id": "65d1e226...", "order_status": "canceled",
+                   "order_delivered_customer_date": "2016-11-08 10:58:34", ... },
+  "rejected_at": "2026-10-15T16:39:30.603849+00:00" }</pre>
+<table>
+<tr><th style="width:22%">Field</th><th>Meaning</th></tr>
+<tr><td><code>stage</code></td><td>Where it was rejected: <code>ingest</code> (producer) or <code>stream</code> (Spark).</td></tr>
+<tr><td><code>reason_code</code></td><td>A short category: <code>MISSING_REQUIRED</code>, <code>TYPE_ERROR</code>, <code>RANGE_ERROR</code>, <code>INCONSISTENT</code>, <code>MALFORMED_JSON</code>, <code>SCHEMA_MISMATCH</code>.</td></tr>
+<tr><td><code>reason_detail</code></td><td>A sentence naming the rule and the values.</td></tr>
+<tr><td><code>raw_payload</code></td><td>The original data, so nothing is lost.</td></tr>
+<tr><td><code>rejected_at</code></td><td>UTC time stamp.</td></tr>
+</table>
+<p>Files: <code>data/dead_letter/ingest/&lt;run&gt;.jsonl</code> and <code>data/dead_letter/stream/&lt;stream&gt;-batch-N.jsonl</code>. They can be loaded into the table <code>core.dead_letter_records</code> (<code>python -m src.warehouse.load_reference --only dlq</code>). Two situations are tested with <b>real Spark</b>: broken JSON gets <code>MALFORMED_JSON</code>; a JSON message missing <code>record_uid</code> or <code>order_id</code> gets <code>SCHEMA_MISMATCH</code> (<code>docs/evidence/04_spark/malformed_message_test.txt</code>, 7 of 7 checks).</p>
+
+<h2>9.4 The three kinds of "same record" (the most asked question)</h2>
+<table>
+<tr><th style="width:20%">Kind</th><th style="width:30%">How we detect it</th><th>What we do</th></tr>
+<tr><td><b>Retry / replay duplicate</b></td><td>Same <code>record_uid</code> (same file, same row)</td><td>Do nothing; count it as <code>retry_duplicates</code>.</td></tr>
+<tr><td><b>Source duplicate</b></td><td>Different <code>record_uid</code> but same <code>business_hash</code> (same <code>order_id</code> in two different rows)</td><td>Keep the first; log the other once in <code>core.duplicate_records</code>.</td></tr>
+<tr><td><b>Re-ingestion</b></td><td>Same file ingested again under a new run id</td><td>Same <code>record_uid</code>s, so every record is a retry duplicate: nothing changes.</td></tr>
+</table>
+<figure>
+<svg width="720" height="190" viewBox="0 0 720 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10.5">
+ <defs><marker id="a6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker></defs>
+ <rect x="5" y="70" width="110" height="50" rx="6" fill="#e8eff7" stroke="#0b5cad"/><text x="60" y="92" text-anchor="middle" font-weight="bold">incoming</text><text x="60" y="106" text-anchor="middle" font-size="9.5">order message</text>
+ <line x1="117" y1="95" x2="150" y2="95" stroke="#1f2933" marker-end="url(#a6)"/>
+ <polygon points="152,95 232,55 312,95 232,135" fill="#fffbe6" stroke="#b45309"/><text x="232" y="92" text-anchor="middle" font-size="9.5">record_uid</text><text x="232" y="105" text-anchor="middle" font-size="9.5">already known?</text>
+ <line x1="232" y1="55" x2="232" y2="22" stroke="#1f2933"/><line x1="232" y1="22" x2="400" y2="22" stroke="#1f2933" marker-end="url(#a6)"/><text x="240" y="40" font-size="9.5">yes</text>
+ <rect x="402" y="5" width="300" height="36" rx="5" fill="#f3f5f8" stroke="#8795a6"/><text x="552" y="21" text-anchor="middle" font-weight="bold">RETRY DUPLICATE</text><text x="552" y="34" text-anchor="middle" font-size="9.5">write nothing, count it</text>
+ <line x1="312" y1="95" x2="350" y2="95" stroke="#1f2933" marker-end="url(#a6)"/><text x="322" y="88" font-size="9.5">no</text>
+ <polygon points="352,95 432,55 512,95 432,135" fill="#fffbe6" stroke="#b45309"/><text x="432" y="92" text-anchor="middle" font-size="9.5">same order_id</text><text x="432" y="105" text-anchor="middle" font-size="9.5">already stored?</text>
+ <line x1="432" y1="135" x2="432" y2="165" stroke="#1f2933"/><line x1="432" y1="165" x2="540" y2="165" stroke="#1f2933" marker-end="url(#a6)"/><text x="440" y="152" font-size="9.5">yes</text>
+ <rect x="542" y="148" width="170" height="36" rx="5" fill="#fff8ee" stroke="#b45309"/><text x="627" y="164" text-anchor="middle" font-weight="bold">SOURCE DUPLICATE</text><text x="627" y="177" text-anchor="middle" font-size="9.5">keep first, log the copy</text>
+ <line x1="512" y1="95" x2="560" y2="95" stroke="#1f2933" marker-end="url(#a6)"/><text x="522" y="88" font-size="9.5">no</text>
+ <rect x="562" y="75" width="150" height="40" rx="5" fill="#e8f5ee" stroke="#0f8a5f"/><text x="637" y="92" text-anchor="middle" font-weight="bold">NEW: INSERT</text><text x="637" y="106" text-anchor="middle" font-size="9.5">one new warehouse row</text>
+</svg>
+<figcaption>Figure 9.1: How the PostgreSQL writer classifies every incoming order.</figcaption>
+</figure>
+<div class="box analogy"><span class="t">Analogy: a library returns desk</span>
+Someone returns a book. If its barcode is already in the "returned" list, you ignore it (retry duplicate). If it is a different barcode but the same title that you already hold, you keep the first and note the second in a "spare copies" list (source duplicate). Otherwise you shelve it (new).</div>
+<div class="box warn"><span class="t">Honest note about the real data</span>
+The real orders file contains <b>no</b> source duplicates (every <code>order_id</code> is unique). Source duplicates are demonstrated with a small controlled test file (Demo 3). Retry duplicates, however, occur for real: whenever the same orders are replayed (we did it on purpose: 99 + 199 + 295 + ... repeats), and every one was ignored.</div>
+
+<h2>9.5 A worked example: the Demo 3 test file</h2>
+<p>A tiny CSV in the <b>real orders schema</b> (<code>data/test_inputs/demo3_records.csv</code>, using a real customer) with three rows:</p>
+<table>
+<tr><th>Row</th><th>Order id</th><th>What is special</th><th>Expected and observed</th></tr>
+<tr><td>1</td><td><code>demo3_order_valid_001</code></td><td>valid</td><td>published and stored</td></tr>
+<tr><td>2</td><td><code>demo3_order_invalid_002</code></td><td>delivered on 2017-09-01, <b>before</b> the purchase on 2017-10-03</td><td>rejected: <code>RANGE_ERROR</code>, rule <code>delivered_not_before_purchase</code></td></tr>
+<tr><td>3</td><td><code>demo3_order_valid_001</code></td><td>exact copy of row 1</td><td>published (different <code>record_uid</code>); warehouse keeps row 1 and logs the copy as a source duplicate</td></tr>
+</table>
+<p>Real result of ingesting it <b>twice</b> (15 of 15 automated checks passed, <code>docs/evidence/05_data_quality/quality_idempotency_test.txt</code>):</p>
+<table>
+<tr><th>Layer</th><th>After 1st ingestion</th><th>After 2nd ingestion</th></tr>
+<tr><td>Kafka messages</td><td>2</td><td>4</td></tr>
+<tr><td>Parquet rows (distinct <code>record_uid</code>)</td><td>2 (2)</td><td>4 (2)</td></tr>
+<tr><td>PostgreSQL <code>core.orders</code></td><td><b>1</b></td><td><b>1</b></td></tr>
+<tr><td><code>core.duplicate_records</code></td><td>1</td><td>1 (not logged twice)</td></tr>
+<tr><td>2nd Spark batch result</td><td colspan="2"><code>retry_duplicates: 2, inserted: 0, source_duplicates: 0</code></td></tr>
+</table>
+<div class="box why"><span class="t">A bug this test found before it happened</span>
+While designing this test we noticed that a discarded copy is <i>not</i> in <code>core.orders</code>, so re-ingesting it would have been logged as a brand-new source duplicate every time. We fixed the writer: a <code>record_uid</code> already present in <code>core.duplicate_records</code> now counts as a retry, and a unique index protects the table.</div>
+
+<h2>9.6 Parquet and PostgreSQL behave differently on purpose</h2>
+<table>
+<tr><th></th><th>Parquet (landing layer)</th><th>PostgreSQL (warehouse)</th></tr>
+<tr><td>Purpose</td><td>Keep everything Spark consumed, for audit and replay</td><td>One clean row per order for analytics</td></tr>
+<tr><td>A repeat arriving in a <i>later</i> batch</td><td><b>Kept</b> (append-only)</td><td>Ignored (<code>retry_duplicates</code>)</td></tr>
+<tr><td>A repeat inside the <i>same</i> batch</td><td>Removed (in-batch dedup)</td><td>(never arrives)</td></tr>
+<tr><td>"How many orders?"</td><td><code>count(DISTINCT record_uid)</code> = 99,427</td><td><code>count(*)</code> = 99,427</td></tr>
+<tr><td>Total rows today</td><td>100,120</td><td>99,427</td></tr>
+</table>
+<p>So Parquet can contain <b>more rows</b> than PostgreSQL, and the difference is exactly the repeats. Reconciliation (chapter 15) reports and explains it.</p>
+
+<h1>10. Stage 6: PostgreSQL (the warehouse)</h1>
+
+<h2>10.1 The structure</h2>
+<p>PostgreSQL holds two <b>schemas</b> (folders for tables): <code>core</code> (the real tables) and <code>analytics</code> (views, i.e. saved questions). Created by <code>sql/schema.sql</code> and <code>sql/analytics.sql</code> through <code>scripts/init_db.ps1</code>. This is <b>repeatable</b>: every statement is <code>CREATE ... IF NOT EXISTS</code> or <code>CREATE OR REPLACE</code>, so running it again never deletes data.</p>
+<table>
+<tr><th style="width:26%">Table</th><th>What it holds</th><th>Rows today</th></tr>
+<tr><td><code>core.orders</code></td><td><b>The warehouse</b>: one row per order, with all typed fields, USD value, provenance and the original columns as JSON.</td><td>99,427</td></tr>
+<tr><td><code>core.duplicate_records</code></td><td>Source-duplicate copies that were discarded.</td><td>0 (real data has none)</td></tr>
+<tr><td><code>core.dead_letter_records</code></td><td>Rejected records loaded from the dead-letter files.</td><td>26 lines for 14 distinct records</td></tr>
+<tr><td><code>core.ingestion_runs</code></td><td>One row per producer run (read, valid, rejected, published...).</td><td>5 production runs loaded</td></tr>
+<tr><td><code>core.api_cache</code>, <code>core.fx_rates</code></td><td>Raw API responses; one exchange rate per date.</td><td>8 responses; 544 dates</td></tr>
+<tr><td><code>core.order_items</code>, <code>order_reviews</code>, <code>dim_products</code>, <code>dim_sellers</code>, <code>geo_zip</code></td><td>Reference tables loaded in batch (not streamed).</td><td>112,650 / 99,224 / 32,951 / 3,095 / 19,010</td></tr>
+</table>
+
+<h2>10.2 The key table: <code>core.orders</code></h2>
+<ul>
+<li><b>Primary key</b> <code>record_uid</code>: no two rows may share it.</li>
+<li><b>Unique</b> <code>order_id</code>: the natural key, one row per order.</li>
+<li>Typed columns: timestamps are <code>TIMESTAMP</code>, money is <code>NUMERIC(12,2)</code> (exact decimals, never floating point), the zip prefix is <code>TEXT</code> to keep leading zeros (e.g. <code>01037</code>).</li>
+<li>Provenance columns: <code>source_file_sha256</code>, <code>source_row_number</code>, <code>ingest_run_id</code>, <code>kafka_partition</code>, <code>kafka_offset</code>, <code>processed_at</code>.</li>
+<li>API columns: <code>fx_rate_brl_usd</code>, <code>fx_match_type</code>, <code>payments_value_usd</code>, <code>api_endpoint</code>, <code>api_http_status</code>...</li>
+<li>Indexes on purchase time, state and status (they make the dashboard queries fast).</li>
+</ul>
+
+<h2>10.3 The safe write (<code>src/warehouse/load.py</code>)</h2>
+<p>For every micro-batch, Spark hands the rows to <code>upsert_orders()</code>, which runs <b>inside one transaction</b> (all-or-nothing):</p>
+<ol>
+<li>Copy the batch into a temporary <i>staging</i> table (it disappears at the end of the transaction).</li>
+<li>Find the <b>known</b> IDs: <code>record_uid</code>s already in <code>core.orders</code> or already logged in <code>core.duplicate_records</code> &#8658; these are <b>retry duplicates</b> (counted only).</li>
+<li>Among the rest, rank rows by <code>business_hash</code> and keep the first (lowest source row number).</li>
+<li>Log the others (or a copy of an order that is already stored) in <code>core.duplicate_records</code> as <b>source duplicates</b>.</li>
+<li><code>INSERT</code> the remaining first rows into <code>core.orders</code>.</li>
+</ol>
+<pre class="code"><span class="tag code">src/warehouse/load.py (the invariant that keeps us honest)</span>
+accounted = result["inserted"] + result["retry_duplicates"] + result["source_duplicates"]
+if accounted != result["attempted"]:      # should never happen; make it loud if it does
+    log.error("PostgreSQL batch %s: %d rows attempted but only %d accounted for", ...)</pre>
+<p>Every attempted row must be accounted for as exactly one of: inserted, retry, or source duplicate. (Seven integration tests on a real PostgreSQL check each case.) Database values are always passed as <b>parameters</b>, never pasted into SQL text (this prevents SQL injection).</p>
+<div class="box why"><span class="t">Why a transaction?</span>
+If something fails in the middle of a batch, the whole batch is rolled back: the database never contains "half a batch". Together with idempotency, re-running that batch later gives the correct result.</div>
+
+<h2>10.4 Reference loaders and run summaries</h2>
+<pre class="cmd"><span class="tag cmd">command</span>
+$py -m src.warehouse.load_reference                  # everything
+$py -m src.warehouse.load_reference --only runs dlq api    # selected parts</pre>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/07_postgresql/load_reference_run2.txt</span>
+products -> {'products_in_file': 32951, 'untranslated_category_rows': 623}
+sellers  -> {'sellers_in_file': 3095}
+items    -> {'order_items_in_file': 112650}
+reviews  -> {'reviews_in_file': 99224, 'repeated_review_id_order_id_pairs_skipped': 0}
+geo      -> {'geolocation_rows_read': 1000163, 'rows_outside_brazil_ignored': 42, 'zip_prefixes_loaded': 19010}
+runs     -> {'ingestion_run_files_seen': 13, 'runs_loaded': 3}
+dlq      -> {'dead_letter_records_loaded': 16, 'run_groups_replaced': 3}
+api      -> {'api_cache_files': 7, 'fx_rate_rows_seen': 786}</pre>
+<p>Running it a second time changed nothing (idempotent): products, sellers etc. use <code>ON CONFLICT DO NOTHING</code>; dead letters are replaced per run, never duplicated. The loader reads only runs of the production topic, so test and demo runs never pollute the real warehouse. The geolocation file (1,000,163 rows) is read in chunks and reduced to one average point per zip prefix (19,010 points).</p>
+
+<h2>10.5 The analytics views (<code>sql/analytics.sql</code>)</h2>
+<p>A <b>view</b> is a saved question. The dashboard just reads these views. Definitions used everywhere:</p>
+<ul>
+<li><b>Revenue</b> = <code>payments_value_total</code> (what customers paid, including freight and after vouchers).</li>
+<li><b>Delivery time</b> = delivered date &minus; purchase date (only for delivered orders).</li>
+<li><b>Late</b> = delivered after the promised (estimated) date.</li>
+<li><b>USD</b> = estimate (BRL &times; ECB rate of the purchase day).</li>
+</ul>
+<table>
+<tr><th>View</th><th>Answers</th><th>Real values</th></tr>
+<tr><td><code>revenue_summary</code></td><td>Totals</td><td>99,427 orders; revenue 16,006,744.62 BRL; items 13,589,748.34; freight 2,251,677.40; average order 160.99 BRL; USD estimate 4,768,687.37</td></tr>
+<tr><td><code>order_status_distribution</code></td><td>How many per status</td><td>delivered 96,470 (97.03 %); shipped 1,107; canceled 619; unavailable 609; invoiced 314; processing 301; created 5; approved 2</td></tr>
+<tr><td><code>orders_per_day</code>, <code>orders_per_month</code></td><td>Growth over time</td><td>2016-09: 4 orders &#8594; peak 2017-11: 7,543 orders (Black Friday month) &#8594; 2018-08: 6,512</td></tr>
+<tr><td><code>payment_type_mix</code></td><td>Orders using each payment type (an order can use several)</td><td>credit_card 76,492; boleto 19,784; voucher 3,866; debit_card 1,527; not_defined 3</td></tr>
+<tr><td><code>late_delivery_summary</code></td><td>Late rate</td><td>96,470 delivered; 7,826 late = <b>8.11 %</b>; average delivery 12.56 days</td></tr>
+<tr><td><code>delivery_time_by_month</code></td><td>Average and median days</td><td>e.g. 2018-08: avg 7.73, median 7.01 days</td></tr>
+<tr><td><code>orders_by_state</code></td><td>Where customers are</td><td>SP 41,738; RJ 12,849; MG 11,634; RS 5,465; PR 5,045</td></tr>
+<tr><td><code>top_product_categories</code></td><td>Best categories (English names)</td><td>bed_bath_table 11,115; health_beauty 9,668; sports_leisure 8,639</td></tr>
+<tr><td><code>review_score_distribution</code></td><td>Review scores 1-5</td><td>1 star: 11,419; 2: 3,151; 3: 8,178; 4: 19,142; <b>5 stars: 57,320</b></td></tr>
+<tr><td><code>api_enrichment_summary</code></td><td>API health on the data</td><td>99,427 enriched = 100 %; 24,112 on previous business day</td></tr>
+</table>
+<p>Sanity check that the numbers agree with the profile: delivered 96,470 = 96,478 &minus; 8 rejected; canceled 619 = 625 &minus; 6 rejected. The data was neither lost nor invented.</p>
+
+<h2>10.6 The quality checks on the stored data</h2>
+<pre class="cmd"><span class="tag cmd">command</span>
+docker cp sql\quality_checks.sql streampulse-postgres:/tmp/qc.sql
+docker exec streampulse-postgres psql -U streampulse -d streampulse -f /tmp/qc.sql</pre>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/07_postgresql/quality_checks_output.txt</span>
+ rows in core.orders    | 99427      distinct record_uid | 99427
+ distinct order_id      | 99427      distinct business_hash | 99427
+ status outside the allowed set         | 0
+ duplicate order_id (problem_rows)      | 0
+ delivery date but status not delivered | 0
+ delivered before purchase              | 0
+ negative amounts                       | 0
+ delivered without delivery date        | 0
+ orders without items (kept, count 0)   | 775        orders without payments (kept) | 1</pre>
+<p><b>Meaning:</b> the four counts are identical (one row per order); every problem count is zero; the 775 item-less orders and the 1 payment-less order are kept on purpose and reported.</p>

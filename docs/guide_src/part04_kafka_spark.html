@@ -1,0 +1,174 @@
+<h1>7. Stage 3: Kafka (the conveyor belt)</h1>
+
+<h2>7.1 What Kafka does for us</h2>
+<p>Without Kafka, the producer would have to hand data directly to Spark, and both would need to run at the same speed at the same time. Kafka sits in the middle and <b>stores</b> the messages. The producer can finish and go away; Spark can start later, stop, restart and continue from where it left off, because Kafka remembers every message and its position (offset).</p>
+
+<figure>
+<svg width="720" height="190" viewBox="0 0 720 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10.5">
+ <text x="10" y="18" font-weight="bold">Topic "ecommerce_orders" = 3 lanes (partitions). Each message has an offset (its position in its lane).</text>
+ <g font-size="10"><text x="10" y="52">Partition 0</text><text x="10" y="102">Partition 1</text><text x="10" y="152">Partition 2</text></g>
+ <g fill="#fff4e0" stroke="#b45309">
+  <rect x="85" y="35" width="44" height="26"/><rect x="131" y="35" width="44" height="26"/><rect x="177" y="35" width="44" height="26"/><rect x="223" y="35" width="44" height="26"/><rect x="269" y="35" width="44" height="26"/><rect x="315" y="35" width="44" height="26"/>
+  <rect x="85" y="85" width="44" height="26"/><rect x="131" y="85" width="44" height="26"/><rect x="177" y="85" width="44" height="26"/><rect x="223" y="85" width="44" height="26"/><rect x="269" y="85" width="44" height="26"/>
+  <rect x="85" y="135" width="44" height="26"/><rect x="131" y="135" width="44" height="26"/><rect x="177" y="135" width="44" height="26"/><rect x="223" y="135" width="44" height="26"/>
+ </g>
+ <g text-anchor="middle" font-size="9.5"><text x="107" y="52">0</text><text x="153" y="52">1</text><text x="199" y="52">2</text><text x="245" y="52">3</text><text x="291" y="52">4</text><text x="337" y="52">5</text><text x="107" y="102">0</text><text x="153" y="102">1</text><text x="199" y="102">2</text><text x="245" y="102">3</text><text x="291" y="102">4</text><text x="107" y="152">0</text><text x="153" y="152">1</text><text x="199" y="152">2</text><text x="245" y="152">3</text></g>
+ <text x="372" y="52" font-size="10" fill="#5b6770">... up to offset 33,229 (partition 0, after the full run)</text>
+ <text x="330" y="102" font-size="10" fill="#5b6770">... up to offset 33,296</text><text x="290" y="152" font-size="10" fill="#5b6770">... up to offset 32,998</text>
+ <text x="10" y="182" font-size="10" fill="#0b5cad">key = hash(order_id) decides the lane. The same key always goes to the same lane, in order.</text>
+</svg>
+<figcaption>Figure 7.1: One topic, three partitions, each message numbered by offset. (Counts are the real offsets after the full run.)</figcaption>
+</figure>
+
+<h2>7.2 How the topic is created and kept healthy</h2>
+<ul>
+<li><code>docker-compose.yml</code> starts Kafka (image <code>apache/kafka:4.1.0</code>, "KRaft" mode: no extra ZooKeeper server).</li>
+<li>A <b>healthcheck</b> asks the broker for its API versions every 10 seconds; "healthy" means it answers.</li>
+<li>A one-shot service <code>kafka-init</code> then creates the topic explicitly: <code>--partitions 3 --replication-factor 1</code>.</li>
+<li>Replication factor 1 = one copy of each message (we have one broker). In production you would use at least 3.</li>
+<li>Kafka keeps messages for about 7 days by default. After that you would simply replay again (safe, because replays are idempotent).</li>
+</ul>
+
+<h2>7.2b Why the key is <code>order_id</code> (a decision measured, not guessed)</h2>
+<p>The key decides how evenly work is shared. Before publishing we computed (offline, using Kafka's own hash formula) how three candidate keys would spread the real orders:</p>
+<table>
+<tr><th>Key</th><th>Lane 0</th><th>Lane 1</th><th>Lane 2</th><th>Verdict</th></tr>
+<tr><td><b><code>order_id</code></b> (99,441 different values)</td><td>33.4 %</td><td>33.4 %</td><td>33.2 %</td><td><b>Even. Chosen.</b></td></tr>
+<tr><td><code>customer_id</code></td><td>33.2 %</td><td>33.4 %</td><td>33.3 %</td><td>Even too, but no benefit.</td></tr>
+<tr><td><code>customer_state</code> (only 27 values)</td><td>22.2 %</td><td><b>66.9 %</b></td><td>10.9 %</td><td>Badly skewed (São Paulo alone is 42 % of orders).</td></tr>
+</table>
+<p>Then, after the real run, we <b>measured on the broker</b> (not just on paper):</p>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/03_kafka/partition_counts_after_full_run.txt</span>
+ecommerce_orders  partition 0: start_offset=0 end_offset=33230 messages=33230
+ecommerce_orders  partition 1: start_offset=0 end_offset=33297 messages=33297
+ecommerce_orders  partition 2: start_offset=0 end_offset=32999 messages=32999</pre>
+<p>(These include the 99 messages of an earlier 100-order test run; the full run itself added 33,199 + 33,255 + 32,973 = 99,427, exactly what the producer's delivery callbacks reported.)</p>
+<div class="box why"><span class="t">Why does order matter inside one lane?</span>
+Kafka only promises order <i>within</i> a partition. Each order is an independent event, so we do not need orders of <i>different</i> customers in sequence. We just need an even spread, so <code>order_id</code> is perfect. If we had needed "all events of one customer in order", we would have keyed by customer.</div>
+
+<h2>7.3 Commands to look at Kafka</h2>
+<pre class="cmd"><span class="tag cmd">commands</span>
+.\scripts\kafka_describe_topic.ps1                 # shape of the topic
+.\scripts\kafka_partition_counts.ps1               # MEASURED messages per partition
+.\scripts\kafka_consume_n.ps1 -Count 1 -Partition 0   # read one real message</pre>
+<pre class="real"><span class="tag real">real output &middot; kafka_describe_topic.ps1</span>
+Topic: ecommerce_orders  PartitionCount: 3  ReplicationFactor: 1  Configs: min.insync.replicas=1
+  Partition: 0  Leader: 1  Replicas: 1  Isr: 1
+  Partition: 1  Leader: 1  Replicas: 1  Isr: 1
+  Partition: 2  Leader: 1  Replicas: 1  Isr: 1</pre>
+<p><b>Meaning:</b> three lanes; the "leader" of each is broker number 1 (our only broker); "Isr" = in-sync replicas (the copies that are up to date).</p>
+
+<h1>8. Stage 4: Spark Structured Streaming (the processing engine)</h1>
+
+<h2>8.1 Why it runs in Docker</h2>
+<p>On Windows, Spark needs a helper program <code>winutils.exe</code> to write files. When we first ran Spark on the host it crashed at start-up: <code>HADOOP_HOME and hadoop.home.dir are unset</code> (real log: <code>docs/evidence/00_environment/spark_baseline_existing_stream.txt</code>). The only fix is downloading an unofficial executable, which our rules forbid. So Spark runs in a small <b>Linux container</b> (<code>docker/spark/Dockerfile</code>), reading Kafka through its internal address and writing to the shared <code>data/</code> folder. Bonus: it works identically on any computer.</p>
+
+<h2>8.2 The big idea: process the stream as many small batches</h2>
+<figure>
+<svg width="730" height="170" viewBox="0 0 730 170" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10.5">
+ <defs><marker id="a5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker></defs>
+ <rect x="5" y="30" width="110" height="80" rx="6" fill="#fff4e0" stroke="#b45309"/><text x="60" y="55" text-anchor="middle" font-weight="bold">Kafka</text><text x="60" y="72" text-anchor="middle" font-size="9.5">new messages</text><text x="60" y="85" text-anchor="middle" font-size="9.5">since last offsets</text>
+ <rect x="150" y="20" width="400" height="104" rx="6" fill="#f1f8f4" stroke="#0f8a5f" stroke-dasharray="5 3"/><text x="350" y="38" text-anchor="middle" font-weight="bold" fill="#0f8a5f">one micro-batch (process_batch)</text>
+ <g fill="#fff" stroke="#0f8a5f"><rect x="160" y="48" width="70" height="60" rx="4"/><rect x="236" y="48" width="70" height="60" rx="4"/><rect x="312" y="48" width="70" height="60" rx="4"/><rect x="388" y="48" width="70" height="60" rx="4"/><rect x="464" y="48" width="78" height="60" rx="4"/></g>
+ <g text-anchor="middle" font-size="9.5"><text x="195" y="70">1 parse</text><text x="195" y="83">JSON</text><text x="271" y="70">2 split</text><text x="271" y="83">valid / bad</text><text x="347" y="70">3 remove</text><text x="347" y="83">in-batch dups</text><text x="423" y="70">4 write</text><text x="423" y="83">Parquet</text><text x="503" y="70">5 upsert</text><text x="503" y="83">PostgreSQL</text></g>
+ <rect x="585" y="30" width="140" height="80" rx="6" fill="#e8eff7" stroke="#0b5cad"/><text x="655" y="55" text-anchor="middle" font-weight="bold">Checkpoint</text><text x="655" y="72" text-anchor="middle" font-size="9.5">"batch N done,</text><text x="655" y="85" text-anchor="middle" font-size="9.5">next offsets are ..."</text>
+ <line x1="117" y1="70" x2="148" y2="70" stroke="#1f2933" marker-end="url(#a5)"/><line x1="552" y1="70" x2="583" y2="70" stroke="#1f2933" marker-end="url(#a5)"/>
+ <text x="365" y="150" text-anchor="middle" font-size="10" fill="#5b6770">repeat: every trigger (e.g. 5 seconds) or until no data is left (availableNow). Up to 10,000 messages per micro-batch.</text>
+</svg>
+<figcaption>Figure 8.1: One micro-batch. Only after all steps finish is the batch "committed" in the checkpoint.</figcaption>
+</figure>
+
+<h2>8.3 The files</h2>
+<table>
+<tr><th style="width:28%">File</th><th>Role</th></tr>
+<tr><td><code>src/streaming/order_stream.py</code></td><td>The job: reads Kafka, calls <code>process_batch</code> for each micro-batch, handles stopping.</td></tr>
+<tr><td><code>src/streaming/transforms.py</code></td><td>Pure DataFrame functions (parse, split, flatten, dedup). Pure = easy to test on small tables.</td></tr>
+<tr><td><code>scripts/run_stream.ps1</code>, <code>stop_stream.ps1</code></td><td>Start and safely stop the container job.</td></tr>
+</table>
+
+<h2>8.4 What happens inside one batch, step by step</h2>
+<ol>
+<li><b>Parse.</b> The Kafka message value is bytes. It is converted to text and parsed with <code>from_json</code> using a schema <b>generated from the same mapping file</b> the producer used. The Kafka position (partition, offset) is kept.</li>
+<li><b>Split valid / invalid.</b> A message is invalid if it is not valid JSON (<code>MALFORMED_JSON</code>) or lacks <code>record_uid</code> / <code>order_id</code> (<code>SCHEMA_MISMATCH</code>). Invalid ones are written to <code>data/dead_letter/stream/</code> with the original text. (They do <b>not</b> crash the job.)</li>
+<li><b>Flatten.</b> The nested envelope becomes one flat row: envelope fields, typed order fields (timestamps become real timestamps), USD enrichment, original source columns as JSON text, Kafka partition and offset.</li>
+<li><b>Remove duplicates inside the batch.</b> If the same <code>record_uid</code> appears twice in this batch, keep the one with the smallest Kafka position.</li>
+<li><b>Write Parquet.</b> Into its own folder <code>data/processed/parquet/batch_id=00000007/</code>. If the same batch is ever run again, it overwrites <b>its own folder only</b>.</li>
+<li><b>Upsert into PostgreSQL</b> (chapter 10) inside one database transaction.</li>
+<li><b>Log counts.</b> One summary line is logged and appended to <code>data/processed/spark_batches/orders.jsonl</code>.</li>
+</ol>
+<p>Spark then writes "batch done" into the checkpoint. Real summary of the very first production batch:</p>
+<pre class="real"><span class="tag real">real output &middot; data/processed/spark_batches/orders.jsonl (first line)</span>
+{"batch_id": 0, "input_rows": 9998, "valid_rows": 9998, "invalid_rows": 0, "in_batch_duplicates": 99,
+ "parquet_rows_written": 9899,
+ "postgres": {"attempted": 9899, "inserted": 9899, "retry_duplicates": 0, "source_duplicates": 0, "batch_id": 0},
+ "offsets": [{"partition": 0, "first_offset": 0, "last_offset": 3337},
+             {"partition": 1, "first_offset": 0, "last_offset": 3344},
+             {"partition": 2, "first_offset": 0, "last_offset": 3314}], "seconds": 24.27}</pre>
+<table>
+<tr><th style="width:28%">Field</th><th>Meaning (for this real batch)</th></tr>
+<tr><td><code>input_rows: 9998</code></td><td>Spark read 9,998 messages from Kafka (the limit per batch is 10,000).</td></tr>
+<tr><td><code>valid_rows: 9998, invalid_rows: 0</code></td><td>All parseable and complete.</td></tr>
+<tr><td><code>in_batch_duplicates: 99</code></td><td>99 messages repeated a <code>record_uid</code> already in this batch (the first 99 orders had been sent twice: once in a 100-order test run, once in the full run).</td></tr>
+<tr><td><code>parquet_rows_written: 9899</code></td><td>9,998 &minus; 99 = 9,899 rows written.</td></tr>
+<tr><td><code>postgres.inserted: 9899</code></td><td>All 9,899 were new to the warehouse. (<code>retry_duplicates</code> and <code>source_duplicates</code> were 0.)</td></tr>
+<tr><td><code>offsets</code></td><td>Which Kafka positions this batch covered. The next batch starts right after these.</td></tr>
+<tr><td><code>seconds: 24.27</code></td><td>The first batch is slow (Spark warm-up); later ones took 5-8 seconds.</td></tr>
+</table>
+<p>All 10 batches of the first full pass processed <b>99,526 messages</b> (99,427 unique orders plus 99 repeats).</p>
+
+<h2>8.5 The checkpoint (Spark's progress notebook)</h2>
+<pre class="real"><span class="tag real">real folder &middot; data/checkpoints/orders  (never delete this by hand)</span>
+commits/   0 1 2 3 ... 13     one tiny file per FINISHED batch
+offsets/   0 1 2 3 ... 13     which Kafka offsets each batch was PLANNED to read
+metadata                      the id of this streaming query
+sources/                      bookkeeping for the Kafka source
+
+offsets/0  last line:  {"ecommerce_orders":{"0":3338,"1":3345,"2":3315}}</pre>
+<p><b>How to read it:</b> after batch 0 the notebook says "next time start reading partition 0 at offset 3338, partition 1 at 3345, partition 2 at 3315". If Spark is stopped and started again with the same checkpoint, it reads this and continues exactly there. A batch has an <code>offsets</code> file when it is <i>planned</i> and a <code>commits</code> file when it is <i>finished</i>. If a batch is planned but not committed (a crash), it is simply <b>run again</b> after the restart. That is safe only because our writes are idempotent.</p>
+<div class="box analogy"><span class="t">Analogy: a bookmark</span>
+The checkpoint is a bookmark in a long book (Kafka). If you close the book (stop Spark), you do not start from page 1 again: you open it at the bookmark.</div>
+<div class="box bad"><span class="t">Never delete the checkpoint to "fix" something</span>
+Without it, Spark would re-read the topic from the beginning (we set <code>startingOffsets=earliest</code> for the first run only). Our scripts that clean up demos are restricted to demo folders and can never touch <code>data/checkpoints/orders</code>.</div>
+
+<h2>8.6 Triggers and limits</h2>
+<table>
+<tr><th>Setting</th><th>Meaning</th></tr>
+<tr><td><code>--trigger "5 seconds"</code> (default)</td><td>Check for new data every 5 seconds, forever, until stopped. Used for the live-style demo.</td></tr>
+<tr><td><code>--trigger availableNow</code></td><td>Process everything waiting in Kafka in as many batches as needed, then <b>stop by itself</b>. Used by Airflow, tests and most demos (a finite task).</td></tr>
+<tr><td><code>--max-offsets-per-trigger N</code></td><td>Cap on messages per batch (default 10,000). Small values (500) are used in recovery tests to create many batches.</td></tr>
+<tr><td><code>--starting-offsets earliest</code></td><td>Only for the very first run; later runs always continue from the checkpoint.</td></tr>
+</table>
+
+<h2>8.7 Stopping safely (a real engineering story)</h2>
+<p>Spark has no official "stop between two micro-batches" button. The obvious approach, calling <code>query.stop()</code>, interrupts Spark's thread at <i>any</i> moment, even the instant a batch starts. In our end-to-end test this caused an <b>intermittent failure</b>: an <code>InterruptedException</code> inside a running batch. The data was still correct (the other 17 checks passed) because writes are idempotent, but a "graceful stop" that sometimes is not graceful is not good enough.</p>
+<p>The fix is a small protocol (<code>order_stream.py</code>):</p>
+<pre class="code"><span class="tag code">src/streaming/order_stream.py (simplified)</span>
+STATE = {"in_batch": False, "stopping": False}
+
+def process_batch(batch_df, batch_id):
+    STATE["in_batch"] = True              # 1) say "I am in a batch" FIRST ...
+    if STATE["stopping"]:                 # 2) ... then look whether a stop was requested
+        STATE["in_batch"] = False
+        raise StopRequested("batch was not started and will run after the restart")
+    ... do the real work ...
+
+# main loop, when the stop file appears:
+STATE["stopping"] = True                  # a batch that starts from now on refuses to start
+wait until STATE["in_batch"] is False     # a running batch finishes normally
+if the query is still active (idle): query.stop()</pre>
+<p>Because "in batch" is set before the stop flag is read, there is no gap: either the batch sees the stop request and does <b>nothing</b>, or the stopper sees the batch running and waits for it. A batch can therefore never be interrupted while it is writing. The refused batch makes Spark log an error block that contains the word <code>StopRequested</code>; this is the <b>expected signature</b>, followed by the line <code>STOPPED_AT_BATCH_BOUNDARY</code>. After the change, three consecutive recovery runs passed 18 of 18 checks, and the final end-to-end run passed.</p>
+<div class="box warn"><span class="t">What you will see in the demo</span>
+When you stop Spark, the log may show <code>ERROR</code> lines and a traceback ending with <code>StopRequested: stop requested: batch 3 was not started and will run after the restart</code>. Do not panic: that is the deliberate safe stop. A real problem would <b>not</b> contain <code>StopRequested</code>.</div>
+
+<h2>8.8 Commands for Spark</h2>
+<pre class="cmd"><span class="tag cmd">commands</span>
+.\scripts\run_stream.ps1 -Trigger availableNow     # finite run: process the backlog, then exit
+.\scripts\run_stream.ps1                           # continuous run (stays open)
+.\scripts\stop_stream.ps1                          # ask a running stream to stop safely
+$py scripts\parquet_readback.py                    # read the Parquet files back (works on Windows)</pre>
+<pre class="real"><span class="tag real">real output &middot; run_stream.ps1 -Trigger availableNow (re-ingesting 199 orders)</span>
+... INFO order_stream BATCH_SUMMARY {"batch_id": 10, "input_rows": 199, "valid_rows": 199, "invalid_rows": 0,
+    "in_batch_duplicates": 0, "parquet_rows_written": 199,
+    "postgres": {"attempted": 199, "inserted": 0, "retry_duplicates": 199, "source_duplicates": 0, ...
+... INFO order_stream Stream stopped.</pre>
+<p><b>Meaning:</b> 199 messages arrived in batch 10 (it continued from the checkpoint: batch ids are never reused). <b>None were inserted</b>: all 199 were recognised as repeats already in the warehouse. The warehouse still had 99,427 rows. This is idempotency, proved on real data (chapter 16).</p>

@@ -1,0 +1,190 @@
+<h1>5. Stage 1: The Python producer (from CSV rows to Kafka messages)</h1>
+<p>File: <code>src/producer/dataset_producer.py</code>. This is the program you run to start the flow. It does eight things for every order. Follow one real order through them.</p>
+
+<h2>5.1 Our example order</h2>
+<p>The very first order in replay order (it was the first message Kafka stored in partition 0). Real values from <code>docs/evidence/03_kafka/consume_sample_messages.txt</code>:</p>
+<table>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>order_id</td><td><code>2e7a8482f6fb09756ca50c10d7bfc047</code></td></tr>
+<tr><td>status</td><td>shipped</td></tr>
+<tr><td>purchase / approved / carrier</td><td>2016-09-04 21:15:19 / 2016-10-07 13:18:03 / 2016-10-18 13:14:51</td></tr>
+<tr><td>delivered to customer</td><td>(empty: not delivered yet, perfectly valid)</td></tr>
+<tr><td>customer</td><td>boa vista, state RR</td></tr>
+<tr><td>items</td><td>2 items, total price 72.89, freight 63.34</td></tr>
+<tr><td>payment</td><td>1 payment by credit card, total 136.23 BRL</td></tr>
+</table>
+
+<h2>5.2 The eight steps</h2>
+<figure>
+<svg width="730" height="150" viewBox="0 0 730 150" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial" font-size="10.5">
+ <defs><marker id="a4" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1f2933"/></marker></defs>
+ <g fill="#e8eff7" stroke="#0b5cad"><rect x="5" y="20" width="82" height="62" rx="5"/><rect x="95" y="20" width="82" height="62" rx="5"/><rect x="185" y="20" width="82" height="62" rx="5"/><rect x="275" y="20" width="82" height="62" rx="5"/><rect x="365" y="20" width="82" height="62" rx="5"/><rect x="455" y="20" width="82" height="62" rx="5"/><rect x="545" y="20" width="82" height="62" rx="5"/><rect x="635" y="20" width="85" height="62" rx="5"/></g>
+ <g text-anchor="middle" font-weight="bold"><text x="46" y="40">1 Read</text><text x="136" y="40">2 Join</text><text x="226" y="40">3 Map types</text><text x="316" y="40">4 Validate</text><text x="406" y="40">5 Enrich</text><text x="496" y="40">6 Envelope</text><text x="586" y="40">7 Publish</text><text x="677" y="40">8 Summary</text></g>
+ <g text-anchor="middle" font-size="9"><text x="46" y="56">CSV file</text><text x="46" y="68">+ SHA-256</text><text x="136" y="56">orders +</text><text x="136" y="68">3 tables</text><text x="226" y="56">text &#8594; numbers,</text><text x="226" y="68">ISO dates</text><text x="316" y="56">rules; bad row</text><text x="316" y="68">&#8594; dead letter</text><text x="406" y="56">USD rate of</text><text x="406" y="68">purchase day</text><text x="496" y="56">record_uid,</text><text x="496" y="68">payload, raw</text><text x="586" y="56">key=order_id</text><text x="586" y="68">acks=all</text><text x="677" y="56">JSON file of</text><text x="677" y="68">all counts</text></g>
+ <g stroke="#1f2933"><line x1="88" y1="51" x2="94" y2="51" marker-end="url(#a4)"/><line x1="178" y1="51" x2="184" y2="51" marker-end="url(#a4)"/><line x1="268" y1="51" x2="274" y2="51" marker-end="url(#a4)"/><line x1="358" y1="51" x2="364" y2="51" marker-end="url(#a4)"/><line x1="448" y1="51" x2="454" y2="51" marker-end="url(#a4)"/><line x1="538" y1="51" x2="544" y2="51" marker-end="url(#a4)"/><line x1="628" y1="51" x2="634" y2="51" marker-end="url(#a4)"/></g>
+ <text x="365" y="115" text-anchor="middle" font-size="10" fill="#b42318">Step 4 can reject the row: it is written to data/dead_letter/ingest/&lt;run&gt;.jsonl with a reason, never silently dropped.</text>
+ <text x="365" y="132" text-anchor="middle" font-size="10" fill="#5b6770">Step 8 also records counts: read = valid + rejected;  published = valid;  failed publishes = 0.</text>
+</svg>
+<figcaption>Figure 5.1: What the producer does to every order.</figcaption>
+</figure>
+
+<h3>Step 1: read and fingerprint</h3>
+<p>The orders file is opened and its SHA-256 fingerprint is computed. That fingerprint is used to create the record's identity (step 6).</p>
+
+<h3>Step 2: join</h3>
+<p>Explained in chapter 3 (<code>build_order_rows</code>). Result: one row per order with customer city/state and the item/payment totals.</p>
+
+<h3>Step 3: map and convert types (<code>config/field_mapping.yaml</code>, <code>src/common/mapping.py</code>)</h3>
+<p>CSV values are all <i>text</i>. A <b>mapping file</b> says, for every field: which source column it comes from, its new name, its type, and whether it is required. Excerpt:</p>
+<pre class="code"><span class="tag code">config/field_mapping.yaml</span>
+  - {source_column: order_purchase_timestamp,      canonical_name: purchase_ts,           type: timestamp, required: true,  origin: orders}
+  - {source_column: order_delivered_customer_date, canonical_name: delivered_customer_ts, type: timestamp, required: false, origin: orders}
+  - {source_column: items_count,                   canonical_name: items_count,           type: int,       required: true,  origin: order_items}</pre>
+<p><code>apply_mapping()</code> converts each value (text &#8594; number, text &#8594; ISO timestamp such as <code>2016-09-04T21:15:19</code>) and returns <b>either a clean record or a list of errors</b>. It never crashes on bad data; it reports it. Error codes: <code>MISSING_REQUIRED</code> (a required value is empty) and <code>TYPE_ERROR</code> (e.g. "abc" where a number is needed).</p>
+<div class="box why"><span class="t">Why a mapping file and not hard-coded names?</span>
+Rule 7 of the project: <i>never assume column names</i>. The mapping file is built from the real profiled columns, so it can be read, reviewed, and changed without touching code. Spark even builds its message schema from the same file, so producer and consumer can never disagree.</div>
+
+<h3>Step 4: validate (<code>config/quality_rules.yaml</code>, <code>src/processing/validators.py</code>)</h3>
+<p>Nine rules check the order (chapter 9 explains each). If any <i>reject</i> rule fires, the order goes to the dead-letter file with the reason and is <b>not</b> published. The single function <code>classify_record()</code> decides this; the reconciliation script calls the same function, so the two can never disagree.</p>
+
+<h3>Step 5: enrich with the API</h3>
+<p>Chapter 6. Before the loop starts, the producer asks the API <b>once</b> for the BRL&#8594;USD rates of the whole date range, then looks up each order's purchase date in that table. If the API is down the producer logs a warning and continues without enrichment (it never stops the ingestion).</p>
+
+<h3>Step 6: build the envelope (the message)</h3>
+<p>A Kafka message is a standard "envelope" around the order. Real message consumed from Kafka (shortened with "..." only where long):</p>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/03_kafka/consume_sample_messages.txt</span>
+{
+  "schema_version": "1.0",
+  "record_uid": "fc6fdc70c71fd67c6611ac15899fad76",
+  "business_hash": "35d18ab7f8edeb353e6f06b79181cbfb",
+  "source_category": "kafka_replayed",
+  "source_file": "olist_orders_dataset.csv",
+  "source_file_sha256": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf",
+  "source_row_number": 4542,
+  "ingest_run_id": "limited-100",
+  "ingested_at": "2026-10-15T16:38:02.702715+00:00",
+  "payload": { "order_id": "2e7a8482...c047", "order_status": "shipped",
+               "purchase_ts": "2016-09-04T21:15:19", "delivered_customer_ts": null,
+               "customer_city": "boa vista", "customer_state": "RR",
+               "items_count": 2, "items_price_total": 72.89, "items_freight_total": 63.34,
+               "payments_count": 1, "payments_value_total": 136.23, "payment_types": "credit_card", ... },
+  "raw": { "order_id": "...", "order_purchase_timestamp": "2016-09-04 21:15:19", ... original source columns ... },
+  "api_enrichment": { "fx_rate_brl_usd": 0.30625, "fx_rate_date": "2016-09-02",
+                      "fx_match_type": "previous_business_day", "payments_value_usd": 41.72,
+                      "api_source_name": "frankfurter-ecb", "api_http_status": 200, ... }
+}</pre>
+<table>
+<tr><th style="width:24%">Field</th><th>Meaning</th></tr>
+<tr><td><code>record_uid</code></td><td>The <b>identity of this record</b>: a hash of (file fingerprint + row number). Same file + same row &#8658; same ID, always. This is what makes repeats recognisable.</td></tr>
+<tr><td><code>business_hash</code></td><td>A hash of the natural key <code>order_id</code>. Two different rows with the same business hash are about the <i>same order</i> (a source duplicate).</td></tr>
+<tr><td><code>source_category</code></td><td><code>kafka_replayed</code>: honest label that this was replayed, not live.</td></tr>
+<tr><td><code>source_file_sha256</code>, <code>source_row_number</code></td><td>Provenance: exactly which file and row it came from.</td></tr>
+<tr><td><code>ingest_run_id</code></td><td>Which execution of the producer sent it (e.g. <code>limited-100</code>, <code>full-run-01</code>).</td></tr>
+<tr><td><code>payload</code></td><td>The clean, typed order (what the warehouse stores).</td></tr>
+<tr><td><code>raw</code></td><td>The original source values, preserved (never lose the original).</td></tr>
+<tr><td><code>api_enrichment</code></td><td>The USD value and the API provenance (endpoint, time, HTTP status).</td></tr>
+</table>
+<pre class="code"><span class="tag code">src/producer/dataset_producer.py</span>
+def make_record_uid(file_sha256_value: str, row_number: int) -> str:
+    """Same file + same row => same ID, so a re-run can be recognised downstream."""
+    return hashlib.sha256(f"{file_sha256_value}:{row_number}".encode()).hexdigest()[:32]
+
+def make_business_hash(order_id: str) -> str:
+    """order_id is a verified natural key (no duplicates in the real orders file)."""
+    return hashlib.sha256(f"order_id:{order_id}".encode()).hexdigest()[:32]</pre>
+<div class="box analogy"><span class="t">Analogy: two kinds of ID</span>
+<code>record_uid</code> is like the <i>serial number of one photocopy</i> (this file, this row). <code>business_hash</code> is like the <i>title of the document</i>. Two photocopies of the same page have different serial numbers (different record_uid) but the same title (same business_hash).</div>
+
+<h3>Step 7: publish to Kafka</h3>
+<pre class="code"><span class="tag code">producer settings (create_producer)</span>
+acks="all"               # wait until the broker confirms the write is safely stored
+enable_idempotence=True  # the broker ignores duplicates caused by the producer's own retries
+retries=5, retry_backoff_ms=200
+linger_ms=20, batch_size=64*1024, compression_type="gzip"   # send in efficient batches
+key = order_id           # decides the partition
+headers = ingest_run_id, schema_version</pre>
+<p>Each send returns a "future". Two small callbacks count <b>successes</b> (and which partition got the message) and <b>failures</b>. Every 500 valid records the producer calls <code>flush()</code> and logs progress. <code>Ctrl+C</code> is handled: it flushes what was already sent and still writes the summary.</p>
+
+<h3>Step 8: the run summary</h3>
+<p>At the end a JSON file is written to <code>data/processed/ingestion_runs/&lt;run_id&gt;.json</code>. This is the proof that nothing was lost. The real full run:</p>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/03_kafka/producer_full_run.txt</span>
+"status": "completed",   "mode": "full",
+"rows_read": 99441,      "rows_valid": 99427,     "rows_rejected": 14,
+"rows_published": 99427, "rows_publish_failed": 0,
+"rows_enriched": 99427,  "rows_not_enriched": 0,  "source_duplicates_in_input": 0,
+"partition_counts_from_delivery_callbacks": { "0": 33199, "1": 33255, "2": 32973 }</pre>
+<p><b>How to read it:</b> 99,441 rows were read; 99,427 passed the checks; 14 were rejected (and stored); all 99,427 were delivered to Kafka with zero failures; every one received a USD value. The three partition numbers add up to 99,427. This took about 100 seconds.</p>
+
+<h2>5.3 The command-line switches</h2>
+<table>
+<tr><th>Switch</th><th>Meaning</th></tr>
+<tr><td><code>--limit N</code></td><td>Send only the first N orders (in replay order).</td></tr>
+<tr><td><code>--full</code></td><td>Send everything. <b>Required on purpose</b>: the program refuses to start unless you pick <code>--limit</code> or <code>--full</code>, so a 100,000-message run can never start by accident.</td></tr>
+<tr><td><code>--dry-run</code></td><td>Do all checks and counting but publish nothing.</td></tr>
+<tr><td><code>--skip N</code></td><td>Skip the first N orders (used to make non-overlapping test slices).</td></tr>
+<tr><td><code>--run-id NAME</code></td><td>Give this execution a name (used in logs, files and the database).</td></tr>
+<tr><td><code>--rate R</code></td><td>Records per second (0 = as fast as possible).</td></tr>
+<tr><td><code>--input FILE</code>, <code>--topic T</code>, <code>--bootstrap HOST</code></td><td>Use another orders-shaped CSV, another topic, another broker (used for demos and tests).</td></tr>
+<tr><td><code>--no-enrich</code></td><td>Skip the API step.</td></tr>
+<tr><td><code>--key-field F</code></td><td>Which field is the Kafka key (default <code>order_id</code>).</td></tr>
+</table>
+
+<h1>6. Stage 2: The real external API (Frankfurter)</h1>
+<h2>6.1 What and why</h2>
+<p>Every order has a <b>money value in Brazilian reais (BRL)</b> and a <b>purchase date</b>. The <b>Frankfurter</b> service publishes official European Central Bank exchange rates for past dates. So we can add: <i>"what was this order worth in US dollars on the day it was bought?"</i></p>
+<div class="box why"><span class="t">Why this API?</span>
+The professor did not name an API (the file <code>docs/inputs/api_info.md</code> does not exist), so we chose one that matches the real columns. Frankfurter needs <b>no key</b>, has <b>no quota</b>, and <b>one request</b> returns about 544 daily rates for the whole 2016-2018 period. A weather API would have needed thousands of calls. Important honesty: <b>public APIs do not contain Olist orders.</b> This API provides reference data, and that is its role.</div>
+
+<h2>6.2 The request</h2>
+<pre class="cmd"><span class="tag cmd">command</span>
+$py scripts\api_demo_call.py --sample --no-cache</pre>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/02_api/api_real_request.txt</span>
+Provider : Frankfurter (ECB reference rates), docs https://frankfurter.dev
+Request  : BRL -> USD, 2017-10-02 to 2017-10-08
+Retrieved: 2026-10-15T16:30:20.762754+00:00
+URL      : https://api.frankfurter.dev/v2/providers/ecb/rates?base=BRL&amp;quotes=USD&amp;from=2017-10-02&amp;to=2017-10-08
+HTTP     : 200   (served from local cache: False)
+Rows     : 5
+    {"date": "2017-10-02", "base": "BRL", "quote": "USD", "rate": 0.31507}
+Enrichment on sample purchase dates:
+   2017-10-07 -> (0.31641, '2017-10-06', 'previous_business_day')</pre>
+<p><b>Reading it:</b> HTTP <b>200</b> means "OK, here is your data". 1 BRL was worth 0.31507 USD on 2 October 2017. 2017-10-07 was a Saturday and the ECB publishes no weekend rates, so the program used Friday's rate and labelled it <code>previous_business_day</code>.</p>
+
+<h2>6.3 How the client protects us (<code>src/api/client.py</code>)</h2>
+<table>
+<tr><th style="width:24%">Feature</th><th>What it does</th><th>Why</th></tr>
+<tr><td>Timeouts</td><td>5 s to connect, 30 s to read.</td><td>Never wait forever.</td></tr>
+<tr><td>Retry with exponential backoff</td><td>Up to 4 retries on timeouts, network errors, HTTP 429 and 5xx, waiting 1 s, 2 s, 4 s...; obeys a <code>Retry-After</code> header.</td><td>Temporary problems fix themselves; a client must be polite when the server is busy.</td></tr>
+<tr><td>No retry on other 4xx</td><td>A "bad request" (e.g. unknown currency) fails immediately.</td><td>Retrying cannot fix it.</td></tr>
+<tr><td>Throttle</td><td>At least 0.5 s between calls.</td><td>Respect the provider's rate limit.</td></tr>
+<tr><td>Schema validation</td><td>The answer must be a non-empty list of <code>{date, base, quote, rate}</code> with a positive number.</td><td>Never trust an external answer blindly.</td></tr>
+<tr><td>File cache</td><td>The answer is saved in <code>data/processed/api_cache/</code>, keyed by the exact request. The same range is never requested twice.</td><td>Speed, and being kind to the provider (they encourage caching).</td></tr>
+<tr><td>Provenance fields</td><td>Endpoint (secrets masked), retrieval time, HTTP status, cache key are attached to every result.</td><td>Traceability: you can always say where a USD value came from.</td></tr>
+</table>
+<p>The retry behaviour was shown against a host that does not exist (a real client, an unreachable server; <i>not</i> a fake API):</p>
+<pre class="real"><span class="tag real">real output &middot; docs/evidence/02_api/api_retry_backoff_simulated.txt</span>
+WARNING API attempt 1 failed: ConnectionError
+WARNING Retrying in 1.0s (attempt 1 of 2)
+WARNING API attempt 2 failed: ConnectionError
+WARNING Retrying in 2.0s (attempt 2 of 2)
+WARNING API attempt 3 failed: ConnectionError
+RESULT   : request failed after retries: API failed after 3 attempts: ConnectionError</pre>
+
+<h2>6.4 How a USD value is attached (<code>src/api/enrich.py</code>)</h2>
+<ol>
+<li>The lookup key is the purchase <b>date</b> (about 600 different dates), never one call per order. Rule 10: <i>do not call an API 99,441 times</i>.</li>
+<li>Exact date found &#8658; <code>fx_match_type = exact</code>.</li>
+<li>Weekend or holiday &#8658; use the latest earlier rate (at most 7 days back) &#8658; <code>previous_business_day</code>.</li>
+<li>No rate found &#8658; <code>api_enrichment = null</code> (counted, never hidden).</li>
+<li><code>payments_value_usd = payments_value_total &times; rate</code>, rounded to cents.</li>
+</ol>
+<p>Our example order was bought on a Sunday (2016-09-04), so it used the rate of Friday 2016-09-02 (0.30625): 136.23 BRL &times; 0.30625 = <b>41.72 USD</b>.</p>
+<table>
+<tr><th>Measured result</th><th>Value</th></tr>
+<tr><td>Requests needed for the whole dataset</td><td>1 (HTTP 200, 544 daily rates, 2016-09-04 to 2018-10-17)</td></tr>
+<tr><td>Orders that got a USD value</td><td>99,427 of 99,427 (match rate 100 %)</td></tr>
+<tr><td>Orders that used the previous business day</td><td>24,112 (weekends/holidays)</td></tr>
+<tr><td>Where the rates are stored</td><td>PostgreSQL <code>core.api_cache</code> (raw response) and <code>core.fx_rates</code> (one row per date)</td></tr>
+</table>
+<div class="box warn"><span class="t">Be honest about the USD numbers</span>
+They are <b>estimates</b>: BRL value &times; the ECB reference rate of the purchase day. Customers actually paid in BRL.</div>
