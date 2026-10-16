@@ -1,0 +1,54 @@
+<h1 style="page-break-before:avoid">StreamPulse: Summary</h1>
+<p><b>Real-Time Order Delivery Analytics &amp; Data Engineering Platform</b> (Olist Brazilian e-commerce dataset). This is a <b>historical dataset replay</b> through a streaming pipeline, not live orders.</p>
+
+<h2>1. Data flow</h2>
+<pre>Olist CSV (9 files) -> Python producer -> Kafka topic ecommerce_orders (3 partitions)
+   -> Spark Structured Streaming (Docker) -> Parquet landing layer + PostgreSQL warehouse
+   -> Streamlit dashboard (7 pages)        Frankfurter/ECB API adds BRL->USD to each order
+   Airflow runs the finite steps (9 tasks, 2 retries); reconcile.py checks every layer</pre>
+
+<h2>2. What each part does</h2>
+<table>
+<tr><th style="width:24%">Part</th><th>Role and key fact</th></tr>
+<tr><td>Dataset</td><td>Olist: 99,441 orders; orders + customers + items + payments joined with a LEFT JOIN (99,441 in, 99,441 out).</td></tr>
+<tr><td>Producer</td><td>Validates (8 rules), enriches, publishes with acks=all, idempotence, key=order_id. 99,427 valid, 14 rejected.</td></tr>
+<tr><td>API</td><td>Frankfurter (ECB rates, no key). 3 tries with 1 s / 2 s waits. 100 % of orders enriched; 24,112 used the previous business day.</td></tr>
+<tr><td>Kafka</td><td>Durable log, 3 partitions, replication 1. order_id key gives an even spread (33.4 / 33.4 / 33.2 %).</td></tr>
+<tr><td>Spark</td><td>Micro-batches every 5 s (or availableNow). Splits valid/invalid, removes in-batch duplicates, writes Parquet and upserts to PostgreSQL. Checkpoint gives crash recovery. Runs in Docker because Windows lacks winutils.</td></tr>
+<tr><td>Parquet</td><td>Append-only landing layer: 100,120 rows, 99,427 distinct.</td></tr>
+<tr><td>PostgreSQL</td><td>Deduplicated warehouse: 99,427 orders, plus reference tables and 11 analytics views.</td></tr>
+<tr><td>Airflow</td><td>Orchestrates finite tasks only; a stream never ends, so it is not a task. Real run: 9/9 success.</td></tr>
+<tr><td>Dashboard</td><td>Overview and status lights, dataset, reconciliation, quality, KPIs, API, recent records. Lights are real checks.</td></tr>
+</table>
+
+<h2>3. Reliability ideas</h2>
+<ul>
+<li><b>Dead-letter queue:</b> rejected records kept with a reason code (14 real orders: 8 delivered without a date, 6 canceled with a delivery date).</li>
+<li><b>Duplicates:</b> record_uid (one source row) and business_hash (one order). Delivery is <b>at-least-once with an idempotent sink</b>, never "exactly-once". Re-ingesting 199 messages inserted 0.</li>
+<li><b>Recovery:</b> after a safe stop with 4,995 messages unread, plus new data published while down, restart lost nothing and doubled nothing (18/18 checks).</li>
+<li><b>Reconciliation:</b> expected counts recomputed from the source; exit code 1 on an unexplained difference. Result: all differences zero or explained.</li>
+</ul>
+
+<h2>4. Key results (measured)</h2>
+<table>
+<tr><td style="width:55%">Kafka messages / Parquet rows / distinct / PostgreSQL</td><td>100,514 / 100,120 / 99,427 / 99,427</td></tr>
+<tr><td>Revenue BRL / USD estimate / average order</td><td>16,006,745 / 4,768,687 / 160.99</td></tr>
+<tr><td>Late deliveries / average delivery time</td><td>7,826 of 96,470 (8.11 %) / 12.56 days</td></tr>
+<tr><td>Tests (all passed)</td><td>unit 73, integration 18, Spark 5, Airflow 8, e2e 4</td></tr>
+</table>
+
+<h2>5. Honest limitations</h2>
+<ul>
+<li>Replay of 2016-2018 data, not live; USD values are estimates.</li>
+<li>One Kafka broker, one PostgreSQL, Spark in local mode; no monitoring or schema registry.</li>
+<li>Parquet keeps repeats; the warehouse is the deduplicated truth.</li>
+<li>The four live demos and their screenshots are <b>PENDING_HUMAN</b>: you must run them.</li>
+</ul>
+
+<h2>6. Commands to remember</h2>
+<pre>.\scripts\kafka_start.ps1           .\scripts\init_db.ps1
+$py -m src.producer.dataset_producer --limit 200
+.\scripts\run_stream.ps1 -Trigger availableNow     .\scripts\stop_stream.ps1
+$py scripts\reconcile.py            .\scripts\run_dashboard.ps1
+.\scripts\airflow_run_dag.ps1 -Dag streampulse_batch -Conf '{"limit": 300}'</pre>
+<p>Full detail: <code>docs/StreamPulse_Complete_Project_Guide.pdf</code>.</p>
